@@ -24,9 +24,10 @@ export function generateMaze(noOfRows: number, noOfColumns: number) {
   const maze: Cell[][]  = [];
   const directions = [
     { dr: -1, dc: 0, wall: "top", neighborWall: "bottom" },
-      { dr: 1, dc: 0, wall: "bottom", neighborWall: "top" }, 
-      { dr: 0, dc: 1, wall: "right", neighborWall: "left" }, 
-      { dr: 0, dc: -1, wall: "left", neighborWall: "right" }], as const;
+    { dr: 1, dc: 0, wall: "bottom", neighborWall: "top" }, 
+    { dr: 0, dc: 1, wall: "right", neighborWall: "left" }, 
+    { dr: 0, dc: -1, wall: "left", neighborWall: "right" },
+  ] as const;
 
   for (let row = 0; row < noOfRows; r++) {
     maze[row] = [];
