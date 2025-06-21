@@ -1,4 +1,4 @@
-interface Cell {
+export interface Cell {
   row: number;
   column: number;
   walls: {
@@ -11,14 +11,6 @@ interface Cell {
 }
 
 const walls = { t: "top", r: "right", b: "bottom", l: "left" } as const;
-function getDirection(wall: keyof typeof walls) {
-  return {
-    ...neighborOffsets[wall],
-    wall: walls[wall],
-    neighborWall: neighborWalls[wall],
-  };
-}
-
 const neighborWalls = {
   t: walls.b,
   r: walls.l,
@@ -38,24 +30,31 @@ const directions = [
   getDirection("l"),
 ];
 
-function shuffleDirections(array: typeof directions): typeof directions {
-  const shuffledDirections: typeof directions = [];
-  for (let i = array.length - 1; i > 0; i--) {
+function getDirection(wallLetter: keyof typeof walls) {
+  return {
+    ...neighborOffsets[wallLetter],
+    wall: walls[wallLetter],
+    neighborWall: neighborWalls[wallLetter],
+  };
+}
+
+function createShuffledDirections(array: typeof directions): typeof directions {
+  const shuffledDirections = [...array];
+  for (let i = shuffledDirections.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    shuffledDirections[i] = { ...array[j] };
-    shuffledDirections[j] = { ...array[i] };
+    [shuffledDirections[i], shuffledDirections[j]] = [
+      shuffledDirections[j],
+      shuffledDirections[i],
+    ];
   }
 
   return shuffledDirections;
 }
 
 export function generateMaze(noOfRows: number, noOfColumns: number) {
-  const visited: boolean[][] = [];
   const maze: Cell[][] = [];
-
   for (let row = 0; row < noOfRows; row++) {
     maze[row] = [];
-    visited[row] = [];
     for (let column = 0; column < noOfColumns; column++) {
       maze[row][column] = {
         row,
@@ -68,16 +67,12 @@ export function generateMaze(noOfRows: number, noOfColumns: number) {
         },
         visited: false,
       };
-      visited[row][column] = false;
     }
   }
 
   function dfs(row: number, column: number) {
     maze[row][column].visited = true;
-    visited[row][column] = true;
-
-    const shuffledDirections = shuffleDirections(directions);
-
+    const shuffledDirections = createShuffledDirections(directions);
     for (const direction of shuffledDirections) {
       const newRow = row + direction.dr;
       const newColumn = column + direction.dc;
@@ -87,9 +82,10 @@ export function generateMaze(noOfRows: number, noOfColumns: number) {
         newColumn >= 0 &&
         newColumn < noOfColumns;
 
-      if (newRowIsValid && !visited[newRow][newColumn]) {
+      if (newRowIsValid && !maze[newRow][newColumn].visited) {
         maze[row][column].walls[direction.wall] = false;
         maze[newRow][newColumn].walls[direction.neighborWall] = false;
+
         dfs(newRow, newColumn);
       }
     }
@@ -97,6 +93,7 @@ export function generateMaze(noOfRows: number, noOfColumns: number) {
 
   const startRow = 0;
   const startColumn = 0;
+  dfs(startRow, startColumn);
 
-  return dfs(startRow, startColumn);
+  return maze;
 }
