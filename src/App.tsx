@@ -1,4 +1,6 @@
 import { styleMap } from "lit/directives/style-map.js";
+import { AnnihilationArena } from "./AnnihilationArena";
+import { StrategySandbox } from "./StrategySandbox";
 
 function App() {
   const containerStyles = {
