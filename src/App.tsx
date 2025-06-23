@@ -1,16 +1,16 @@
+import { styleMap } from "lit/directives/style-map.js";
+
 function App() {
+  const containerStyles = {
+    minHeight: "100vh",
+    overflow: "auto"
+  };
+
   return () => (
     <sl-split-panel>
-      <div
-        slot="start"
-        style="height: 200px; background: var(--sl-color-neutral-50); display: flex; align-items: center; justify-content: center; overflow: hidden;"
-      >
-        Start
+      <div slot="start" $attr:style={styleMap(containerStyles)}>      dfadddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddfddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
       </div>
-      <div
-        slot="end"
-        style="height: 200px; background: var(--sl-color-neutral-50); display: flex; align-items: center; justify-content: center; overflow: hidden;"
-      >
+      <div slot="end" $attr:style={styleMap(containerStyles)}>
         End
       </div>
     </sl-split-panel>
