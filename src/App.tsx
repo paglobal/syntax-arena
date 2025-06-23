@@ -9,9 +9,11 @@ function App() {
 
   return () => (
     <sl-split-panel>
-      <div slot="start" $attr:style={styleMap(containerStyles)}>      
+      <div slot="start" $attr:style={styleMap(containerStyles)}>
+        S
       </div>
       <div slot="end" $attr:style={styleMap(containerStyles)}>
+        E
       </div>
     </sl-split-panel>
   );
