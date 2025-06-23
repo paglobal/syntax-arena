@@ -12,10 +12,10 @@ function App() {
   return () => (
     <sl-split-panel>
       <div slot="start" $attr:style={styleMap(containerStyles)}>
-        S
+        <StrategySandbox />
       </div>
       <div slot="end" $attr:style={styleMap(containerStyles)}>
-        E
+        <AnnihilationArena />
       </div>
     </sl-split-panel>
   );
