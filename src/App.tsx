@@ -1,65 +1,44 @@
 import { styleMap } from "lit/directives/style-map.js";
-import { adaptState } from "promethium-js";
+import { Cell, generateMaze } from "./generateMaze";
 
 function App() {
-  const [count, setCount] = adaptState(0);
-
-  const fontStyles = {
-    fontFamily: "sans-serif",
-  };
-
   const containerStyles = {
     width: "100vw",
     height: "100vh",
     display: "flex",
     justifyContent: "center",
-    alignItems: "center",
     flexDirection: "column",
   };
 
-  const headerStyles = {
-    marginBottom: "10px",
-  };
+  const border = "1px solid black";
+  const cellSize = "60px";
+  const gridSize = 15;
 
-  const buttonStyles = {
-    border: "2px solid black",
-    borderRadius: "5px",
+  const cellStyles = (cell: Cell) => ({
+    borderTop: cell.walls.top ? border : null,
+    borderLeft: cell.walls.left ? border : null,
+    borderBottom: cell.walls.bottom ? border : null,
+    borderRight: cell.walls.right ? border : null,
     backgroundColor: "#08759E",
-    color: "white",
-    width: "30px",
-    height: "30px",
-    cursor: "pointer",
-    fontSize: "24px",
+    width: cellSize,
+    height: cellSize,
+  });
+
+  const rowStyles = {
+    display: "flex",
   };
 
-  const textStyles = {
-    margin: "15px",
-    fontSize: "22px",
-    fontWeight: "600",
-  };
+  const maze = generateMaze(gridSize, gridSize);
 
   return () => (
     <div $attr:style={styleMap(containerStyles)}>
-      <h1 $attr:style={styleMap({ ...fontStyles, ...headerStyles })}>
-        Counter dis!
-      </h1>
-      <div>
-        <button
-          $attr:style={styleMap({ ...fontStyles, ...buttonStyles })}
-          on:click={() => setCount((count) => count - 1)}
-        >
-          -
-        </button>
-        <span $attr:style={styleMap({ ...fontStyles, ...textStyles })}>
-          {count()}
-        </span>
-        <button
-          $attr:style={styleMap({ ...fontStyles, ...buttonStyles })}
-          on:click={() => setCount((count) => count + 1)}
-        >
-          +
-        </button>
-      </div>
+      {maze.map((row) => (
+        <div $attr:style={styleMap(rowStyles)}>
+          {row.map((cell) => (
+            <div $attr:style={styleMap(cellStyles(cell))}></div>
+          ))}
+        </div>
+      ))}
     </div>
   );
 }
