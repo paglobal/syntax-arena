@@ -1,6 +1,3 @@
-import "@shoelace-style/shoelace/dist/components/alert/alert.js";
-import "@shoelace-style/shoelace/dist/components/icon/icon.js";
-
 function App() {
   return () => (
     <sl-alert bool:open>
