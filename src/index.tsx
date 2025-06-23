@@ -3,6 +3,6 @@ import App from "./App";
 import "./index.css";
 import { setBasePath } from "@shoelace-style/shoelace/dist/utilities/base-path.js";
 
-setBasePath("/path/to/shoelace/dist");
+setBasePath("/");
 
 render(<App />, document.body);
