@@ -3,7 +3,8 @@ import { styleMap } from "lit/directives/style-map.js";
 function App() {
   const containerStyles = {
     minHeight: "100vh",
-    overflow: "auto"
+    overflow: "auto",
+    padding: "1rem"
   };
 
   return () => (
