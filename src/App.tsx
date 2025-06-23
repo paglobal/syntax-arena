@@ -9,10 +9,9 @@ function App() {
 
   return () => (
     <sl-split-panel>
-      <div slot="start" $attr:style={styleMap(containerStyles)}>      dfadddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddfddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+      <div slot="start" $attr:style={styleMap(containerStyles)}>      
       </div>
       <div slot="end" $attr:style={styleMap(containerStyles)}>
-        End
       </div>
     </sl-split-panel>
   );
