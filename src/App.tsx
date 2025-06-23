@@ -1,7 +1,7 @@
 function App() {
   return () => (
     <sl-alert open>
-      <sl-icon slot="icon" name="info-circle"></sl-icon>
+      <sl-ico slot="icon" name="info-circle"></sl-ico>
       This is a standard alert. You can customize its content and even the icon.
     </sl-alert>
   );
