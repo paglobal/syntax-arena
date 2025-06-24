@@ -6,7 +6,8 @@ function App() {
   const containerStyles = {
     minHeight: "100vh",
     overflow: "auto",
-    padding: "1rem"
+    display: "grid",
+    placeItems: "center",
   };
 
   return () => (
