@@ -32,8 +32,11 @@
 
     /* JSX */
     "jsx": "react-jsx",
-    "jsxImportSource": "promethium-js/dist"
+    "jsxImportSource": "promethium-js/dist",
+
+    /* Node */
+    "composite": true,
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src"]
 }
