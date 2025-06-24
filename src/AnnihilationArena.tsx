@@ -1,5 +1,4 @@
 import { createRef, ref } from "lit/directives/ref.js";
-import { styleMap } from "lit/directives/style-map.js";
 import { adaptEffect } from "promethium-js";
 import { Application, Container } from "pixi.js";
 
@@ -12,8 +11,8 @@ export function AnnihilationArena() {
       await app.init({
         background: "#fff",
         canvas: canvasRef.value,
-        width: 800,
-        height: 800,
+        width: 600,
+        height: 600,
       });
 
       const container = new Container();
@@ -29,10 +28,5 @@ export function AnnihilationArena() {
     init();
   });
 
-  return () => (
-    <canvas
-      use:ref={ref(canvasRef)}
-      $attr:style={styleMap({ margin: "auto", text: "center" })}
-    ></canvas>
-  );
+  return () => <canvas use:ref={ref(canvasRef)}></canvas>;
 }
