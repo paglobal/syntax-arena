@@ -1,14 +1,28 @@
+import { mazeGraphics, mazeLayer } from "./maze";
 import { Application } from "pixi.js";
+import { ARENA_HEIGHT, ARENA_WIDTH } from "./constants";
+import { adaptMemo, adaptState } from "promethium-js";
+
+const [gameState, setGameState] = adaptState({ level: 1 });
+const derivedGameState = adaptMemo(() => gameState());
 
 export async function initializeGame(canvas?: HTMLCanvasElement) {
   const app = new Application();
   await app.init({
-    autoStart: false,
-    background: "#fff",
+    autoStart: true,
+    background: "#000000",
     canvas,
-    width: 800,
-    height: 800,
+    width: ARENA_WIDTH,
+    height: ARENA_HEIGHT,
   });
 
-  app.ticker.add((time) => {});
+  app.stage.addChild(mazeLayer);
+  app.stage.addChild(mazeGraphics);
+
+  app.ticker.add((ticker) => {
+    // update playerGraphics
+    // update maze
+    // update enemy graphics
+    // update powerUp graphics
+  });
 }
