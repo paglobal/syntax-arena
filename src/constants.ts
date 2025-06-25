@@ -17,6 +17,7 @@ export const assetAliases = {
     blueEnemy: "blueEnemy",
     redEnemy: "redEnemy",
     orangeEnemy: "orangeEnemy",
+    greenEnemy: "greenEnemy",
   },
   [assetFolders.objects]: {
     powerUp: "powerUp",
