@@ -1,0 +1,6 @@
+export const ARENA_WIDTH = 600;
+export const ARENA_HEIGHT = 800;
+export const ARENA_CELL_SIZE = 40;
+export const ARENA_WALL_THICKNESS = 5;
+export const ARENA_ROW_COUNT = ARENA_HEIGHT / ARENA_CELL_SIZE;
+export const ARENA_COLUMN_COUNT = ARENA_WIDTH / ARENA_CELL_SIZE;
