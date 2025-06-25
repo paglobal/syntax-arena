@@ -2,6 +2,7 @@ import { mazeGraphics, mazeLayer } from "./maze";
 import { Application } from "pixi.js";
 import { ARENA_HEIGHT, ARENA_WIDTH } from "./constants";
 import { adaptMemo, adaptState } from "promethium-js";
+import { drawPlayerGraphics } from "./player";
 
 const [gameState, setGameState] = adaptState({ level: 1 });
 const derivedGameState = adaptMemo(() => gameState());
@@ -18,6 +19,8 @@ export async function initializeGame(canvas?: HTMLCanvasElement) {
 
   app.stage.addChild(mazeLayer);
   app.stage.addChild(mazeGraphics);
+
+  drawPlayerGraphics(app.stage);
 
   app.ticker.add((ticker) => {
     // update playerGraphics
