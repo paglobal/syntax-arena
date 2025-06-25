@@ -13,6 +13,6 @@ body,
   --sl-font-sans: system-ui, san-serif;
   --sl-font-serif: system-ui, serif;
   --sl-font-mono: system-ui, monospace;
-  font-family: system-ui;
   --sl-input-focus-ring-color: var(--sl-color-primary-200);
+  font-family: system-ui;
 }
