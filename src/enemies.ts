@@ -1,26 +1,68 @@
-import { Graphics, RenderLayer } from "pixi.js";
-import { adaptState, adaptSyncEffect } from "promethium-js";
+import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
+import { adaptState, adaptSyncEffect, State, untrack } from "promethium-js";
+import {
+  ARENA_CELL_SIZE,
+  assetAliases,
+  EnemyKind,
+  MID_POINT,
+} from "./constants";
 
-const [enemiesState, setEnemiesState] = adaptState({
-  health: 100,
-  position: { x: 1, y: 1 },
-});
+const [enemiesState, setEnemiesState] = adaptState<
+  State<{
+    kind: EnemyKind;
+    position: { x: number; y: number };
+  }>[]
+>([
+  adaptState<{
+    kind: EnemyKind;
+    position: { x: number; y: number };
+  }>({ kind: "blueEnemy", position: { x: 2, y: 6 } }),
+  adaptState<{
+    kind: EnemyKind;
+    position: { x: number; y: number };
+  }>({ kind: "greenEnemy", position: { x: 7, y: 5 } }),
+  adaptState<{
+    kind: EnemyKind;
+    position: { x: number; y: number };
+  }>({ kind: "redEnemy", position: { x: 1, y: 1 } }),
+  adaptState<{
+    kind: EnemyKind;
+    position: { x: number; y: number };
+  }>({ kind: "orangeEnemy", position: { x: 1, y: 2 } }),
+  adaptState<{
+    kind: EnemyKind;
+    position: { x: number; y: number };
+  }>({ kind: "blueEnemy", position: { x: 4, y: 4 } }),
+]);
 
-export const enemiesLayer = new RenderLayer();
-const enemyGraphics = new Graphics();
-enemiesLayer.attach();
+export function drawEnemiesGraphics(stage: Container) {
+  const enemiesLayer = new RenderLayer();
+  stage.addChild(enemiesLayer);
 
-function drawPlayerGraphics() {
   adaptSyncEffect(() => {
-    enemyGraphics.clear();
-    enemyGraphics
-      .circle(100, 100, 50)
-      .fill({ color: 0xff0000 })
-      .stroke({ width: 2, color: 0x000000 });
-    enemyGraphics.pivot.set(enemyGraphics.width / 2, enemyGraphics.height / 2);
-    enemyGraphics.angle = 180;
-    enemyGraphics.alpha = 1;
+    const _enemiesState = enemiesState();
+    for (const enemyStateTuple of _enemiesState) {
+      const enemySprite = new Sprite({
+        texture: Assets.get(
+          assetAliases.characters[untrack(enemyStateTuple[0]).kind],
+        ),
+        anchor: MID_POINT,
+        pivot: MID_POINT,
+      });
+      enemiesLayer.attach(enemySprite);
+      stage.addChild(enemySprite);
+
+      adaptSyncEffect(() => {
+        const _enemyState = enemyStateTuple[0]();
+        const ratio = enemySprite.height / enemySprite.width;
+        enemySprite.position.set(
+          ARENA_CELL_SIZE * (_enemyState.position.x + MID_POINT),
+          ARENA_CELL_SIZE * (_enemyState.position.y + MID_POINT),
+        );
+        enemySprite.setSize(ARENA_CELL_SIZE, ARENA_CELL_SIZE * ratio);
+      });
+    }
   });
 }
 
-function updatePlayerState() {}
+function updateEnemiesState() {}
