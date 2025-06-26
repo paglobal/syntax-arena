@@ -8,6 +8,7 @@ function App() {
     overflow: "auto",
     display: "grid",
     placeItems: "center",
+    background: "var(--sl-color-neutral-0)",
   };
 
   return () => (
