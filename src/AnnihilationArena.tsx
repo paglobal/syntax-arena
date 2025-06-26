@@ -1,6 +1,6 @@
 import { createRef, ref } from "lit/directives/ref.js";
 import { adaptEffect } from "promethium-js";
-import { initializeGame } from "./gameLoop";
+import { initializeGame } from "./gameControl";
 
 export function AnnihilationArena() {
   const canvasRef = createRef<HTMLCanvasElement>();
