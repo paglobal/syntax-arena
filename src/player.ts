@@ -3,20 +3,18 @@ import { adaptState, adaptSyncEffect } from "promethium-js";
 import { ARENA_CELL_SIZE, assetAliases, MID_POINT } from "./constants";
 
 const [playerState, setPlayerState] = adaptState({
-  health: 100,
   position: { x: 1, y: 9 },
 });
 
 export function drawPlayerGraphics(stage: Container) {
   const playerLayer = new RenderLayer();
+  stage.addChild(playerLayer);
   const playerSprite = new Sprite({
     texture: Assets.get(assetAliases.characters.player),
     anchor: MID_POINT,
     pivot: MID_POINT,
   });
   playerLayer.attach(playerSprite);
-
-  stage.addChild(playerLayer);
   stage.addChild(playerSprite);
 
   adaptSyncEffect(() => {
@@ -27,7 +25,6 @@ export function drawPlayerGraphics(stage: Container) {
       ARENA_CELL_SIZE * (_playerState.position.y + MID_POINT),
     );
     playerSprite.setSize(ARENA_CELL_SIZE, ARENA_CELL_SIZE * ratio);
-    playerSprite.angle = 360;
   });
 }
 
