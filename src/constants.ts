@@ -9,18 +9,24 @@ export const MID_POINT = 0.5;
 export const assetFolders = {
   characters: "characters",
   objects: "objects",
-} as const;
+} as const satisfies Record<string, string>;
 
 export const assetAliases = {
-  [assetFolders.characters]: {
+  characters: {
     player: "player",
     blueEnemy: "blueEnemy",
     redEnemy: "redEnemy",
     orangeEnemy: "orangeEnemy",
     greenEnemy: "greenEnemy",
   },
-  [assetFolders.objects]: {
+  objects: {
     powerUp: "powerUp",
     key: "key",
   },
-} as const;
+} as const satisfies Record<string, Record<string, string>>;
+
+export type EnemyKind = Exclude<
+  keyof (typeof assetAliases)["characters"],
+  "player"
+>;
+
