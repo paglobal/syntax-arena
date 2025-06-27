@@ -1,3 +1,7 @@
+import { styleMap } from "lit/directives/style-map.js";
+
 export function SyntaxShard(props: { display: "inline" | "block" }) {
-  return props.display === "inline" ? <span></span> : <div></div>;
+  return () => (
+    <div $attr:style={styleMap({ display: props.display })}>Shard</div>
+  );
 }
