@@ -10,13 +10,12 @@ type Identifiers = Identifier[];
 
 type Property = { type: "Property"; key: Identifier; value: Value };
 
-type Obj = { type: "Object"; id: string; properties: Property[] };
+type Obj = { type: "Object"; properties: Property[] };
 
-type Arr = { type: "Array"; id: string; elements: Value[] };
+type Arr = { type: "Array"; elements: Value[] };
 
 type FunctionDefinition = {
   type: "FunctionDefinition";
-  id: string;
   parameters: Identifier[];
   body: (FunctionCall | Assignment)[];
   return: Value;
