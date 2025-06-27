@@ -42,11 +42,15 @@ export function drawPowerUpsGraphics(stage: Container) {
       adaptSyncEffect(() => {
         const _powerUpState = powerUpStateTuple[0]();
         const ratio = powerUpSprite.height / powerUpSprite.width;
+        const scaleFactor = 0.8;
         powerUpSprite.position.set(
           ARENA_CELL_SIZE * (_powerUpState.position.x + MID_POINT),
           ARENA_CELL_SIZE * (_powerUpState.position.y + MID_POINT),
         );
-        powerUpSprite.setSize(ARENA_CELL_SIZE, ARENA_CELL_SIZE * ratio);
+        powerUpSprite.setSize(
+          ARENA_CELL_SIZE * scaleFactor,
+          ARENA_CELL_SIZE * scaleFactor * ratio,
+        );
       });
     }
   });
