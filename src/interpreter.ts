@@ -14,17 +14,27 @@ type Obj = { type: "Object"; properties: Property[] };
 
 type Arr = { type: "Array"; elements: Value[] };
 
-type FunctionDefinition = {
-  type: "FunctionDefinition";
-  parameters: Identifier[];
-  body: (FunctionCall | Assignment)[];
-  return: Value;
-};
-
 type FunctionCall = {
   type: "FunctionCall";
-  callee: Identifier[];
+  callee: Identifiers;
   arguments: Value[];
+};
+
+type Assignment = {
+  type: "Assignment";
+  assignee: Identifiers;
+  value: Value;
+};
+
+type Statement = FunctionCall | Assignment;
+
+type CommandBlock = Statement[];
+
+type FunctionDefinition = {
+  type: "FunctionDefinition";
+  parameters: Identifiers;
+  commandBlock: CommandBlock;
+  return: Value;
 };
 
 type Value =
@@ -37,10 +47,14 @@ type Value =
   | Arr
   | FunctionDefinition;
 
-type Assignment = {
-  type: "assignment";
-  assignee: Identifiers;
-  value: Value;
-};
+type AST = CommandBlock[];
 
-type AST = { id: string; body: (FunctionCall | Assignment)[] }[];
+function interpret(commandBlock: CommandBlock) {
+  for (const statement of commandBlock) {
+    if (statement.type === "FunctionCall") {
+    } else if (statement.type === "Assignment") {
+    } else {
+      // error
+    }
+  }
+}
