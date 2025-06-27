@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css}\"",
     "dev": "vite",
     "type-check": "tsc --noEmit --watch",
     "build": "tsc && vite build",
