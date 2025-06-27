@@ -1,5 +1,5 @@
 import { styleMap } from "lit/directives/style-map.js";
-import { AnnihilationArena } from "./AnnihilationArena";
+import { Arena } from "./Arena";
 import { StrategySandbox } from "./StrategySandbox";
 
 function App() {
@@ -17,7 +17,7 @@ function App() {
         <StrategySandbox />
       </div>
       <div slot="end" $attr:style={styleMap(containerStyles)}>
-        <AnnihilationArena />
+        <Arena />
       </div>
     </sl-split-panel>
   );
