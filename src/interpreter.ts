@@ -49,10 +49,16 @@ type Value =
 
 type AST = CommandBlock[];
 
+function interpretFunctionCall(functionCall: FunctionCall) {}
+
+function interpretAssignment(assignment: Assignment) {}
+
 function interpret(commandBlock: CommandBlock) {
   for (const statement of commandBlock) {
     if (statement.type === "FunctionCall") {
+      interpretFunctionCall(statement);
     } else if (statement.type === "Assignment") {
+      interpretAssignment(statement);
     } else {
       // error
     }
