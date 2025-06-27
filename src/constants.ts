@@ -29,4 +29,3 @@ export type EnemyKind = Exclude<
   keyof (typeof assetAliases)["characters"],
   "player"
 >;
-
