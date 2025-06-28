@@ -72,11 +72,7 @@ export function assignValueToIdentifier({
     if (scope) {
       scope.set(identifierName, resolvedValue);
     } else {
-      // If not found, define it in the current execution context's scope.
-      // This implicitly handles global variable creation if in the global context.
-      context.scope.set(identifierName, resolvedValue);
-      // @error
-      // consider throwing error instead
+      throw new Error(`ReferenceError: ${identifierName} is not defined`);
     }
   } else {
     let targetObject: unknown = undefined;
