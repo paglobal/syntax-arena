@@ -1,8 +1,6 @@
 import { assignValueToIdentifier, resolveValue } from "./interpreterUtils";
 
-type ObjectOrArray = { [key: string]: unknown };
-
-type SyntaxShard<T extends string, U extends ObjectOrArray> = {
+type SyntaxShard<T extends string, U extends Record<string, unknown>> = {
   id: string;
   type: T;
 } & U;
@@ -51,22 +49,14 @@ type Statement = Definition | Assignment | Call;
 
 type Statements = SyntaxShard<"Statements", { content: Statement[] }>;
 
-type Function = {
+export type Fn = {
   type: "Function";
   parameters: Identifiers;
   body: Statements;
   return: Value;
 };
 
-export type Value =
-  | Str
-  | Num
-  | Bool
-  | Identifiers
-  | Call
-  | Obj
-  | Arr
-  | Function;
+export type Value = Str | Num | Bool | Identifiers | Call | Obj | Arr | Fn;
 
 type Values = SyntaxShard<"Values", { content: Value[] }>;
 
@@ -76,15 +66,31 @@ export type Scope = Map<string, unknown>;
 
 export type ExecutionContext = { parent?: ExecutionContext; scope: Scope };
 
-function interpretCall({
+export function interpretCall({
   call,
   context,
 }: {
   call: Call;
   context: ExecutionContext;
 }) {
-  call;
-  context;
+  const resolvedValue = resolveValue({
+    value: call.callee,
+    context,
+  });
+
+  if (typeof resolvedValue !== "function") {
+    throw new Error(
+      `TypeError: ${
+        call.callee.content[0].name || "anonymous"
+      } is not a function`,
+    );
+  }
+
+  const resolvedArgs = call.arguments.content.map((arg) =>
+    resolveValue({ value: arg, context }),
+  );
+
+  return resolvedValue(...resolvedArgs);
 }
 
 function interpretAssignment({
@@ -94,7 +100,11 @@ function interpretAssignment({
   assignment: Assignment;
   context: ExecutionContext;
 }) {
-  const resolvedValue = resolveValue({ value: assignment.value, context });
+  const resolvedValue = resolveValue({
+    value: assignment.value,
+    context,
+  });
+
   assignValueToIdentifier({
     assignee: assignment.assignee,
     resolvedValue,
@@ -109,11 +119,20 @@ function interpretDefinition({
   definition: Definition;
   context: ExecutionContext;
 }) {
-  definition;
-  context;
+  const resolvedValue = resolveValue({
+    value: definition.value,
+    context,
+  });
+
+  if (context.scope.has(definition.assignee.name)) {
+    throw new Error(
+      `SyntaxError: Identifier '${definition.assignee.name}' has already been declared`,
+    );
+  }
+  context.scope.set(definition.assignee.name, resolvedValue);
 }
 
-function interpret({
+export function interpret({
   statements,
   context,
 }: {
@@ -121,17 +140,22 @@ function interpret({
   context: ExecutionContext;
 }) {
   for (const statement of statements.content) {
-    if (statement.type === "Call") {
-      interpretCall({
-        call: statement,
-        context: context,
-      });
-    } else if (statement.type === "Assignment") {
-      interpretAssignment({ assignment: statement, context: context });
-    } else if (statement.type === "Definition") {
-      interpretDefinition({ definition: statement, context: context });
-    } else {
-      // @error
+    switch (statement.type) {
+      case "Call":
+        interpretCall({ call: statement, context });
+        break;
+      case "Assignment":
+        interpretAssignment({ assignment: statement, context });
+        break;
+      case "Definition":
+        interpretDefinition({ definition: statement, context });
+        break;
+      default:
+        // This case should ideally not be reached if the AST is well-formed and all statement types are handled.
+        throw new Error(
+          // @ts-ignore - Ignoring TypeScript error for unreachable code path, as this indicates an unexpected AST node.
+          `Unknown statement type encountered: ${statement.type}`,
+        );
     }
   }
 }
