@@ -1,66 +1,137 @@
-type Str = { type: "String"; value: string };
+import { assignValueToIdentifier, resolveValue } from "./interpreterUtils";
 
-type Num = { type: "Number"; value: number };
+type ObjectOrArray = { [key: string]: unknown };
 
-type Bool = { type: "Boolean"; value: boolean };
+type SyntaxShard<T extends string, U extends ObjectOrArray> = {
+  id: string;
+  type: T;
+} & U;
 
-type Identifier = { type: "Identifier"; name: string };
+type Str = SyntaxShard<"String", { value: string }>;
 
-type Identifiers = Identifier[];
+type Num = SyntaxShard<"Number", { value: number }>;
 
-type Property = { type: "Property"; key: Identifier; value: Value };
+type Bool = SyntaxShard<"Boolean", { value: boolean }>;
 
-type Obj = { type: "Object"; properties: Property[] };
+export type Identifier = SyntaxShard<"Identifier", { name: string }>;
 
-type Arr = { type: "Array"; elements: Value[] };
+export type Identifiers = SyntaxShard<"Identifiers", { content: Identifier[] }>;
 
-type FunctionCall = {
-  type: "FunctionCall";
-  callee: Identifiers;
-  arguments: Value[];
-};
+type Property = SyntaxShard<"Property", { key: Identifier; value: Value }>;
 
-type Assignment = {
-  type: "Assignment";
-  assignee: Identifiers;
-  value: Value;
-};
+type Obj = SyntaxShard<"Object", { properties: Property[] }>;
 
-type Statement = FunctionCall | Assignment;
+type Arr = SyntaxShard<"Array", { elements: Value[] }>;
 
-type CommandBlock = Statement[];
+type Call = SyntaxShard<
+  "Call",
+  {
+    callee: Identifiers;
+    arguments: Values;
+  }
+>;
 
-type FunctionDefinition = {
-  type: "FunctionDefinition";
+type Assignment = SyntaxShard<
+  "Assignment",
+  {
+    assignee: Identifiers;
+    value: Value;
+  }
+>;
+
+type Definition = SyntaxShard<
+  "Definition",
+  {
+    assignee: Identifier;
+    value: Value;
+  }
+>;
+
+type Statement = Definition | Assignment | Call;
+
+type Statements = SyntaxShard<"Statements", { content: Statement[] }>;
+
+type Function = {
+  type: "Function";
   parameters: Identifiers;
-  commandBlock: CommandBlock;
+  body: Statements;
   return: Value;
 };
 
-type Value =
+export type Value =
   | Str
   | Num
   | Bool
   | Identifiers
-  | FunctionCall
+  | Call
   | Obj
   | Arr
-  | FunctionDefinition;
+  | Function;
 
-type AST = CommandBlock[];
+type Values = SyntaxShard<"Values", { content: Value[] }>;
 
-function interpretFunctionCall(functionCall: FunctionCall) {}
+type AST = Statements[];
 
-function interpretAssignment(assignment: Assignment) {}
+export type Scope = Map<string, unknown>;
 
-function interpret(commandBlock: CommandBlock) {
-  for (const statement of commandBlock) {
-    if (statement.type === "FunctionCall") {
-      interpretFunctionCall(statement);
+export type ExecutionContext = { parent?: ExecutionContext; scope: Scope };
+
+function interpretCall({
+  call,
+  context,
+}: {
+  call: Call;
+  context: ExecutionContext;
+}) {
+  call;
+  context;
+}
+
+function interpretAssignment({
+  assignment,
+  context,
+}: {
+  assignment: Assignment;
+  context: ExecutionContext;
+}) {
+  const resolvedValue = resolveValue({ value: assignment.value, context });
+  assignValueToIdentifier({
+    assignee: assignment.assignee,
+    resolvedValue,
+    context,
+  });
+}
+
+function interpretDefinition({
+  definition,
+  context,
+}: {
+  definition: Definition;
+  context: ExecutionContext;
+}) {
+  definition;
+  context;
+}
+
+function interpret({
+  statements,
+  context,
+}: {
+  statements: Statements;
+  context: ExecutionContext;
+}) {
+  for (const statement of statements.content) {
+    if (statement.type === "Call") {
+      interpretCall({
+        call: statement,
+        context: context,
+      });
     } else if (statement.type === "Assignment") {
-      interpretAssignment(statement);
+      interpretAssignment({ assignment: statement, context: context });
+    } else if (statement.type === "Definition") {
+      interpretDefinition({ definition: statement, context: context });
     } else {
-      // error
+      // @error
     }
   }
 }
