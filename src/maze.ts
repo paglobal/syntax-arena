@@ -9,7 +9,10 @@ import {
 import { generateMaze } from "./mazeUtils";
 
 const [mazeState, setMazeState] = adaptState(() => ({
-  maze: generateMaze(ARENA_ROW_COUNT, ARENA_COLUMN_COUNT),
+  maze: generateMaze({
+    noOfRows: ARENA_ROW_COUNT,
+    noOfColumns: ARENA_COLUMN_COUNT,
+  }),
 }));
 
 export const mazeLayer = new RenderLayer();
