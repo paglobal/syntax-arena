@@ -1,8 +1,10 @@
 import {
   ExecutionContext,
+  Fn,
   Identifier,
   Identifiers,
-  Scope,
+  interpret,
+  interpretCall,
   Value,
 } from "./interpreter";
 
@@ -13,35 +15,36 @@ export function findScopeForIdentifier({
   identifier: Identifier;
   context: ExecutionContext;
 }) {
-  identifier;
-  context;
+  let currentContext: ExecutionContext | undefined = context;
+  while (currentContext) {
+    if (currentContext.scope.has(identifier.name)) {
+      return currentContext.scope;
+    }
+    currentContext = currentContext.parent;
+  }
+
+  return undefined;
 }
 
-export function resolveReference({
-  identifiersContent,
+export function resolveIdentifierValue({
+  identifier,
   context,
 }: {
-  identifiersContent: Identifiers["content"];
+  identifier: Identifier;
   context: ExecutionContext;
-}) {
-  identifiersContent;
-  context;
-}
-
-export function resolveValue({
-  value,
-  context,
-}: {
-  value: Value;
-  context: ExecutionContext;
-}) {
-  value;
-  context;
+}): unknown {
+  const scope = findScopeForIdentifier({ identifier, context });
+  if (scope) {
+    // If the scope containing the identifier is found, return the value associated with it.
+    return scope.get(identifier.name);
+  }
+  // If the identifier is not found in any scope, throw a ReferenceError, similar to JavaScript.
+  throw new Error(`ReferenceError: ${identifier.name} is not defined`);
 }
 
 export function createExecutionContext(parentContext: ExecutionContext) {
   const newContext: ExecutionContext = {
-    scope: new Map<string, Value>(),
+    scope: new Map(),
     parent: parentContext,
   };
 
@@ -57,7 +60,139 @@ export function assignValueToIdentifier({
   resolvedValue: unknown;
   context: ExecutionContext;
 }) {
-  assignee;
-  resolvedValue;
-  context;
+  const identifiers = assignee.content;
+
+  if (identifiers.length === 1) {
+    const identifierName = identifiers[0].name;
+    const scope = findScopeForIdentifier({
+      identifier: identifiers[0],
+      context,
+    });
+
+    if (scope) {
+      scope.set(identifierName, resolvedValue);
+    } else {
+      // If not found, define it in the current execution context's scope.
+      // This implicitly handles global variable creation if in the global context.
+      context.scope.set(identifierName, resolvedValue);
+      // @error
+      // consider throwing error instead
+    }
+  } else {
+    let targetObject: unknown = undefined;
+    let propertyToAssign: string | undefined;
+
+    const baseIdentifier = identifiers[0];
+    targetObject = resolveIdentifierValue({
+      identifier: baseIdentifier,
+      context,
+    });
+
+    if (typeof targetObject !== "object" || targetObject === null) {
+      throw new Error(
+        `TypeError: Cannot set properties of non-object (or null) '${baseIdentifier.name}'`,
+      );
+    }
+
+    // Traverse the property chain to find the actual object to modify and the property name.
+    for (let i = 1; i < identifiers.length; i++) {
+      const currentIdentifier = identifiers[i];
+      propertyToAssign = currentIdentifier.name;
+
+      if (i < identifiers.length - 1) {
+        if (!(propertyToAssign in (targetObject as Record<string, unknown>))) {
+          throw new Error(
+            `TypeError: Cannot access property '${propertyToAssign}' of undefined or null object`,
+          );
+        }
+        targetObject = (targetObject as Record<string, unknown>)[
+          propertyToAssign
+        ];
+      }
+    }
+
+    if (propertyToAssign) {
+      (targetObject as Record<string, unknown>)[propertyToAssign] =
+        resolvedValue;
+    } else {
+      // This error should ideally be caught by the intermediate checks, but serves as a fallback.
+      throw new Error(
+        `TypeError: Cannot assign to property '${propertyToAssign}' of non-object or null`,
+      );
+    }
+  }
+}
+
+export function resolveValue({
+  value,
+  context,
+}: {
+  value: Value;
+  context: ExecutionContext;
+}): unknown {
+  switch (value.type) {
+    case "String":
+    case "Number":
+    case "Boolean":
+      return value.value;
+    case "Identifiers":
+      let resolved: unknown = undefined;
+      const identifiers = value.content;
+
+      if (identifiers.length === 0) {
+        throw new Error("SyntaxError: Empty identifier list encountered.");
+      }
+
+      resolved = resolveIdentifierValue({
+        identifier: identifiers[0],
+        context,
+      });
+
+      for (let i = 1; i < identifiers.length; i++) {
+        const propName = identifiers[i].name;
+        // check for null because it also passes off as an object when using typeof
+        if (typeof resolved === "object" && resolved !== null) {
+          resolved = (resolved as Record<string, unknown>)[propName];
+        } else {
+          throw new Error(
+            `TypeError: Cannot read properties of undefined or null (reading '${propName}')`,
+          );
+        }
+      }
+
+      return resolved;
+    case "Call":
+      return interpretCall({ call: value, context });
+    case "Object":
+      const obj: Record<string, unknown> = {};
+      for (const prop of value.properties) {
+        obj[prop.key.name] = resolveValue({ value: prop.value, context });
+      }
+
+      return obj;
+    case "Array":
+      const arr: unknown[] = [];
+      for (const element of value.elements) {
+        arr.push(resolveValue({ value: element, context }));
+      }
+
+      return arr;
+    case "Function":
+      function fn(...args: any[]) {
+        const fnValue = value as Fn;
+        const newContext = createExecutionContext(context);
+
+        fnValue.parameters.content.forEach((param, index) => {
+          newContext.scope.set(param.name, args[index]);
+        });
+        interpret({ statements: fnValue.body, context: newContext });
+
+        return resolveValue({ value: fnValue.return, context: newContext });
+      }
+
+      return fn;
+    default:
+      // @ts-ignore - This case should ideally not be reachable with a well-defined AST and complete handling.
+      throw new Error(`Unknown value type encountered: ${value.type}`);
+  }
 }
