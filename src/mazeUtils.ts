@@ -57,7 +57,13 @@ function createShuffledDirections(array: typeof directions): typeof directions {
   return shuffledDirections;
 }
 
-export function generateMaze(noOfRows: number, noOfColumns: number) {
+export function generateMaze({
+  noOfRows,
+  noOfColumns,
+}: {
+  noOfRows: number;
+  noOfColumns: number;
+}) {
   const maze: Maze = [];
 
   for (let row = 0; row < noOfRows; row++) {
@@ -78,7 +84,7 @@ export function generateMaze(noOfRows: number, noOfColumns: number) {
     }
   }
 
-  function dfs(row: number, column: number) {
+  function dfs({ row, column }: { row: number; column: number }) {
     maze[row][column].visited = true;
 
     const shuffledDirections = createShuffledDirections(directions);
@@ -96,7 +102,7 @@ export function generateMaze(noOfRows: number, noOfColumns: number) {
         maze[row][column].walls[direction.wall] = null;
         maze[newRow][newColumn].walls[direction.neighborWall] = null;
 
-        dfs(newRow, newColumn);
+        dfs({ row: newRow, column: newColumn });
       }
     }
   }
@@ -104,7 +110,7 @@ export function generateMaze(noOfRows: number, noOfColumns: number) {
   const startRow = 0;
   const startColumn = 0;
 
-  dfs(startRow, startColumn);
+  dfs({ row: startRow, column: startColumn });
 
   return maze;
 }
