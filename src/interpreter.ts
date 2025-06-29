@@ -1,53 +1,68 @@
 import { assignValueToIdentifier, resolveValue } from "./interpreterUtils";
 
-type SyntaxShard<T extends string, U extends Record<string, unknown>> = {
+export type CreateSyntaxShard<
+  T extends string,
+  U extends Record<string, unknown>,
+> = {
   id: string;
   type: T;
 } & U;
 
-type Str = SyntaxShard<"String", { value: string }>;
+export type Str = CreateSyntaxShard<"String", { value: string }>;
 
-type Num = SyntaxShard<"Number", { value: number }>;
+export type Num = CreateSyntaxShard<"Number", { value: number }>;
 
-type Bool = SyntaxShard<"Boolean", { value: boolean }>;
+export type Bool = CreateSyntaxShard<"Boolean", { value: boolean }>;
 
-export type Identifier = SyntaxShard<"Identifier", { name: string }>;
+export type Identifier = CreateSyntaxShard<"Identifier", { name: string }>;
 
-export type Identifiers = SyntaxShard<"Identifiers", { content: Identifier[] }>;
+export type Identifiers = CreateSyntaxShard<
+  "Identifiers",
+  { contents: Identifier[] }
+>;
 
-type Property = SyntaxShard<"Property", { key: Identifier; value: Value }>;
+export type Property = CreateSyntaxShard<
+  "Property",
+  { key: Identifier; expression: Value }
+>;
 
-type Obj = SyntaxShard<"Object", { properties: Property[] }>;
+export type Properties = CreateSyntaxShard<
+  "Properties",
+  { contents: Property[] }
+>;
 
-type Arr = SyntaxShard<"Array", { elements: Value[] }>;
+export type Values = CreateSyntaxShard<"Values", { contents: Value[] }>;
 
-type Call = SyntaxShard<
+export type Call = CreateSyntaxShard<
   "Call",
   {
-    callee: Identifiers;
+    callee: Identifiers | Fn;
     arguments: Values;
   }
 >;
 
-type Assignment = SyntaxShard<
+export type Assignment = CreateSyntaxShard<
   "Assignment",
   {
     assignee: Identifiers;
-    value: Value;
+    expression: Value;
   }
 >;
 
-type Definition = SyntaxShard<
+export type Definition = CreateSyntaxShard<
   "Definition",
   {
     assignee: Identifier;
-    value: Value;
+    expression: Value;
   }
 >;
 
-type Statement = Definition | Assignment | Call;
+export type Statement = Definition | Assignment | Call;
 
-type Statements = SyntaxShard<"Statements", { content: Statement[] }>;
+export type Statements = CreateSyntaxShard<
+  "Statements",
+  { contents: Statement[] }
+>;
 
 export type Fn = {
   type: "Function";
@@ -56,11 +71,24 @@ export type Fn = {
   return: Value;
 };
 
-export type Value = Str | Num | Bool | Identifiers | Call | Obj | Arr | Fn;
+export type Value =
+  | Str
+  | Num
+  | Bool
+  | Identifiers
+  | Call
+  | Properties
+  | Values
+  | Fn;
 
-type Values = SyntaxShard<"Values", { content: Value[] }>;
+export type SyntaxShard =
+  | Statement
+  | Value
+  | Identifier
+  | Property
+  | Statements;
 
-type AST = Statements[];
+export type Program = Statements[];
 
 export type Scope = Map<string, unknown>;
 
@@ -79,14 +107,19 @@ export function interpretCall({
   });
 
   if (typeof resolvedValue !== "function") {
-    throw new Error(
-      `TypeError: ${
-        call.callee.content[0].name || "anonymous"
-      } is not a function`,
-    );
+    switch (call.callee.type) {
+      case "Identifiers":
+        throw new Error(
+          `TypeError: ${
+            call.callee.contents[0].name || "anonymous"
+          } is not a function`,
+        );
+      case "Function":
+        throw new Error(`TypeError: "anonymous" is not a function`);
+    }
   }
 
-  const resolvedArgs = call.arguments.content.map((arg) =>
+  const resolvedArgs = call.arguments.contents.map((arg) =>
     resolveValue({ value: arg, context }),
   );
 
@@ -101,7 +134,7 @@ function interpretAssignment({
   context: ExecutionContext;
 }) {
   const resolvedValue = resolveValue({
-    value: assignment.value,
+    value: assignment.expression,
     context,
   });
 
@@ -120,7 +153,7 @@ function interpretDefinition({
   context: ExecutionContext;
 }) {
   const resolvedValue = resolveValue({
-    value: definition.value,
+    value: definition.expression,
     context,
   });
 
@@ -139,7 +172,7 @@ export function interpret({
   statements: Statements;
   context: ExecutionContext;
 }) {
-  for (const statement of statements.content) {
+  for (const statement of statements.contents) {
     switch (statement.type) {
       case "Call":
         interpretCall({ call: statement, context });
