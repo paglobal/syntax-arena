@@ -60,7 +60,7 @@ export function assignValueToIdentifier({
   resolvedValue: unknown;
   context: ExecutionContext;
 }) {
-  const identifiers = assignee.content;
+  const identifiers = assignee.contents;
 
   if (identifiers.length === 1) {
     const identifierName = identifiers[0].name;
@@ -133,7 +133,7 @@ export function resolveValue({
       return value.value;
     case "Identifiers":
       let resolved: unknown = undefined;
-      const identifiers = value.content;
+      const identifiers = value.contents;
 
       if (identifiers.length === 0) {
         throw new Error("SyntaxError: Empty identifier list encountered.");
@@ -159,16 +159,16 @@ export function resolveValue({
       return resolved;
     case "Call":
       return interpretCall({ call: value, context });
-    case "Object":
+    case "Properties":
       const obj: Record<string, unknown> = {};
-      for (const prop of value.properties) {
-        obj[prop.key.name] = resolveValue({ value: prop.value, context });
+      for (const prop of value.contents) {
+        obj[prop.key.name] = resolveValue({ value: prop.expression, context });
       }
 
       return obj;
-    case "Array":
+    case "Values":
       const arr: unknown[] = [];
-      for (const element of value.elements) {
+      for (const element of value.contents) {
         arr.push(resolveValue({ value: element, context }));
       }
 
@@ -178,7 +178,7 @@ export function resolveValue({
         const fnValue = value as Fn;
         const newContext = createExecutionContext(context);
 
-        fnValue.parameters.content.forEach((param, index) => {
+        fnValue.parameters.contents.forEach((param, index) => {
           newContext.scope.set(param.name, args[index]);
         });
         interpret({ statements: fnValue.body, context: newContext });
