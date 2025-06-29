@@ -1,10 +1,11 @@
-import { SyntaxShard } from "./SyntaxShard";
+import { SyntaxShardView } from "./SyntaxShardView";
+import { currentCommandBlock } from "./orchestrator";
 
 export function CommandForge() {
   return () => (
-    <div>
-      <SyntaxShard display="inline"></SyntaxShard>
-      <SyntaxShard display="inline"></SyntaxShard>
-    </div>
+    <SyntaxShardView
+      name="CommandForge - Statements"
+      syntaxShard={currentCommandBlock()}
+    ></SyntaxShardView>
   );
 }
