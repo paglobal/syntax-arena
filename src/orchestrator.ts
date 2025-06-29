@@ -7,9 +7,20 @@ import { getCSSVariable } from "./renderUtils";
 import { drawEnemiesGraphics } from "./enemies";
 import { drawKeysGraphics } from "./keys";
 import { drawPowerUpsGraphics } from "./powerUps";
+import { Program } from "./interpreter";
 
-const [gameControlState, setGameControlState] = adaptState({ level: 1 });
-const derivedGameState = adaptMemo(() => ({ state: gameControlState() }));
+const [orchestratorState, setOrchestratorState] = adaptState<{
+  level: number;
+  currentStatementsIndex: number;
+}>({ level: 1, currentStatementsIndex: 0 });
+
+const [program, setProgram] = adaptState<Program>([
+  { id: crypto.randomUUID(), type: "Statements", contents: [] },
+]);
+
+export const currentStatements = adaptMemo(() => {
+  return program()[orchestratorState().currentStatementsIndex];
+});
 
 export async function initializeGame(canvas?: HTMLCanvasElement) {
   const app = new Application();
