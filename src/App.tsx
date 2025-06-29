@@ -2,13 +2,14 @@ import { styleMap } from "lit/directives/style-map.js";
 import { Arena } from "./Arena";
 import { StrategySandbox } from "./StrategySandbox";
 
-function App() {
+export function App() {
   const containerStyles = {
-    minHeight: "100vh",
+    height: "100vh",
     overflow: "auto",
     display: "grid",
     placeItems: "center",
     background: "var(--sl-color-neutral-0)",
+    padding: "1rem",
   };
 
   return () => (
@@ -22,5 +23,3 @@ function App() {
     </sl-split-panel>
   );
 }
-
-export default App;
