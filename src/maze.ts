@@ -56,5 +56,3 @@ function drawMazeGraphics() {
 }
 
 drawMazeGraphics();
-
-function updateMazeState() {}
