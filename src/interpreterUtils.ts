@@ -35,10 +35,8 @@ export function resolveIdentifierValue({
 }): unknown {
   const scope = findScopeForIdentifier({ identifier, context });
   if (scope) {
-    // If the scope containing the identifier is found, return the value associated with it.
     return scope.get(identifier.name);
   }
-  // If the identifier is not found in any scope, throw a ReferenceError, similar to JavaScript.
   throw new Error(`ReferenceError: ${identifier.name} is not defined`);
 }
 
@@ -130,6 +128,7 @@ export function resolveValue({
     case "String":
     case "Number":
     case "Boolean":
+    case "Null":
       return value.value;
     case "Identifiers":
       let resolved: unknown = undefined;
