@@ -2,7 +2,7 @@ import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
 import { adaptState, adaptSyncEffect, State } from "promethium-js";
 import { ARENA_CELL_SIZE, assetAliases, MID_POINT } from "./constants";
 
-const [powerUpsState, powerUpsKeysState] = adaptState<
+const [powerUpsState] = adaptState<
   State<{
     position: { x: number; y: number };
   }>[]
@@ -55,5 +55,3 @@ export function drawPowerUpsGraphics(stage: Container) {
     }
   });
 }
-
-function updateKeysState() {}
