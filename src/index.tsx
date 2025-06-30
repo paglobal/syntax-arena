@@ -22,7 +22,9 @@ async function loadAssetBundle(folder: AssetFolder) {
   await Assets.loadBundle(folder);
 }
 
-await loadAssetBundle(assetFolders.characters);
-await loadAssetBundle(assetFolders.objects);
+(async () => {
+  await loadAssetBundle(assetFolders.characters);
+  await loadAssetBundle(assetFolders.objects);
 
-render(<App />, document.body);
+  render(<App />, document.body);
+})();
