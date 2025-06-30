@@ -17,7 +17,7 @@ export const [orchestratorState, setOrchestratorState] = adaptState({
   playing: false,
 });
 
-const [program, setProgram] = adaptState<Program>([
+const [program] = adaptState<Program>([
   programUtils.generateStatements(),
 ]);
 
