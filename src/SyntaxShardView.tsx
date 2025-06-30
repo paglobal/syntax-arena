@@ -17,7 +17,7 @@ export function SyntaxShardView(props: {
         ></SyntaxShardView>
         <SyntaxShardView
           name={`Arguments - ${props.syntaxShard.arguments.type}`}
-          syntaxShard={props.syntaxShard.callee}
+          syntaxShard={props.syntaxShard.arguments}
         ></SyntaxShardView>
       </NamedContainer>
     ) : props.syntaxShard.type === "Assignment" ? (
@@ -76,37 +76,25 @@ export function SyntaxShardView(props: {
         ></SyntaxShardView>
       </NamedContainer>
     ) : props.syntaxShard.type === "Properties" ? (
-      <NamedContainer
-        display="block"
-        name={props.name ?? props.syntaxShard.type}
-      >
+      <NamedContainer name={props.name ?? props.syntaxShard.type}>
         {props.syntaxShard.contents.map((property) => (
           <SyntaxShardView syntaxShard={property}></SyntaxShardView>
         ))}
       </NamedContainer>
     ) : props.syntaxShard.type === "Values" ? (
-      <NamedContainer
-        display="block"
-        name={props.name ?? props.syntaxShard.type}
-      >
+      <NamedContainer name={props.name ?? props.syntaxShard.type}>
         {props.syntaxShard.contents.map((value) => (
           <SyntaxShardView syntaxShard={value}></SyntaxShardView>
         ))}
       </NamedContainer>
     ) : props.syntaxShard.type === "Identifiers" ? (
-      <NamedContainer
-        display="block"
-        name={props.name ?? props.syntaxShard.type}
-      >
+      <NamedContainer name={props.name ?? props.syntaxShard.type}>
         {props.syntaxShard.contents.map((identifier) => (
           <SyntaxShardView syntaxShard={identifier}></SyntaxShardView>
         ))}
       </NamedContainer>
     ) : props.syntaxShard.type === "Property" ? (
-      <NamedContainer
-        display="block"
-        name={props.name ?? props.syntaxShard.type}
-      >
+      <NamedContainer name={props.name ?? props.syntaxShard.type}>
         <SyntaxShardView
           name={props.name ?? `Key - ${props.syntaxShard.key.type}`}
           syntaxShard={props.syntaxShard.key}
@@ -119,17 +107,11 @@ export function SyntaxShardView(props: {
         ></SyntaxShardView>
       </NamedContainer>
     ) : props.syntaxShard.type === "Identifier" ? (
-      <NamedContainer
-        display="block"
-        name={props.name ?? props.syntaxShard.type}
-      >
+      <NamedContainer name={props.name ?? props.syntaxShard.type}>
         {props.syntaxShard.name}
       </NamedContainer>
     ) : (
-      <NamedContainer
-        display="block"
-        name={props.name ?? props.syntaxShard.type}
-      >
+      <NamedContainer name={props.name ?? props.syntaxShard.type}>
         {props.syntaxShard.value}
       </NamedContainer>
     );
