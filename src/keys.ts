@@ -55,5 +55,3 @@ export function drawKeysGraphics(stage: Container) {
     }
   });
 }
-
-function updateKeysState() {}
