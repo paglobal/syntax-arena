@@ -14,6 +14,8 @@ export type Num = CreateSyntaxShard<"Number", { value: number }>;
 
 export type Bool = CreateSyntaxShard<"Boolean", { value: boolean }>;
 
+export type Null = CreateSyntaxShard<"Null", { value: null }>;
+
 export type Identifier = CreateSyntaxShard<"Identifier", { name: string }>;
 
 export type Identifiers = CreateSyntaxShard<
@@ -64,17 +66,20 @@ export type Statements = CreateSyntaxShard<
   { contents: Statement[] }
 >;
 
-export type Fn = {
-  type: "Function";
-  parameters: Identifiers;
-  body: Statements;
-  return: Value;
-};
+export type Fn = CreateSyntaxShard<
+  "Function",
+  {
+    parameters: Identifiers;
+    body: Statements;
+    return: Value;
+  }
+>;
 
 export type Value =
   | Str
   | Num
   | Bool
+  | Null
   | Identifiers
   | Call
   | Properties
