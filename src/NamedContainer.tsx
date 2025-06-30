@@ -2,12 +2,12 @@ import { css, unsafeCSS } from "lit";
 import { PromethiumNode, styles } from "promethium-js";
 
 export function NamedContainer(props: {
-  display: "inline-block" | "block";
-  displayMutable?: boolean;
+  display?: "inline-block" | "block";
   name: string;
   nameMutable?: boolean;
   minimalPadding?: boolean;
   children: PromethiumNode;
+  minWidth?: string;
 }) {
   const accentColor = props.nameMutable
     ? "var(--sl-color-neutral-1000)"
@@ -15,13 +15,13 @@ export function NamedContainer(props: {
 
   const namedContainerStyles = css`
     ${styles.scope} {
-      display: ${unsafeCSS(props.display)};
+      display: ${unsafeCSS(props.display ?? "inline-block")};
       position: relative;
       border: 0.15rem solid ${unsafeCSS(accentColor)};
       border-radius: 0.5rem;
       padding: ${unsafeCSS(props.minimalPadding ? "0.25rem 0.5rem" : "0.5rem")};
       margin: 0.5rem;
-      min-width: max-content;
+      min-width: ${unsafeCSS(props.minWidth ?? "5rem")};
     }
 
     ${styles.scope}::before {
