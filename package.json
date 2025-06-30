@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@shoelace-style/shoelace": "^2.20.1",
+    "hotkeys-js": "^3.13.14",
     "lit": "^3.1.4",
     "pixi.js": "^8.10.1",
     "promethium-js": "^0.16.1"
