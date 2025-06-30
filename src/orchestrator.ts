@@ -59,7 +59,7 @@ export async function initializeGame(canvas?: HTMLCanvasElement) {
 
   initializeKeybindings();
 
-  app.ticker.add((ticker) => {
+  app.ticker.add(() => {
     // update playerGraphics
     // update maze
     // update enemy graphics
