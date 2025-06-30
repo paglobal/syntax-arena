@@ -7,7 +7,7 @@ import {
   MID_POINT,
 } from "./constants";
 
-const [enemiesState, setEnemiesState] = adaptState<
+const [enemiesState] = adaptState<
   State<{
     kind: EnemyKind;
     position: { x: number; y: number };
