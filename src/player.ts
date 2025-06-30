@@ -2,7 +2,7 @@ import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
 import { adaptState, adaptSyncEffect } from "promethium-js";
 import { ARENA_CELL_SIZE, assetAliases, MID_POINT } from "./constants";
 
-const [playerState, setPlayerState] = adaptState({
+const [playerState] = adaptState({
   position: { x: 1, y: 9 },
 });
 
@@ -27,5 +27,3 @@ export function drawPlayerGraphics(stage: Container) {
     playerSprite.setSize(ARENA_CELL_SIZE, ARENA_CELL_SIZE * ratio);
   });
 }
-
-function updatePlayerState() {}
