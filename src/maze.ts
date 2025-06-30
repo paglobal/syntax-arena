@@ -8,7 +8,7 @@ import {
 } from "./constants";
 import { generateMaze } from "./mazeUtils";
 
-const [mazeState, setMazeState] = adaptState(() => ({
+const [mazeState] = adaptState(() => ({
   maze: generateMaze({
     noOfRows: ARENA_ROW_COUNT,
     noOfColumns: ARENA_COLUMN_COUNT,
