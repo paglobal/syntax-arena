@@ -93,6 +93,8 @@ export type SyntaxShard =
   | Property
   | Statements;
 
+export type ShardGroup = Identifiers | Properties | Statements | Statements;
+
 export type Program = Statements[];
 
 export type Scope = Map<string, unknown>;
@@ -181,12 +183,15 @@ export function interpret({
     switch (statement.type) {
       case "Call":
         interpretCall({ call: statement, context });
+
         break;
       case "Assignment":
         interpretAssignment({ assignment: statement, context });
+
         break;
       case "Definition":
         interpretDefinition({ definition: statement, context });
+
         break;
       default:
         // This case should ideally not be reached if the AST is well-formed and all statement types are handled.
