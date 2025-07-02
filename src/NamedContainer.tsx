@@ -3,6 +3,7 @@ import { PromethiumNode, styles } from "promethium-js";
 
 export function NamedContainer(props: {
   display?: "inline-block" | "block";
+  id: string;
   name: string;
   nameMutable?: boolean;
   minimalPadding?: boolean;
@@ -37,6 +38,10 @@ export function NamedContainer(props: {
       text-overflow: ellipsis;
     }
 
+    ${styles.scope}:focus {
+      outline: 0.15rem solid var(--sl-color-primary-800);
+    }
+
     ${styles.scope} + .spacer {
       width: 100%;
       height: 0.125rem;
@@ -45,7 +50,11 @@ export function NamedContainer(props: {
 
   return () => (
     <>
-      <div use:style={styles.inject(namedContainerStyles)}>
+      <div
+        id={props.id}
+        tabIndex={-1}
+        use:style={styles.inject(namedContainerStyles)}
+      >
         {props.children}
       </div>
       {props.display === "block" ? <div class="spacer"></div> : null}
