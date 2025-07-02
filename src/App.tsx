@@ -3,21 +3,30 @@ import { Arena } from "./Arena";
 import { StrategySandbox } from "./StrategySandbox";
 
 export function App() {
-  const containerStyles = {
-    height: "100vh",
-    overflow: "auto",
-    display: "grid",
-    placeItems: "center",
-    background: "var(--sl-color-neutral-0)",
-    padding: "1rem",
-  };
-
   return () => (
     <sl-split-panel>
-      <div slot="start" $attr:style={styleMap(containerStyles)}>
+      <div
+        slot="start"
+        $attr:style={styleMap({
+          height: "100vh",
+          overflow: "auto",
+          background: "var(--sl-color-neutral-0)",
+          padding: "1rem",
+        })}
+      >
         <StrategySandbox />
       </div>
-      <div slot="end" $attr:style={styleMap(containerStyles)}>
+      <div
+        slot="end"
+        $attr:style={styleMap({
+          height: "100vh",
+          overflow: "auto",
+          display: "grid",
+          placeItems: "center",
+          background: "var(--sl-color-neutral-0)",
+          padding: "1rem",
+        })}
+      >
         <Arena />
       </div>
     </sl-split-panel>
