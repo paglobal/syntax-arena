@@ -1,6 +1,6 @@
 import { createRef, ref } from "lit/directives/ref.js";
 import { adaptEffect } from "promethium-js";
-import { initializeGame } from "./orchestrator";
+import { initializeGame } from "./orchestrator/orchestrator";
 
 export function Arena() {
   const canvasRef = createRef<HTMLCanvasElement>();

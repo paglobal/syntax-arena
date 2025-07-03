@@ -1,18 +1,10 @@
-import {
-  ExecutionContext,
-  Fn,
-  Identifier,
-  Identifiers,
-  interpret,
-  interpretCall,
-  Value,
-} from "./interpreter";
+import { ExecutionContext, AST, interpret, interpretCall } from "./interpreter";
 
 export function findScopeForIdentifier({
   identifier,
   context,
 }: {
-  identifier: Identifier;
+  identifier: AST.Identifier;
   context: ExecutionContext;
 }) {
   let currentContext: ExecutionContext | undefined = context;
@@ -30,7 +22,7 @@ export function resolveIdentifierValue({
   identifier,
   context,
 }: {
-  identifier: Identifier;
+  identifier: AST.Identifier;
   context: ExecutionContext;
 }): unknown {
   const scope = findScopeForIdentifier({ identifier, context });
@@ -54,7 +46,7 @@ export function assignValueToIdentifier({
   resolvedValue,
   context,
 }: {
-  assignee: Identifiers;
+  assignee: AST.Identifiers;
   resolvedValue: unknown;
   context: ExecutionContext;
 }) {
@@ -121,7 +113,7 @@ export function resolveValue({
   value,
   context,
 }: {
-  value: Value;
+  value: AST.Value;
   context: ExecutionContext;
 }): unknown {
   switch (value.type) {
@@ -174,7 +166,7 @@ export function resolveValue({
       return arr;
     case "Function":
       function fn(...args: any[]) {
-        const fnValue = value as Fn;
+        const fnValue = value as AST.Function;
         const newContext = createExecutionContext(context);
 
         fnValue.parameters.contents.forEach((param, index) => {
