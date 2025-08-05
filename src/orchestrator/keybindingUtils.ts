@@ -1,5 +1,5 @@
 import { imperativeUpdate } from "promethium-js";
-import { AST } from "@/interpreter";
+import { AST, interpret, Scope } from "@/interpreter";
 import {
   focusedShardImmediateChild,
   focusedShardSibling,
@@ -17,6 +17,13 @@ export const keybindingUtils = {
       ..._orchestratorState,
       focusedShard: focusedShardSibling("next"),
     });
+    const viewportHeight = window.innerHeight;
+    const elem = document.getElementById(orchestratorState().focusedShard.id);
+    const elemHeight = elem?.getBoundingClientRect().height;
+
+    const block = elemHeight && elemHeight > viewportHeight ? "end" : "start";
+
+    elem?.scrollIntoView({ block, behavior: "smooth" });
   },
   focusPreviousSiblingShard() {
     const _orchestratorState = orchestratorState();
@@ -24,6 +31,13 @@ export const keybindingUtils = {
       ..._orchestratorState,
       focusedShard: focusedShardSibling("previous"),
     });
+    const viewportHeight = window.innerHeight;
+    const elem = document.getElementById(orchestratorState().focusedShard.id);
+    const elemHeight = elem?.getBoundingClientRect().height;
+
+    const block = elemHeight && elemHeight > viewportHeight ? "start" : "end";
+
+    elem?.scrollIntoView({ block, behavior: "smooth" });
   },
   enterFocusedShard() {
     const focusedShard = orchestratorState().focusedShard;
@@ -111,8 +125,8 @@ export const keybindingUtils = {
 
     // we shouldn't even reach the point where the focused shard is the program anyways
     if (
-      focusedShard.parent?.type === "Program" ||
-      focusedShard.type === "Program"
+      focusedShard.parent === null ||
+      focusedShard.parent.type === "Program"
     ) {
       return;
     }
@@ -177,8 +191,8 @@ export const keybindingUtils = {
 
     // we shouldn't even reach the point where the focused shard is the program anyways
     if (
-      focusedShard.parent?.type === "Program" ||
-      focusedShard.type === "Program"
+      focusedShard.parent === null ||
+      focusedShard.parent.type === "Program"
     ) {
       return;
     }
@@ -233,8 +247,8 @@ export const keybindingUtils = {
 
     // we shouldn't even reach the point where the focused shard is the program anyways
     if (
-      focusedShard.parent?.type === "Program" ||
-      focusedShard.type === "Program"
+      focusedShard.parent === null ||
+      focusedShard.parent.type === "Program"
     ) {
       return;
     }
@@ -272,17 +286,16 @@ export const keybindingUtils = {
   },
   toggleFocusedShardDisplayStyle() {
     const _orchestratorState = orchestratorState();
-    // TODO: add check for program and program children
-    setOrchestratorState({
-      ..._orchestratorState,
-      focusedShard: {
-        ..._orchestratorState.focusedShard,
-        display:
-          _orchestratorState.focusedShard.display === "block"
-            ? "inline-block"
-            : "block",
-      },
-    });
+    if (
+      _orchestratorState.focusedShard.parent !== null &&
+      _orchestratorState.focusedShard.parent.type !== "Program"
+    ) {
+      _orchestratorState.focusedShard.display =
+        _orchestratorState.focusedShard.display === "block"
+          ? "inline-block"
+          : "block";
+      setOrchestratorState(imperativeUpdate);
+    }
   },
   toggleFocusedShardType() {
     const focusedShard = orchestratorState().focusedShard;
@@ -790,6 +803,26 @@ export const keybindingUtils = {
 
     setOrchestratorState(imperativeUpdate);
   },
-  executeFocusedStatements() {},
+  executeFocusedStatements() {
+    const _orchestratorState = orchestratorState();
+    const currentStatements =
+      _orchestratorState.program.body[
+        _orchestratorState.currentStatementsIndex
+      ];
+    const scope: Scope = new Map();
+    scope.set("log", (a: string) => console.log(a));
+    scope.set("gt", function* () {
+      yield 4;
+      yield 6;
+      console.log("waddup!");
+
+      return "hey!";
+    });
+    for (const _ of interpret({
+      statements: currentStatements,
+      context: { scope },
+    })) {
+    }
+  },
   toggleGameLoopPlayingState() {},
 };

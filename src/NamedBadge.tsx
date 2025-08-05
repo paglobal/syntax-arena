@@ -3,15 +3,13 @@ import { PromethiumNode, styles } from "promethium-js";
 import { Display } from "./interpreter";
 import { styleMap } from "lit/directives/style-map.js";
 import { classMap } from "lit/directives/class-map.js";
+import { SlBadge } from "@shoelace-style/shoelace";
 
 const accentColor = "var(--sl-color-neutral-600)";
 
-const namedContainerStyles = css`
+const namedBadgeStyles = css`
   ${styles.scope} {
     position: relative;
-    border: 0.15rem solid ${unsafeCSS(accentColor)};
-    border-radius: 0.5rem;
-    padding: 0.4rem 0.5rem;
     margin: 0.5rem;
     min-width: max-content;
   }
@@ -19,7 +17,7 @@ const namedContainerStyles = css`
   ${styles.scope}::before {
     content: var(--container-name);
     position: absolute;
-    top: -1.1rem;
+    top: -0.9rem;
     white-space: nowrap;
     left: 0;
     font-size: 0.8rem;
@@ -31,6 +29,7 @@ const namedContainerStyles = css`
 
   ${styles.scope}.focused {
     outline: 0.15rem solid var(--sl-input-border-color-focus);
+    border-radius: 0.75rem;
     box-shadow: 0 0 0 0.25rem var(--sl-input-focus-ring-color);
   }
 
@@ -40,13 +39,14 @@ const namedContainerStyles = css`
   }
 `;
 
-export function NamedContainer(props: {
+export function NamedBadge(props: {
   display: Display;
   id: string;
   name: string;
   children: PromethiumNode;
   focused?: boolean;
   onClick?: (e: MouseEvent) => void;
+  variant: SlBadge["variant"];
 }) {
   const onClickListenerObject = {
     handleEvent(e: MouseEvent) {
@@ -57,10 +57,13 @@ export function NamedContainer(props: {
 
   return () => (
     <>
-      <div
+      <sl-badge
         id={props.id}
         tabIndex={0}
-        use:style={styles.inject(namedContainerStyles)}
+        variant={props.variant}
+        pill
+        pulse
+        use:style={styles.inject(namedBadgeStyles)}
         $attr:style={styleMap({
           display: props.display ?? "inline-block",
           "--container-name": `"${props.name}"`,
@@ -69,7 +72,7 @@ export function NamedContainer(props: {
         on:click={onClickListenerObject}
       >
         {props.children}
-      </div>
+      </sl-badge>
       {props.display === "block" ? <div class="spacer"></div> : null}
     </>
   );

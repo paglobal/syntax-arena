@@ -7,6 +7,7 @@ import {
   orchestratorState,
   setOrchestratorState,
 } from "./orchestrator/orchestrator";
+import { NamedContainer } from "./NamedContainer";
 
 export const forgeInputRef = createRef<SlInput>();
 
@@ -29,13 +30,13 @@ export function CommandForge() {
           on:keydown={(e) => {
             if (e.key === "Escape") {
               if (forgeInputRef.value) {
-                document.getElementById(focusedShard.id)?.focus();
+                forgeInputRef.value.blur();
                 forgeInputRef.value.value = "";
               }
             }
 
             if (e.key === "Enter") {
-              if (forgeInputRef.value?.value) {
+              if (forgeInputRef.value?.value !== undefined) {
                 if (focusedShard.type === "String") {
                   focusedShard.value = forgeInputRef.value.value;
                 } else if (focusedShard.type === "Identifier") {
@@ -48,7 +49,7 @@ export function CommandForge() {
                     forgeInputRef.value.value = "";
                   }
                 });
-                document.getElementById(focusedShard.id)?.focus();
+                forgeInputRef.value?.blur();
                 setOrchestratorState(imperativeUpdate);
               }
             }
@@ -56,10 +57,9 @@ export function CommandForge() {
           use:ref={ref(forgeInputRef)}
           $attr:style={styleMap({ marginBottom: "2rem" })}
         ></sl-input>
-        <SyntaxShard
-          name={`CommandForge - ${visibleShard.type}`}
-          syntaxShard={visibleShard}
-        ></SyntaxShard>
+        <NamedContainer id="CommandForge" name="CommandForge" display="block">
+          <SyntaxShard syntaxShard={visibleShard}></SyntaxShard>
+        </NamedContainer>
       </>
     );
   };

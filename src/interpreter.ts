@@ -1,4 +1,5 @@
 import { assignValueToIdentifier, resolveValue } from "./interpreterUtils";
+import { assertNever } from "@/utils";
 
 export type Display = "inline-block" | "block";
 
@@ -16,6 +17,12 @@ type CreateSyntaxShard<
 export type Scope = Map<string, unknown>;
 
 export type ExecutionContext = { parent?: ExecutionContext; scope: Scope };
+
+export type InterpreterGenerator<T = void> = Generator<
+  AST.SyntaxShard,
+  T,
+  unknown
+>;
 
 export namespace AST {
   export type BaseValueParent =
@@ -170,14 +177,15 @@ export namespace AST {
   >;
 }
 
-export function interpretCall({
+export function* interpretCall({
   call,
   context,
 }: {
   call: AST.Call;
   context: ExecutionContext;
-}) {
-  const resolvedValue = resolveValue({
+}): InterpreterGenerator<unknown> {
+  yield call.callee;
+  const resolvedValue = yield* resolveValue({
     value: call.callee,
     context,
   });
@@ -186,80 +194,95 @@ export function interpretCall({
     switch (call.callee.type) {
       case "Identifiers":
         throw new Error(
-          `TypeError: ${
-            call.callee.contents[0].name || "anonymous"
-          } is not a function`,
+          `${call.callee.contents[0].name || "anonymous"} is not a function`,
         );
+      // this shouldn't even be possible with the UI
       case "Function":
-        throw new Error(`TypeError: "anonymous" is not a function`);
+        throw new Error(`"anonymous" is not a function`);
+      default:
+        assertNever(call.callee);
     }
   }
 
-  const resolvedArgs = call.arguments.contents.map((arg) =>
-    resolveValue({ value: arg, context }),
-  );
+  yield call.arguments;
+  const resolvedArgs = [];
+  for (const arg of call.arguments.contents) {
+    resolvedArgs.push(yield* resolveValue({ value: arg, context }));
+  }
 
-  return resolvedValue(...resolvedArgs);
+  yield call;
+  const result = resolvedValue(...resolvedArgs);
+  if (result && typeof (result as any)[Symbol.iterator] === "function") {
+    return yield* result as any;
+  } else {
+    return result;
+  }
 }
 
-function interpretAssignment({
+function* interpretAssignment({
   assignment,
   context,
 }: {
   assignment: AST.Assignment;
   context: ExecutionContext;
-}) {
-  const resolvedValue = resolveValue({
+}): InterpreterGenerator {
+  yield assignment.expression;
+  const resolvedValue = yield* resolveValue({
     value: assignment.expression,
     context,
   });
 
-  assignValueToIdentifier({
-    assignee: assignment.assignee,
+  yield assignment.assignee;
+  yield* assignValueToIdentifier({
+    assignment: assignment,
     resolvedValue,
     context,
   });
 }
 
-function interpretDefinition({
+function* interpretDefinition({
   definition,
   context,
 }: {
   definition: AST.Definition;
   context: ExecutionContext;
-}) {
-  const resolvedValue = resolveValue({
+}): InterpreterGenerator {
+  yield definition.expression;
+  const resolvedValue = yield* resolveValue({
     value: definition.expression,
     context,
   });
 
+  yield definition.assignee;
   if (context.scope.has(definition.assignee.name)) {
     throw new Error(
-      `SyntaxError: Identifier '${definition.assignee.name}' has already been declared`,
+      `Identifier '${definition.assignee.name}' has already been declared`,
     );
   }
+
+  yield definition;
   context.scope.set(definition.assignee.name, resolvedValue);
 }
 
-export function interpret({
+export function* interpret({
   statements,
   context,
 }: {
   statements: AST.Statements;
   context: ExecutionContext;
-}) {
+}): InterpreterGenerator {
   for (const statement of statements.contents) {
     switch (statement.type) {
       case "Call":
-        interpretCall({ call: statement, context });
+        yield* interpretCall({ call: statement, context });
 
         break;
       case "Assignment":
-        interpretAssignment({ assignment: statement, context });
+        yield* interpretAssignment({ assignment: statement, context });
 
         break;
       case "Definition":
-        interpretDefinition({ definition: statement, context });
+        yield* interpretDefinition({ definition: statement, context });
 
         break;
       default:

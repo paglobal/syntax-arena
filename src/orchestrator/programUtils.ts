@@ -5,7 +5,8 @@ export const programUtils = {
     return {
       id: crypto.randomUUID(),
       parent,
-      display: "inline-block",
+      // display: "inline-block",
+      display: "block",
       type: "String",
       value,
     };
@@ -14,7 +15,8 @@ export const programUtils = {
     return {
       id: crypto.randomUUID(),
       parent,
-      display: "inline-block",
+      // display: "inline-block",
+      display: "block",
       type: "Number",
       value,
     };
@@ -26,7 +28,8 @@ export const programUtils = {
     return {
       id: crypto.randomUUID(),
       parent,
-      display: "inline-block",
+      // display: "inline-block",
+      display: "block",
       type: "Boolean",
       value,
     };
@@ -35,7 +38,8 @@ export const programUtils = {
     return {
       id: crypto.randomUUID(),
       parent,
-      display: "inline-block",
+      // display: "inline-block",
+      display: "block",
       type: "Null",
       value: null,
     };
@@ -47,7 +51,8 @@ export const programUtils = {
     return {
       id: crypto.randomUUID(),
       parent,
-      display: "inline-block",
+      // display: "inline-block",
+      display: "block",
       type: "Identifier",
       name,
     };
@@ -56,7 +61,8 @@ export const programUtils = {
     const identifiers: AST.Identifiers = {
       id: crypto.randomUUID(),
       parent,
-      display: "inline-block",
+      // display: "inline-block",
+      display: "block",
       type: "Identifiers",
       contents: [],
     };
@@ -81,7 +87,8 @@ export const programUtils = {
     const properties: AST.Properties = {
       id: crypto.randomUUID(),
       parent,
-      display: "inline-block",
+      // display: "inline-block",
+      display: "block",
       type: "Properties",
       contents: [],
     };
@@ -96,7 +103,8 @@ export const programUtils = {
     const values: AST.Values = {
       id: crypto.randomUUID(),
       parent,
-      display: "inline-block",
+      // display: "inline-block",
+      display: "block",
       type: "Values",
       contents: [],
     };
@@ -123,7 +131,8 @@ export const programUtils = {
       id: crypto.randomUUID(),
       type: "Call",
       parent,
-      display: parent.type === "Statements" ? "block" : "inline-block",
+      // display: parent.type === "Statements" ? "block" : "inline-block",
+      display: "block",
     };
     const call = baseCall as AST.Call;
     call.callee = programUtils.generateIdentifiers(call);

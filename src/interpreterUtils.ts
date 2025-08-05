@@ -1,4 +1,10 @@
-import { ExecutionContext, AST, interpret, interpretCall } from "./interpreter";
+import {
+  ExecutionContext,
+  AST,
+  interpret,
+  interpretCall,
+  InterpreterGenerator,
+} from "./interpreter";
 
 export function findScopeForIdentifier({
   identifier,
@@ -24,12 +30,13 @@ export function resolveIdentifierValue({
 }: {
   identifier: AST.Identifier;
   context: ExecutionContext;
-}): unknown {
+}) {
   const scope = findScopeForIdentifier({ identifier, context });
   if (scope) {
     return scope.get(identifier.name);
   }
-  throw new Error(`ReferenceError: ${identifier.name} is not defined`);
+
+  throw new Error(`${identifier.name} is not defined`);
 }
 
 export function createExecutionContext(parentContext: ExecutionContext) {
@@ -41,16 +48,16 @@ export function createExecutionContext(parentContext: ExecutionContext) {
   return newContext;
 }
 
-export function assignValueToIdentifier({
-  assignee,
+export function* assignValueToIdentifier({
+  assignment,
   resolvedValue,
   context,
 }: {
-  assignee: AST.Identifiers;
+  assignment: AST.Assignment;
   resolvedValue: unknown;
   context: ExecutionContext;
-}) {
-  const identifiers = assignee.contents;
+}): InterpreterGenerator {
+  const identifiers = assignment.assignee.contents;
 
   if (identifiers.length === 1) {
     const identifierName = identifiers[0].name;
@@ -60,9 +67,10 @@ export function assignValueToIdentifier({
     });
 
     if (scope) {
+      yield assignment;
       scope.set(identifierName, resolvedValue);
     } else {
-      throw new Error(`ReferenceError: ${identifierName} is not defined`);
+      throw new Error(`${identifierName} is not defined`);
     }
   } else {
     let targetObject: unknown = undefined;
@@ -76,19 +84,24 @@ export function assignValueToIdentifier({
 
     if (typeof targetObject !== "object" || targetObject === null) {
       throw new Error(
-        `TypeError: Cannot set properties of non-object (or null) '${baseIdentifier.name}'`,
+        `Cannot set properties of non-object '${baseIdentifier.name}'`,
       );
     }
 
     // Traverse the property chain to find the actual object to modify and the property name.
     for (let i = 1; i < identifiers.length; i++) {
-      const currentIdentifier = identifiers[i];
-      propertyToAssign = currentIdentifier.name;
+      propertyToAssign = identifiers[i].name;
 
       if (i < identifiers.length - 1) {
-        if (!(propertyToAssign in (targetObject as Record<string, unknown>))) {
+        if (
+          !(
+            typeof targetObject === "object" &&
+            targetObject !== null &&
+            propertyToAssign in targetObject
+          )
+        ) {
           throw new Error(
-            `TypeError: Cannot access property '${propertyToAssign}' of undefined or null object`,
+            `Cannot access property '${propertyToAssign}' of non-object`,
           );
         }
         targetObject = (targetObject as Record<string, unknown>)[
@@ -97,25 +110,31 @@ export function assignValueToIdentifier({
       }
     }
 
-    if (propertyToAssign) {
+    if (
+      typeof targetObject === "object" &&
+      targetObject !== null &&
+      propertyToAssign !== undefined
+    ) {
+      yield assignment;
       (targetObject as Record<string, unknown>)[propertyToAssign] =
         resolvedValue;
     } else {
       // This error should ideally be caught by the intermediate checks, but serves as a fallback.
       throw new Error(
-        `TypeError: Cannot assign to property '${propertyToAssign}' of non-object or null`,
+        `Cannot assign to property '${propertyToAssign}' of non-object`,
       );
     }
   }
 }
 
-export function resolveValue({
+export function* resolveValue({
   value,
   context,
 }: {
   value: AST.Value;
   context: ExecutionContext;
-}): unknown {
+}): InterpreterGenerator<unknown> {
+  yield value;
   switch (value.type) {
     case "String":
     case "Number":
@@ -126,8 +145,9 @@ export function resolveValue({
       let resolved: unknown = undefined;
       const identifiers = value.contents;
 
+      // we should ideally never encounter this because of the nature of the UI
       if (identifiers.length === 0) {
-        throw new Error("SyntaxError: Empty identifier list encountered.");
+        throw new Error("Empty identifier list encountered.");
       }
 
       resolved = resolveIdentifierValue({
@@ -142,39 +162,53 @@ export function resolveValue({
           resolved = (resolved as Record<string, unknown>)[propName];
         } else {
           throw new Error(
-            `TypeError: Cannot read properties of undefined or null (reading '${propName}')`,
+            `Cannot read properties of undefined or null (reading '${propName}')`,
           );
         }
       }
 
       return resolved;
     case "Call":
-      return interpretCall({ call: value, context });
+      return yield* interpretCall({ call: value, context });
     case "Properties":
       const obj: Record<string, unknown> = {};
       for (const prop of value.contents) {
-        obj[prop.key.name] = resolveValue({ value: prop.expression, context });
+        obj[prop.key.name] = yield* resolveValue({
+          value: prop.expression,
+          context,
+        });
       }
 
       return obj;
     case "Values":
       const arr: unknown[] = [];
       for (const element of value.contents) {
-        arr.push(resolveValue({ value: element, context }));
+        arr.push(yield* resolveValue({ value: element, context }));
       }
 
       return arr;
     case "Function":
-      function fn(...args: any[]) {
-        const fnValue = value as AST.Function;
+      function* fn(...args: any[]): InterpreterGenerator<unknown> {
+        yield value;
+        const functionShard = value as AST.Function;
         const newContext = createExecutionContext(context);
 
-        fnValue.parameters.contents.forEach((param, index) => {
+        yield functionShard.parameters;
+        functionShard.parameters.contents.forEach((param, index) => {
           newContext.scope.set(param.name, args[index]);
         });
-        interpret({ statements: fnValue.body, context: newContext });
 
-        return resolveValue({ value: fnValue.return, context: newContext });
+        yield functionShard.body;
+        yield* interpret({
+          statements: functionShard.body,
+          context: newContext,
+        });
+
+        yield functionShard.return;
+        return yield* resolveValue({
+          value: functionShard.return,
+          context: newContext,
+        });
       }
 
       return fn;

@@ -1,7 +1,7 @@
 import { mazeGraphics, mazeLayer } from "@/maze";
 import { Application } from "pixi.js";
 import { ARENA_HEIGHT, ARENA_WIDTH } from "@/constants";
-import { adaptEffect, adaptState } from "promethium-js";
+import { adaptRenderEffect, adaptState } from "promethium-js";
 import { drawPlayerGraphics } from "@/player";
 import { getCSSVariable } from "@/renderUtils";
 import { drawEnemiesGraphics } from "@/enemies";
@@ -29,21 +29,21 @@ export const [orchestratorState, setOrchestratorState] = adaptState<{
   focusedShard: initialProgram.body[0],
 });
 
-// TODO: consider experimenting with adaptRenderEffect
-adaptEffect(() => {
-  const focusedShard = orchestratorState().focusedShard;
-
-  setTimeout(() => {
-    document.getElementById(focusedShard.id)?.focus();
-  });
+adaptRenderEffect(() => {
+  // const viewportHeight = window.innerHeight;
+  // const elem = document.getElementById(orchestratorState().focusedShard.id);
+  // const elemHeight = elem?.getBoundingClientRect().height;
+  //
+  // const block = elemHeight && elemHeight > viewportHeight ? "start" : "end";
+  //
+  // elem?.parentElement?.scrollIntoView({ block, behavior: "smooth" });
 });
 
 export const focusedShardSibling = (nextOrPrevious: "next" | "previous") => {
   const focusedShard = orchestratorState().focusedShard;
 
+  // we shouldn't even get to the state where this condition is true in the first place
   if (focusedShard.parent === null) {
-    // @error;
-    // this shouldn't even happen
     return focusedShard;
   }
 
@@ -210,7 +210,7 @@ function initializeKeybindings() {
   hotkeys("a", keybindingUtils.addShardInFrontOfFocusedShardAndFocus);
   hotkeys("i", keybindingUtils.addShardBehindFocusedShardAndFocus);
   hotkeys("d", keybindingUtils.deleteFocusedShard);
-  // hotkeys("b", keybindingUtils.toggleFocusedShardDisplayStyle);
+  hotkeys("b", keybindingUtils.toggleFocusedShardDisplayStyle);
   hotkeys("t", keybindingUtils.toggleFocusedShardType);
   hotkeys("e", keybindingUtils.executeFocusedStatements);
   hotkeys("space", keybindingUtils.toggleGameLoopPlayingState);
