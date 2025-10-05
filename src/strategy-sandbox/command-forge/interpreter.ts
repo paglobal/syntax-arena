@@ -1,4 +1,4 @@
-import { assignValueToIdentifier, resolveValue } from "./interpreterUtils";
+import { assignValueToIdentifier, resolveValue } from "./interpreterUtils.ts";
 import { assertNever } from "@/utils";
 
 export type Display = "inline-block" | "block";

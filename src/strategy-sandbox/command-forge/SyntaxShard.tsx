@@ -1,11 +1,11 @@
 import { AST } from "./interpreter";
 import { NamedContainer } from "./NamedContainer";
-import { keybindingUtils } from "./orchestrator/keybindingUtils";
+import { actions } from "@/orchestrator/actions";
 import {
   orchestratorState,
   setOrchestratorState,
-} from "./orchestrator/orchestrator";
-import { assertNever } from "./utils";
+} from "@/orchestrator/orchestrator";
+import { assertNever } from "@/utils";
 import { NamedBadge } from "./NamedBadge";
 
 const emptyTextPlaceholder = <span>{"\u2205"}</span>;
@@ -19,7 +19,7 @@ export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
         case "Number":
         case "Boolean":
         case "Identifier":
-          keybindingUtils.enterFocusedShard();
+          actions.enterFocusedShard();
           break;
         case "Null":
         case "Function":

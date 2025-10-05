@@ -1,6 +1,6 @@
 import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
 import { adaptState, adaptSyncEffect, State } from "promethium-js";
-import { ARENA_CELL_SIZE, assetAliases, MID_POINT } from "./constants";
+import { ARENA_CELL_SIZE, assetAliases, MID_POINT } from "@/constants";
 
 const [powerUpsState] = adaptState<
   State<{

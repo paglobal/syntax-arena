@@ -1,4 +1,4 @@
-import { CommandForge } from "./CommandForge";
+import { CommandForge } from "./command-forge/CommandForge";
 
 export function StrategySandbox() {
   return () => <CommandForge></CommandForge>;

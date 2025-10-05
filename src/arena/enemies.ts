@@ -5,7 +5,7 @@ import {
   assetAliases,
   EnemyKind,
   MID_POINT,
-} from "./constants";
+} from "@/constants";
 
 const [enemiesState] = adaptState<
   State<{

@@ -6,7 +6,7 @@ import { imperativeUpdate } from "promethium-js";
 import {
   orchestratorState,
   setOrchestratorState,
-} from "./orchestrator/orchestrator";
+} from "@/orchestrator/orchestrator";
 import { NamedContainer } from "./NamedContainer";
 
 export const forgeInputRef = createRef<SlInput>();

@@ -1,14 +1,14 @@
-import { mazeGraphics, mazeLayer } from "@/maze";
+import { mazeGraphics, mazeLayer } from "@/arena/maze";
 import { Application } from "pixi.js";
 import { ARENA_HEIGHT, ARENA_WIDTH } from "@/constants";
 import { adaptRenderEffect, adaptState } from "promethium-js";
-import { drawPlayerGraphics } from "@/player";
-import { getCSSVariable } from "@/renderUtils";
-import { drawEnemiesGraphics } from "@/enemies";
-import { drawKeysGraphics } from "@/keys";
-import { drawPowerUpsGraphics } from "@/powerUps";
-import { AST } from "@/interpreter";
-import { keybindingUtils } from "./keybindingUtils";
+import { drawPlayerGraphics } from "@/arena/player";
+import { getCSSVariable } from "@/utils";
+import { drawEnemiesGraphics } from "@/arena/enemies";
+import { drawKeysGraphics } from "@/arena/keys";
+import { drawPowerUpsGraphics } from "@/arena/powerUps";
+import { AST } from "@/strategy-sandbox/command-forge/interpreter";
+import { actions } from "./actions";
 import hotkeys from "hotkeys-js";
 import { assertNever } from "@/utils";
 import { programUtils } from "./programUtils";
@@ -203,17 +203,17 @@ function initializeKeybindings() {
     return !(tagName == "SL-INPUT");
   };
 
-  hotkeys("h,left,esc", keybindingUtils.exitFocusedShard);
-  hotkeys("l,right,enter", keybindingUtils.enterFocusedShard);
-  hotkeys("j,down", keybindingUtils.focusNextSiblingShard);
-  hotkeys("k,up", keybindingUtils.focusPreviousSiblingShard);
-  hotkeys("a", keybindingUtils.addShardInFrontOfFocusedShardAndFocus);
-  hotkeys("i", keybindingUtils.addShardBehindFocusedShardAndFocus);
-  hotkeys("d", keybindingUtils.deleteFocusedShard);
-  hotkeys("b", keybindingUtils.toggleFocusedShardDisplayStyle);
-  hotkeys("t", keybindingUtils.toggleFocusedShardType);
-  hotkeys("e", keybindingUtils.executeFocusedStatements);
-  hotkeys("space", keybindingUtils.toggleGameLoopPlayingState);
+  hotkeys("h,left,esc", actions.exitFocusedShard);
+  hotkeys("l,right,enter", actions.enterFocusedShard);
+  hotkeys("j,down", actions.focusNextSiblingShard);
+  hotkeys("k,up", actions.focusPreviousSiblingShard);
+  hotkeys("a", actions.addShardInFrontOfFocusedShardAndFocus);
+  hotkeys("i", actions.addShardBehindFocusedShardAndFocus);
+  hotkeys("d", actions.deleteFocusedShard);
+  hotkeys("b", actions.toggleFocusedShardDisplayStyle);
+  hotkeys("t", actions.toggleFocusedShardType);
+  hotkeys("e", actions.executeFocusedStatements);
+  hotkeys("space", actions.toggleGameLoopPlayingState);
 }
 
 export async function initializeGame(canvas?: HTMLCanvasElement) {

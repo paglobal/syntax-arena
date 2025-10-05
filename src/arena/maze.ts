@@ -5,7 +5,7 @@ import {
   ARENA_COLUMN_COUNT,
   ARENA_ROW_COUNT,
   ARENA_WALL_THICKNESS,
-} from "./constants";
+} from "@/constants";
 import { generateMaze } from "./mazeUtils";
 
 const [mazeState] = adaptState(() => ({

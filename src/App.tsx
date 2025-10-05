@@ -1,6 +1,6 @@
 import { styleMap } from "lit/directives/style-map.js";
-import { Arena } from "./Arena";
-import { StrategySandbox } from "./StrategySandbox";
+import { Arena } from "./arena/Arena";
+import { StrategySandbox } from "./strategy-sandbox/StrategySandbox";
 
 export function App() {
   return () => (

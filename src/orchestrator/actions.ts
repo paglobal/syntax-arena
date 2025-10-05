@@ -1,16 +1,20 @@
 import { imperativeUpdate } from "promethium-js";
-import { AST, interpret, Scope } from "@/interpreter";
+import {
+  AST,
+  interpret,
+  Scope,
+} from "@/strategy-sandbox/command-forge/interpreter";
 import {
   focusedShardImmediateChild,
   focusedShardSibling,
   orchestratorState,
   setOrchestratorState,
 } from "./orchestrator";
-import { forgeInputRef } from "@/CommandForge";
+import { forgeInputRef } from "@/strategy-sandbox/command-forge/CommandForge";
 import { assertNever, replaceInArray } from "@/utils";
 import { programUtils } from "./programUtils";
 
-export const keybindingUtils = {
+export const actions = {
   focusNextSiblingShard() {
     const _orchestratorState = orchestratorState();
     setOrchestratorState({
@@ -173,7 +177,7 @@ export const keybindingUtils = {
     }
 
     setOrchestratorState(imperativeUpdate);
-    keybindingUtils.focusNextSiblingShard();
+    actions.focusNextSiblingShard();
   },
   addShardBehindFocusedShardAndFocus() {
     const focusedShard = orchestratorState().focusedShard;
@@ -239,7 +243,7 @@ export const keybindingUtils = {
     }
 
     setOrchestratorState(imperativeUpdate);
-    keybindingUtils.focusPreviousSiblingShard();
+    actions.focusPreviousSiblingShard();
   },
   deleteFocusedShard() {
     const focusedShard = orchestratorState().focusedShard;
@@ -271,9 +275,9 @@ export const keybindingUtils = {
         focusedShardIndex ===
         (focusedShard.parent as AST.ShardGroup).contents.length - 1
       ) {
-        keybindingUtils.focusPreviousSiblingShard();
+        actions.focusPreviousSiblingShard();
       } else {
-        keybindingUtils.focusNextSiblingShard();
+        actions.focusNextSiblingShard();
       }
 
       (focusedShard.parent as AST.ShardGroup).contents = (
