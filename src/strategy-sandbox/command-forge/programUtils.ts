@@ -1,4 +1,4 @@
-import { AST } from "@/interpreter";
+import { AST } from "./interpreter";
 
 export const programUtils = {
   generateString(parent: AST.StringParent, value: string = ""): AST.String {

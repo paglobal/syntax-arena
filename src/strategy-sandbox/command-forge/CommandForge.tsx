@@ -3,17 +3,14 @@ import { SyntaxShard } from "./SyntaxShard";
 import { createRef, ref } from "lit/directives/ref.js";
 import { SlInput } from "@shoelace-style/shoelace";
 import { imperativeUpdate } from "promethium-js";
-import {
-  orchestratorState,
-  setOrchestratorState,
-} from "@/orchestrator/orchestrator";
+import { commandForgeState, setCommandForgeState } from "./state";
 import { NamedContainer } from "./NamedContainer";
 
 export const forgeInputRef = createRef<SlInput>();
 
 export function CommandForge() {
   return () => {
-    const focusedShard = orchestratorState().focusedShard;
+    const focusedShard = commandForgeState().focusedShard;
     let visibleShard = focusedShard;
 
     if (focusedShard.parent === null) {
@@ -50,7 +47,7 @@ export function CommandForge() {
                   }
                 });
                 forgeInputRef.value?.blur();
-                setOrchestratorState(imperativeUpdate);
+                setCommandForgeState(imperativeUpdate);
               }
             }
           }}

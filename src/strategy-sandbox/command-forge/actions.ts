@@ -1,28 +1,24 @@
 import { imperativeUpdate } from "promethium-js";
-import {
-  AST,
-  interpret,
-  Scope,
-} from "@/strategy-sandbox/command-forge/interpreter";
+import { AST, interpret, Scope } from "./interpreter";
 import {
   focusedShardImmediateChild,
   focusedShardSibling,
-  orchestratorState,
-  setOrchestratorState,
-} from "./orchestrator";
-import { forgeInputRef } from "@/strategy-sandbox/command-forge/CommandForge";
+  commandForgeState,
+  setCommandForgeState,
+} from "./state";
+import { forgeInputRef } from "./CommandForge";
 import { assertNever, replaceInArray } from "@/utils";
 import { programUtils } from "./programUtils";
 
 export const actions = {
   focusNextSiblingShard() {
-    const _orchestratorState = orchestratorState();
-    setOrchestratorState({
+    const _orchestratorState = commandForgeState();
+    setCommandForgeState({
       ..._orchestratorState,
       focusedShard: focusedShardSibling("next"),
     });
     const viewportHeight = window.innerHeight;
-    const elem = document.getElementById(orchestratorState().focusedShard.id);
+    const elem = document.getElementById(commandForgeState().focusedShard.id);
     const elemHeight = elem?.getBoundingClientRect().height;
 
     const block = elemHeight && elemHeight > viewportHeight ? "end" : "start";
@@ -30,13 +26,13 @@ export const actions = {
     elem?.scrollIntoView({ block, behavior: "smooth" });
   },
   focusPreviousSiblingShard() {
-    const _orchestratorState = orchestratorState();
-    setOrchestratorState({
+    const _orchestratorState = commandForgeState();
+    setCommandForgeState({
       ..._orchestratorState,
       focusedShard: focusedShardSibling("previous"),
     });
     const viewportHeight = window.innerHeight;
-    const elem = document.getElementById(orchestratorState().focusedShard.id);
+    const elem = document.getElementById(commandForgeState().focusedShard.id);
     const elemHeight = elem?.getBoundingClientRect().height;
 
     const block = elemHeight && elemHeight > viewportHeight ? "start" : "end";
@@ -44,7 +40,7 @@ export const actions = {
     elem?.scrollIntoView({ block, behavior: "smooth" });
   },
   enterFocusedShard() {
-    const focusedShard = orchestratorState().focusedShard;
+    const focusedShard = commandForgeState().focusedShard;
     const _focusedShardImmediateChild = focusedShardImmediateChild();
 
     // check if null for primitive values and check undefined for empty arrays, even though that shouldn't happen
@@ -52,8 +48,8 @@ export const actions = {
       _focusedShardImmediateChild !== null &&
       _focusedShardImmediateChild !== undefined
     ) {
-      const _orchestratorState = orchestratorState();
-      setOrchestratorState({
+      const _orchestratorState = commandForgeState();
+      setCommandForgeState({
         ..._orchestratorState,
         focusedShard: _focusedShardImmediateChild,
       });
@@ -95,25 +91,25 @@ export const actions = {
       });
     } else if (focusedShard.type === "Boolean") {
       focusedShard.value = !focusedShard.value;
-      setOrchestratorState(imperativeUpdate);
+      setCommandForgeState(imperativeUpdate);
     }
   },
   exitFocusedShard() {
-    const _orchestratorState = orchestratorState();
+    const _orchestratorState = commandForgeState();
     // we technically shouldn't be able to exit until the parent is null because we don't allow exiting
     // into the main program anyways
     if (
       _orchestratorState.focusedShard.parent !== null &&
       _orchestratorState.focusedShard.parent.type !== "Program"
     ) {
-      setOrchestratorState({
+      setCommandForgeState({
         ..._orchestratorState,
         focusedShard: _orchestratorState.focusedShard.parent,
       });
     }
   },
   addShardInFrontOfFocusedShardAndFocus() {
-    const focusedShard = orchestratorState().focusedShard;
+    const focusedShard = commandForgeState().focusedShard;
     let focusedShardIndex = -1;
 
     if ((focusedShard.parent as AST.ShardGroup).contents) {
@@ -176,11 +172,11 @@ export const actions = {
         return;
     }
 
-    setOrchestratorState(imperativeUpdate);
+    setCommandForgeState(imperativeUpdate);
     actions.focusNextSiblingShard();
   },
   addShardBehindFocusedShardAndFocus() {
-    const focusedShard = orchestratorState().focusedShard;
+    const focusedShard = commandForgeState().focusedShard;
     let focusedShardIndex = -1;
 
     if ((focusedShard.parent as AST.ShardGroup).contents) {
@@ -242,11 +238,11 @@ export const actions = {
         return;
     }
 
-    setOrchestratorState(imperativeUpdate);
+    setCommandForgeState(imperativeUpdate);
     actions.focusPreviousSiblingShard();
   },
   deleteFocusedShard() {
-    const focusedShard = orchestratorState().focusedShard;
+    const focusedShard = commandForgeState().focusedShard;
     let focusedShardIndex = -1;
 
     // we shouldn't even reach the point where the focused shard is the program anyways
@@ -285,11 +281,11 @@ export const actions = {
       ).contents.filter(
         (syntaxShard) => syntaxShard !== focusedShard,
       ) as AST.ShardGroup["contents"];
-      setOrchestratorState(imperativeUpdate);
+      setCommandForgeState(imperativeUpdate);
     }
   },
   toggleFocusedShardDisplayStyle() {
-    const _orchestratorState = orchestratorState();
+    const _orchestratorState = commandForgeState();
     if (
       _orchestratorState.focusedShard.parent !== null &&
       _orchestratorState.focusedShard.parent.type !== "Program"
@@ -298,11 +294,11 @@ export const actions = {
         _orchestratorState.focusedShard.display === "block"
           ? "inline-block"
           : "block";
-      setOrchestratorState(imperativeUpdate);
+      setCommandForgeState(imperativeUpdate);
     }
   },
   toggleFocusedShardType() {
-    const focusedShard = orchestratorState().focusedShard;
+    const focusedShard = commandForgeState().focusedShard;
 
     // we shouldn't even technically enter this state
     if (focusedShard.parent === null) {
@@ -312,8 +308,8 @@ export const actions = {
     switch (focusedShard.type) {
       case "String": {
         const number = programUtils.generateNumber(focusedShard.parent);
-        const _orchestratorState = orchestratorState();
-        setOrchestratorState({ ..._orchestratorState, focusedShard: number });
+        const _orchestratorState = commandForgeState();
+        setCommandForgeState({ ..._orchestratorState, focusedShard: number });
         switch (focusedShard.parent.type) {
           case "Assignment":
           case "Definition":
@@ -344,8 +340,8 @@ export const actions = {
       }
       case "Number": {
         const boolean = programUtils.generateBoolean(focusedShard.parent);
-        const _orchestratorState = orchestratorState();
-        setOrchestratorState({ ..._orchestratorState, focusedShard: boolean });
+        const _orchestratorState = commandForgeState();
+        setCommandForgeState({ ..._orchestratorState, focusedShard: boolean });
         switch (focusedShard.parent.type) {
           case "Assignment":
           case "Definition":
@@ -376,8 +372,8 @@ export const actions = {
       }
       case "Boolean": {
         const nullShard = programUtils.generateNull(focusedShard.parent);
-        const _orchestratorState = orchestratorState();
-        setOrchestratorState({
+        const _orchestratorState = commandForgeState();
+        setCommandForgeState({
           ..._orchestratorState,
           focusedShard: nullShard,
         });
@@ -411,8 +407,8 @@ export const actions = {
       }
       case "Null": {
         const call = programUtils.generateCall(focusedShard.parent);
-        const _orchestratorState = orchestratorState();
-        setOrchestratorState({ ..._orchestratorState, focusedShard: call });
+        const _orchestratorState = commandForgeState();
+        setCommandForgeState({ ..._orchestratorState, focusedShard: call });
         switch (focusedShard.parent.type) {
           case "Assignment":
           case "Definition":
@@ -447,8 +443,8 @@ export const actions = {
             const assignment = programUtils.generateAssignment(
               focusedShard.parent,
             );
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: assignment,
             });
@@ -466,8 +462,8 @@ export const actions = {
             const identifiers = programUtils.generateIdentifiers(
               focusedShard.parent,
             );
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: identifiers,
             });
@@ -479,8 +475,8 @@ export const actions = {
             const identifiers = programUtils.generateIdentifiers(
               focusedShard.parent,
             );
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: identifiers,
             });
@@ -496,8 +492,8 @@ export const actions = {
             const identifiers = programUtils.generateIdentifiers(
               focusedShard.parent,
             );
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: identifiers,
             });
@@ -514,8 +510,8 @@ export const actions = {
       }
       case "Assignment": {
         const definition = programUtils.generateDefinition(focusedShard.parent);
-        const _orchestratorState = orchestratorState();
-        setOrchestratorState({
+        const _orchestratorState = commandForgeState();
+        setCommandForgeState({
           ..._orchestratorState,
           focusedShard: definition,
         });
@@ -529,8 +525,8 @@ export const actions = {
       }
       case "Definition": {
         const call = programUtils.generateCall(focusedShard.parent);
-        const _orchestratorState = orchestratorState();
-        setOrchestratorState({ ..._orchestratorState, focusedShard: call });
+        const _orchestratorState = commandForgeState();
+        setCommandForgeState({ ..._orchestratorState, focusedShard: call });
         replaceInArray({
           array: focusedShard.parent.contents,
           oldItem: focusedShard,
@@ -550,8 +546,8 @@ export const actions = {
               const functionShard = programUtils.generateFunction(
                 focusedShard.parent,
               );
-              const _orchestratorState = orchestratorState();
-              setOrchestratorState({
+              const _orchestratorState = commandForgeState();
+              setCommandForgeState({
                 ..._orchestratorState,
                 focusedShard: functionShard,
               });
@@ -564,8 +560,8 @@ export const actions = {
             const functionShard = programUtils.generateFunction(
               focusedShard.parent,
             );
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: functionShard,
             });
@@ -580,8 +576,8 @@ export const actions = {
               const functionShard = programUtils.generateFunction(
                 focusedShard.parent,
               );
-              const _orchestratorState = orchestratorState();
-              setOrchestratorState({
+              const _orchestratorState = commandForgeState();
+              setCommandForgeState({
                 ..._orchestratorState,
                 focusedShard: functionShard,
               });
@@ -595,8 +591,8 @@ export const actions = {
             const functionShard = programUtils.generateFunction(
               focusedShard.parent,
             );
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: functionShard,
             });
@@ -609,8 +605,8 @@ export const actions = {
               const functionShard = programUtils.generateFunction(
                 focusedShard.parent,
               );
-              const _orchestratorState = orchestratorState();
-              setOrchestratorState({
+              const _orchestratorState = commandForgeState();
+              setCommandForgeState({
                 ..._orchestratorState,
                 focusedShard: functionShard,
               });
@@ -636,8 +632,8 @@ export const actions = {
               const identifiers = programUtils.generateIdentifiers(
                 focusedShard.parent,
               );
-              const _orchestratorState = orchestratorState();
-              setOrchestratorState({
+              const _orchestratorState = commandForgeState();
+              setCommandForgeState({
                 ..._orchestratorState,
                 focusedShard: identifiers,
               });
@@ -650,8 +646,8 @@ export const actions = {
           case "Definition":
           case "Property": {
             const values = programUtils.generateValues(focusedShard.parent);
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: values,
             });
@@ -661,8 +657,8 @@ export const actions = {
           }
           case "Values": {
             const values = programUtils.generateValues(focusedShard.parent);
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: values,
             });
@@ -676,8 +672,8 @@ export const actions = {
           }
           case "Function": {
             const values = programUtils.generateValues(focusedShard.parent);
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: values,
             });
@@ -703,8 +699,8 @@ export const actions = {
             const properties = programUtils.generateProperties(
               focusedShard.parent,
             );
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: properties,
             });
@@ -716,8 +712,8 @@ export const actions = {
             const properties = programUtils.generateProperties(
               focusedShard.parent,
             );
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: properties,
             });
@@ -733,8 +729,8 @@ export const actions = {
             const properties = programUtils.generateProperties(
               focusedShard.parent,
             );
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: properties,
             });
@@ -756,8 +752,8 @@ export const actions = {
           case "Property": {
             const string = programUtils.generateString(focusedShard.parent);
             focusedShard.parent.expression = string;
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: string,
             });
@@ -766,8 +762,8 @@ export const actions = {
           }
           case "Values": {
             const string = programUtils.generateString(focusedShard.parent);
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: string,
             });
@@ -781,8 +777,8 @@ export const actions = {
           }
           case "Function": {
             const string = programUtils.generateString(focusedShard.parent);
-            const _orchestratorState = orchestratorState();
-            setOrchestratorState({
+            const _orchestratorState = commandForgeState();
+            setCommandForgeState({
               ..._orchestratorState,
               focusedShard: string,
             });
@@ -805,10 +801,10 @@ export const actions = {
         assertNever(focusedShard);
     }
 
-    setOrchestratorState(imperativeUpdate);
+    setCommandForgeState(imperativeUpdate);
   },
   executeFocusedStatements() {
-    const _orchestratorState = orchestratorState();
+    const _orchestratorState = commandForgeState();
     const currentStatements =
       _orchestratorState.program.body[
         _orchestratorState.currentStatementsIndex

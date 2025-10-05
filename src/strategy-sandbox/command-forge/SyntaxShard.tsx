@@ -1,10 +1,7 @@
 import { AST } from "./interpreter";
 import { NamedContainer } from "./NamedContainer";
-import { actions } from "@/orchestrator/actions";
-import {
-  orchestratorState,
-  setOrchestratorState,
-} from "@/orchestrator/orchestrator";
+import { actions } from "./actions";
+import { commandForgeState, setCommandForgeState } from "./state";
 import { assertNever } from "@/utils";
 import { NamedBadge } from "./NamedBadge";
 
@@ -12,7 +9,7 @@ const emptyTextPlaceholder = <span>{"\u2205"}</span>;
 
 export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
   function focusOrEnterShard() {
-    const _orchestratorState = orchestratorState();
+    const _orchestratorState = commandForgeState();
     if (_orchestratorState.focusedShard === props.syntaxShard) {
       switch (props.syntaxShard.type) {
         case "String":
@@ -37,7 +34,7 @@ export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
           assertNever(props.syntaxShard);
       }
     } else {
-      setOrchestratorState({
+      setCommandForgeState({
         ..._orchestratorState,
         focusedShard: props.syntaxShard,
       });
@@ -45,7 +42,7 @@ export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
   }
 
   return () => {
-    const focusedShard = orchestratorState().focusedShard;
+    const focusedShard = commandForgeState().focusedShard;
     const namedElementProps = {
       id: props.syntaxShard.id,
       display: props.syntaxShard.display,
