@@ -65,18 +65,6 @@ export const actions = {
           });
         }
       });
-    } else if (focusedShard.type === "Identifier") {
-      forgeInputRef.value?.scrollIntoView();
-      forgeInputRef.value?.focus();
-      setTimeout(() => {
-        if (forgeInputRef.value) {
-          forgeInputRef.value.value = focusedShard.name;
-          forgeInputRef.value.type = "text";
-          forgeInputRef.value.updateComplete.then(() => {
-            forgeInputRef.value?.select();
-          });
-        }
-      });
     } else if (focusedShard.type === "Number") {
       forgeInputRef.value?.scrollIntoView();
       forgeInputRef.value?.focus();
@@ -332,6 +320,10 @@ export const actions = {
 
             break;
           }
+          case "Identifiers": {
+            // TODO: implement logic here
+            break;
+          }
           default:
             assertNever(focusedShard.parent);
         }
@@ -339,7 +331,10 @@ export const actions = {
         break;
       }
       case "Number": {
-        const boolean = programUtils.generateBoolean(focusedShard.parent);
+        // TODO: make sure this doesn't cause any problems
+        const boolean = programUtils.generateBoolean(
+          focusedShard.parent as AST.BaseValueParent,
+        );
         const _orchestratorState = commandForgeState();
         setCommandForgeState({ ..._orchestratorState, focusedShard: boolean });
         switch (focusedShard.parent.type) {
@@ -362,6 +357,10 @@ export const actions = {
           case "Function": {
             focusedShard.parent.return = boolean;
 
+            break;
+          }
+          case "Identifiers": {
+            // TODO: implement logic here
             break;
           }
           default:
@@ -406,7 +405,10 @@ export const actions = {
         break;
       }
       case "Null": {
-        const call = programUtils.generateCall(focusedShard.parent);
+        // TODO: make sure this does not cause any problems
+        const call = programUtils.generateCall(
+          focusedShard.parent as AST.BaseValueParent,
+        );
         const _orchestratorState = commandForgeState();
         setCommandForgeState({ ..._orchestratorState, focusedShard: call });
         switch (focusedShard.parent.type) {
@@ -429,6 +431,10 @@ export const actions = {
           case "Function": {
             focusedShard.parent.return = call;
 
+            break;
+          }
+          case "Identifiers": {
+            // TODO: implement logic here
             break;
           }
           default:
@@ -793,7 +799,6 @@ export const actions = {
 
         break;
       }
-      case "Identifier":
       case "Property":
       case "Statements":
         break;

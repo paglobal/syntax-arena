@@ -46,16 +46,9 @@ export const programUtils = {
   },
   generateIdentifier(
     parent: AST.IdentifierParent,
-    name: string = "x",
+    value: string = "x",
   ): AST.Identifier {
-    return {
-      id: crypto.randomUUID(),
-      parent,
-      // display: "inline-block",
-      display: "block",
-      type: "Identifier",
-      name,
-    };
+    return programUtils.generateString(parent, value);
   },
   generateIdentifiers(parent: AST.IdentifiersParent): AST.Identifiers {
     const identifiers: AST.Identifiers = {

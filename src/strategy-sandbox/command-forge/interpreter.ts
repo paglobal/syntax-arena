@@ -14,7 +14,7 @@ type CreateSyntaxShard<
   display: Display;
 } & O;
 
-export type Scope = Map<string, unknown>;
+export type Scope = Map<string | number | null, unknown>;
 
 export type ExecutionContext = { parent?: ExecutionContext; scope: Scope };
 
@@ -32,19 +32,23 @@ export namespace AST {
     | Property
     | Values;
 
-  export type StringParent = BaseValueParent;
+  export type StringParent = BaseValueParent | IdentifierParent;
+
   export interface String
     extends CreateSyntaxShard<"String", StringParent, { value: string }> {}
 
-  export type NumberParent = BaseValueParent;
+  export type NumberParent = BaseValueParent | IdentifierParent;
+
   export interface Number
     extends CreateSyntaxShard<"Number", NumberParent, { value: number }> {}
 
   export type BooleanParent = BaseValueParent;
+
   export interface Boolean
     extends CreateSyntaxShard<"Boolean", BooleanParent, { value: boolean }> {}
 
-  export type NullParent = BaseValueParent;
+  export type NullParent = BaseValueParent | IdentifierParent;
+
   export interface Null
     extends CreateSyntaxShard<"Null", NullParent, { value: null }> {}
 
@@ -59,12 +63,7 @@ export namespace AST {
 
   export type IdentifierParent = Identifiers | Definition | Property;
 
-  export interface Identifier
-    extends CreateSyntaxShard<
-      "Identifier",
-      IdentifierParent,
-      { name: string }
-    > {}
+  export type Identifier = String | Number | Null;
 
   export type PropertyParent = Properties;
 
@@ -116,6 +115,7 @@ export namespace AST {
     > {}
 
   export type DefinitionParent = BaseStatementParent;
+
   export interface Definition
     extends CreateSyntaxShard<
       "Definition",
@@ -194,7 +194,7 @@ export function* interpretCall({
     switch (call.callee.type) {
       case "Identifiers":
         throw new Error(
-          `${call.callee.contents[0].name || "anonymous"} is not a function`,
+          `${call.callee.contents[0].value || "anonymous"} is not a function`,
         );
       // this shouldn't even be possible with the UI
       case "Function":
@@ -254,14 +254,14 @@ function* interpretDefinition({
   });
 
   yield definition.assignee;
-  if (context.scope.has(definition.assignee.name)) {
+  if (context.scope.has(definition.assignee.value)) {
     throw new Error(
-      `Identifier '${definition.assignee.name}' has already been declared`,
+      `Identifier '${definition.assignee.value}' has already been declared`,
     );
   }
 
   yield definition;
-  context.scope.set(definition.assignee.name, resolvedValue);
+  context.scope.set(definition.assignee.value, resolvedValue);
 }
 
 export function* interpret({

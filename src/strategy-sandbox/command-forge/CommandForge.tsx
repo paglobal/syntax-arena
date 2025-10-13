@@ -36,8 +36,6 @@ export function CommandForge() {
               if (forgeInputRef.value?.value !== undefined) {
                 if (focusedShard.type === "String") {
                   focusedShard.value = forgeInputRef.value.value;
-                } else if (focusedShard.type === "Identifier") {
-                  focusedShard.name = forgeInputRef.value.value;
                 } else if (focusedShard.type === "Number") {
                   focusedShard.value = Number(forgeInputRef.value.value);
                 }

@@ -15,7 +15,6 @@ export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
         case "String":
         case "Number":
         case "Boolean":
-        case "Identifier":
           actions.enterFocusedShard();
           break;
         case "Null":
@@ -101,12 +100,6 @@ export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
         <SyntaxShard syntaxShard={props.syntaxShard.key}></SyntaxShard>
         <SyntaxShard syntaxShard={props.syntaxShard.expression}></SyntaxShard>
       </NamedContainer>
-    ) : props.syntaxShard.type === "Identifier" ? (
-      <NamedBadge {...namedElementProps} variant="warning">
-        {props.syntaxShard.name === ""
-          ? emptyTextPlaceholder
-          : props.syntaxShard.name}
-      </NamedBadge>
     ) : props.syntaxShard.type === "String" ? (
       <NamedBadge {...namedElementProps} variant="warning">
         {props.syntaxShard.value === ""

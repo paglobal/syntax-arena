@@ -15,7 +15,7 @@ export function findScopeForIdentifier({
 }) {
   let currentContext: ExecutionContext | undefined = context;
   while (currentContext) {
-    if (currentContext.scope.has(identifier.name)) {
+    if (currentContext.scope.has(identifier.value)) {
       return currentContext.scope;
     }
     currentContext = currentContext.parent;
@@ -32,11 +32,11 @@ export function resolveIdentifierValue({
   context: ExecutionContext;
 }) {
   const scope = findScopeForIdentifier({ identifier, context });
-  if (scope) {
-    return scope.get(identifier.name);
+  if (scope && scope.has(identifier.value)) {
+    return scope.get(identifier.value);
   }
 
-  throw new Error(`${identifier.name} is not defined`);
+  throw new Error(`${identifier.value} is not defined`);
 }
 
 export function createExecutionContext(parentContext: ExecutionContext) {
@@ -58,14 +58,12 @@ export function* assignValueToIdentifier({
   context: ExecutionContext;
 }): InterpreterGenerator {
   const identifiers = assignment.assignee.contents;
-
   if (identifiers.length === 1) {
-    const identifierName = identifiers[0].name;
+    const identifierName = identifiers[0].value;
     const scope = findScopeForIdentifier({
       identifier: identifiers[0],
       context,
     });
-
     if (scope) {
       yield assignment;
       scope.set(identifierName, resolvedValue);
@@ -74,56 +72,55 @@ export function* assignValueToIdentifier({
     }
   } else {
     let targetObject: unknown = undefined;
-    let propertyToAssign: string | undefined;
-
+    let currentPropName: string | number | null | undefined;
     const baseIdentifier = identifiers[0];
     targetObject = resolveIdentifierValue({
       identifier: baseIdentifier,
       context,
     });
-
+    // Check for null because null has a type of `object` (TODO: make utility function for this)
     if (typeof targetObject !== "object" || targetObject === null) {
       throw new Error(
-        `Cannot set properties of non-object '${baseIdentifier.name}'`,
+        `Cannot set properties of non-object '${baseIdentifier.value}'`,
       );
     }
-
     // Traverse the property chain to find the actual object to modify and the property name.
     for (let i = 1; i < identifiers.length; i++) {
-      propertyToAssign = identifiers[i].name;
+      currentPropName = identifiers[i].value;
 
       if (i < identifiers.length - 1) {
-        if (
-          !(
-            typeof targetObject === "object" &&
-            targetObject !== null &&
-            propertyToAssign in targetObject
-          )
-        ) {
+        // Checking for null again
+        if (!(typeof targetObject === "object" && targetObject !== null)) {
           throw new Error(
-            `Cannot access property '${propertyToAssign}' of non-object`,
+            `Cannot access property '${currentPropName}' of non-object`,
+          );
+        }
+        if (currentPropName === null) {
+          throw new Error("Cannot index object with null");
+        }
+        if (!(currentPropName in targetObject)) {
+          throw new Error(
+            `Property ${currentPropName} doesn't exist on object`,
           );
         }
         targetObject = (targetObject as Record<string, unknown>)[
-          propertyToAssign
+          currentPropName
         ];
       }
     }
 
-    if (
-      typeof targetObject === "object" &&
-      targetObject !== null &&
-      propertyToAssign !== undefined
-    ) {
-      yield assignment;
-      (targetObject as Record<string, unknown>)[propertyToAssign] =
-        resolvedValue;
-    } else {
+    // Set the actual property on the object to the given value
+    if (!(typeof targetObject === "object" && targetObject !== null)) {
       // This error should ideally be caught by the intermediate checks, but serves as a fallback.
       throw new Error(
-        `Cannot assign to property '${propertyToAssign}' of non-object`,
+        `Cannot assign to property '${currentPropName}' of non-object`,
       );
     }
+    if (!(currentPropName !== undefined && currentPropName !== null)) {
+      throw new Error("Cannot index object with null or undefined");
+    }
+    yield assignment;
+    (targetObject as Record<string, unknown>)[currentPropName] = resolvedValue;
   }
 }
 
@@ -156,7 +153,10 @@ export function* resolveValue({
       });
 
       for (let i = 1; i < identifiers.length; i++) {
-        const propName = identifiers[i].name;
+        const propName = identifiers[i].value;
+        if (propName === null) {
+          throw new Error("Null is an invalid identifier");
+        }
         // check for null because it also passes off as an object when using typeof
         if (typeof resolved === "object" && resolved !== null) {
           resolved = (resolved as Record<string, unknown>)[propName];
@@ -173,7 +173,10 @@ export function* resolveValue({
     case "Properties":
       const obj: Record<string, unknown> = {};
       for (const prop of value.contents) {
-        obj[prop.key.name] = yield* resolveValue({
+        if (prop.key.value === null) {
+          throw new Error("Null is an invalid identifier");
+        }
+        obj[prop.key.value] = yield* resolveValue({
           value: prop.expression,
           context,
         });
@@ -195,7 +198,10 @@ export function* resolveValue({
 
         yield functionShard.parameters;
         functionShard.parameters.contents.forEach((param, index) => {
-          newContext.scope.set(param.name, args[index]);
+          if (param.value === null) {
+            throw new Error("Null is an invalid identifier");
+          }
+          newContext.scope.set(param.value, args[index]);
         });
 
         yield functionShard.body;
@@ -213,7 +219,7 @@ export function* resolveValue({
 
       return fn;
     default:
-      // @ts-ignore - This case should ideally not be reachable with a well-defined AST and complete handling.
+      // @ts-expect-error - This case should ideally not be reachable with a well-defined AST and complete handling.
       throw new Error(`Unknown value type encountered: ${value.type}`);
   }
 }

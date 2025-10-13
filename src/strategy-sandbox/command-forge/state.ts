@@ -61,7 +61,6 @@ export const focusedShardSibling = (nextOrPrevious: "next" | "previous") => {
         case "Number":
         case "Boolean":
         case "Null":
-        case "Identifier":
         case "Call":
         case "Properties":
         case "Values":
@@ -157,7 +156,6 @@ export const focusedShardImmediateChild = () => {
     case "Number":
     case "Boolean":
     case "Null":
-    case "Identifier":
       return null;
     case "Function":
       return focusedShard.parameters;
