@@ -39,45 +39,10 @@ export const focusedShardSibling = (nextOrPrevious: "next" | "previous") => {
 
   switch (focusedShard.parent.type) {
     case "Function": {
-      switch (focusedShard.type) {
-        // for parameters
-        case "Identifiers": {
-          if (nextOrPrevious === "next") {
-            return focusedShard.parent.body;
-          } else {
-            return focusedShard.parent.parameters;
-          }
-        }
-        // for body
-        case "Statements": {
-          if (nextOrPrevious === "next") {
-            return focusedShard.parent.return;
-          } else {
-            return focusedShard.parent.parameters;
-          }
-        }
-        // for return
-        case "String":
-        case "Number":
-        case "Boolean":
-        case "Null":
-        case "Call":
-        case "Properties":
-        case "Values":
-        case "Function": {
-          if (nextOrPrevious === "next") {
-            return focusedShard.parent.return;
-          } else {
-            return focusedShard.parent.body;
-          }
-        }
-        case "Definition":
-        case "Assignment":
-        case "Property":
-          return focusedShard;
-        default: {
-          assertNever(focusedShard);
-        }
+      if (nextOrPrevious === "next") {
+        return focusedShard.parent.body;
+      } else {
+        return focusedShard.parent.parameters;
       }
     }
     case "Property": {

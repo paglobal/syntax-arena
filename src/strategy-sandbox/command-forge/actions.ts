@@ -316,7 +316,7 @@ export const actions = {
             break;
           }
           case "Function": {
-            focusedShard.parent.return = number;
+            // TODO: implement logic here
 
             break;
           }
@@ -355,7 +355,7 @@ export const actions = {
             break;
           }
           case "Function": {
-            focusedShard.parent.return = boolean;
+            // TODO: implement logic here
 
             break;
           }
@@ -394,7 +394,7 @@ export const actions = {
             break;
           }
           case "Function": {
-            focusedShard.parent.return = nullShard;
+            // TODO: implement logic here
 
             break;
           }
@@ -429,7 +429,7 @@ export const actions = {
             break;
           }
           case "Function": {
-            focusedShard.parent.return = call;
+            // TODO: implement logic here
 
             break;
           }
@@ -495,15 +495,17 @@ export const actions = {
             break;
           }
           case "Function": {
-            const identifiers = programUtils.generateIdentifiers(
-              focusedShard.parent,
-            );
-            const _orchestratorState = commandForgeState();
-            setCommandForgeState({
-              ..._orchestratorState,
-              focusedShard: identifiers,
-            });
-            focusedShard.parent.return = identifiers;
+            // const identifiers = programUtils.generateIdentifiers(
+            //   focusedShard.parent,
+            // );
+            // const _orchestratorState = commandForgeState();
+            // setCommandForgeState({
+            //   ..._orchestratorState,
+            //   focusedShard: identifiers,
+            // });
+            // focusedShard.parent.return = identifiers;
+            //
+            // TODO: implement logic here
 
             break;
           }
@@ -549,15 +551,17 @@ export const actions = {
               break;
               // for function returns
             } else {
-              const functionShard = programUtils.generateFunction(
-                focusedShard.parent,
-              );
-              const _orchestratorState = commandForgeState();
-              setCommandForgeState({
-                ..._orchestratorState,
-                focusedShard: functionShard,
-              });
-              focusedShard.parent.return = functionShard;
+              // const functionShard = programUtils.generateFunction(
+              //   focusedShard.parent,
+              // );
+              // const _orchestratorState = commandForgeState();
+              // setCommandForgeState({
+              //   ..._orchestratorState,
+              //   focusedShard: functionShard,
+              // });
+              // focusedShard.parent.return = functionShard;
+              //
+              // TODO: implement logic here
 
               break;
             }
@@ -677,13 +681,15 @@ export const actions = {
             break;
           }
           case "Function": {
-            const values = programUtils.generateValues(focusedShard.parent);
-            const _orchestratorState = commandForgeState();
-            setCommandForgeState({
-              ..._orchestratorState,
-              focusedShard: values,
-            });
-            focusedShard.parent.return = values;
+            // const values = programUtils.generateValues(focusedShard.parent);
+            // const _orchestratorState = commandForgeState();
+            // setCommandForgeState({
+            //   ..._orchestratorState,
+            //   focusedShard: values,
+            // });
+            // focusedShard.parent.return = values;
+            //
+            // TODO: implement logic here
 
             break;
           }
@@ -732,15 +738,17 @@ export const actions = {
             break;
           }
           case "Function": {
-            const properties = programUtils.generateProperties(
-              focusedShard.parent,
-            );
-            const _orchestratorState = commandForgeState();
-            setCommandForgeState({
-              ..._orchestratorState,
-              focusedShard: properties,
-            });
-            focusedShard.parent.return = properties;
+            // const properties = programUtils.generateProperties(
+            //   focusedShard.parent,
+            // );
+            // const _orchestratorState = commandForgeState();
+            // setCommandForgeState({
+            //   ..._orchestratorState,
+            //   focusedShard: properties,
+            // });
+            // focusedShard.parent.return = properties;
+            //
+            // TODO: implement logic here
 
             break;
           }
@@ -782,13 +790,15 @@ export const actions = {
             break;
           }
           case "Function": {
-            const string = programUtils.generateString(focusedShard.parent);
-            const _orchestratorState = commandForgeState();
-            setCommandForgeState({
-              ..._orchestratorState,
-              focusedShard: string,
-            });
-            focusedShard.parent.return = string;
+            // const string = programUtils.generateString(focusedShard.parent);
+            // const _orchestratorState = commandForgeState();
+            // setCommandForgeState({
+            //   ..._orchestratorState,
+            //   focusedShard: string,
+            // });
+            // focusedShard.parent.return = string;
+            //
+            // TODO: implement logic here
 
             break;
           }

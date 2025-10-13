@@ -145,7 +145,6 @@ export namespace AST {
       {
         parameters: Identifiers;
         body: Statements;
-        return: Value;
       }
     > {}
 

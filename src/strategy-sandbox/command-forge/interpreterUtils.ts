@@ -210,11 +210,14 @@ export function* resolveValue({
           context: newContext,
         });
 
-        yield functionShard.return;
-        return yield* resolveValue({
-          value: functionShard.return,
-          context: newContext,
-        });
+        // TODO: reimplement logic here
+        // yield functionShard.return;
+        // return yield* resolveValue({
+        //   value: functionShard.return,
+        //   context: newContext,
+        // });
+        //
+        return 5;
       }
 
       return fn;

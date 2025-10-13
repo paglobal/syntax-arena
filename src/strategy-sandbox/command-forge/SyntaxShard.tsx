@@ -75,7 +75,6 @@ export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
       <NamedContainer {...namedElementProps}>
         <SyntaxShard syntaxShard={props.syntaxShard.parameters}></SyntaxShard>
         <SyntaxShard syntaxShard={props.syntaxShard.body}></SyntaxShard>
-        <SyntaxShard syntaxShard={props.syntaxShard.return}></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "Properties" ? (
       <NamedContainer {...namedElementProps}>

@@ -115,7 +115,6 @@ export const programUtils = {
     const fn = baseFn as AST.Function;
     fn.parameters = programUtils.generateIdentifiers(fn);
     fn.body = programUtils.generateStatements(fn);
-    fn.return = programUtils.generateValue(fn);
 
     return fn;
   },
