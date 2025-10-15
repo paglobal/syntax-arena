@@ -1,3 +1,5 @@
+import { imperativeUpdate, Setter } from "promethium-js";
+
 export function assertNever(x: never): never {
   throw new Error("Unexpected value: " + x);
 }
@@ -23,4 +25,12 @@ export function getCSSVariable(variableName: string): string {
   return getComputedStyle(document.documentElement)
     .getPropertyValue(variableName)
     .trim();
+}
+
+export function mutateState<T>(
+  fn: (...args: any[]) => any,
+  setState: Setter<T>,
+) {
+  fn();
+  setState(imperativeUpdate);
 }

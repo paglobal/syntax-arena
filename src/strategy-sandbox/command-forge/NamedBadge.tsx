@@ -3,9 +3,9 @@ import { PromethiumNode, styles } from "promethium-js";
 import { Display } from "./interpreter";
 import { styleMap } from "lit/directives/style-map.js";
 import { classMap } from "lit/directives/class-map.js";
-import { SlBadge } from "@shoelace-style/shoelace";
+import WaBadge from "@awesome.me/webawesome/dist/components/badge/badge.js";
 
-const accentColor = "var(--sl-color-neutral-600)";
+const accentColor = "var(--wa-color-neutral-60)";
 
 const namedBadgeStyles = css`
   ${styles.scope} {
@@ -28,9 +28,8 @@ const namedBadgeStyles = css`
   }
 
   ${styles.scope}.focused {
-    outline: 0.15rem solid var(--sl-input-border-color-focus);
+    box-shadow: 0 0 0.5rem 0.25rem var(--wa-color-focus);
     border-radius: 0.75rem;
-    box-shadow: 0 0 0 0.25rem var(--sl-input-focus-ring-color);
   }
 
   ${styles.scope} + .spacer {
@@ -46,7 +45,7 @@ export function NamedBadge(props: {
   children: PromethiumNode;
   focused?: boolean;
   onClick?: (e: MouseEvent) => void;
-  variant: SlBadge["variant"];
+  variant: WaBadge["variant"];
 }) {
   const onClickListenerObject = {
     handleEvent(e: MouseEvent) {
@@ -57,12 +56,13 @@ export function NamedBadge(props: {
 
   return () => (
     <>
-      <sl-badge
+      <wa-badge
         id={props.id}
         tabIndex={0}
         variant={props.variant}
         pill
-        pulse
+        // TODO: reimplement this
+        attention="pulse"
         use:style={styles.inject(namedBadgeStyles)}
         $attr:style={styleMap({
           display: props.display ?? "inline-block",
@@ -72,7 +72,7 @@ export function NamedBadge(props: {
         on:click={onClickListenerObject}
       >
         {props.children}
-      </sl-badge>
+      </wa-badge>
       {props.display === "block" ? <div class="spacer"></div> : null}
     </>
   );

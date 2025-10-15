@@ -14,7 +14,7 @@ function initializeKeybindings() {
     const target = e.target;
     const tagName = (target as HTMLElement)?.tagName;
 
-    return !(tagName === "SL-INPUT");
+    return !(tagName === "WA-INPUT");
   };
 
   hotkeys("h,left,esc", commandForgeActions.exitFocusedShard);
@@ -34,7 +34,7 @@ export async function initializeGame(canvas?: HTMLCanvasElement) {
   const app = new Application();
   await app.init({
     autoStart: true,
-    background: getCSSVariable("--sl-color-neutral-0"),
+    background: getCSSVariable("--wa-color-neutral-05"),
     canvas,
     width: ARENA_WIDTH,
     height: ARENA_HEIGHT,

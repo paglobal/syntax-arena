@@ -1,8 +1,10 @@
+import "./index.css";
+import "@awesome.me/webawesome/dist/styles/webawesome.css";
+import "@awesome.me/webawesome/dist/styles/themes/awesome.css";
+import { setBasePath } from "@awesome.me/webawesome/dist/webawesome.js";
+import "./customElements";
 import { render } from "lit";
 import { App } from "./App";
-import "./index.css";
-import { setBasePath } from "@shoelace-style/shoelace/dist/utilities/base-path.js";
-import "./customElements";
 import { Assets } from "pixi.js";
 import { assetAliases, assetFolders } from "./constants";
 

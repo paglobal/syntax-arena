@@ -106,7 +106,7 @@ export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
           : props.syntaxShard.value}
       </NamedBadge>
     ) : props.syntaxShard.type === "Number" ? (
-      <NamedBadge {...namedElementProps} variant="primary">
+      <NamedBadge {...namedElementProps} variant="brand">
         {props.syntaxShard.value}
       </NamedBadge>
     ) : props.syntaxShard.type === "Boolean" ? (

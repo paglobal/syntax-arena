@@ -4,13 +4,13 @@ import { StrategySandbox } from "./strategy-sandbox/StrategySandbox";
 
 export function App() {
   return () => (
-    <sl-split-panel>
+    <wa-split-panel>
       <div
         slot="start"
         $attr:style={styleMap({
           height: "100vh",
           overflow: "auto",
-          background: "var(--sl-color-neutral-0)",
+          background: "var(--wa-color-neutral-0)",
           padding: "1rem",
         })}
       >
@@ -23,12 +23,12 @@ export function App() {
           overflow: "auto",
           display: "grid",
           placeItems: "center",
-          background: "var(--sl-color-neutral-0)",
+          background: "var(--wa-color-neutral-0)",
           padding: "1rem",
         })}
       >
         <Arena />
       </div>
-    </sl-split-panel>
+    </wa-split-panel>
   );
 }

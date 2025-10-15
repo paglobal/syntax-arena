@@ -4,7 +4,7 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
-  scrollbar-color: var(--sl-color-neutral-500) var(--sl-color-neutral-0);
+  scrollbar-color: var(--wa-color-neutral-50) var(--wa-color-neutral-0);
 }
 
 html,
@@ -14,9 +14,8 @@ body,
 *,
 *::before,
 *::after {
-  --sl-font-sans: system-ui, san-serif;
-  --sl-font-serif: system-ui, serif;
-  --sl-font-mono: system-ui, monospace;
-  --sl-input-focus-ring-color: var(--sl-color-primary-200);
+  --wa-font-sans: system-ui, san-serif;
+  --wa-font-serif: system-ui, serif;
+  --wa-font-mono: system-ui, monospace;
   font-family: system-ui;
 }

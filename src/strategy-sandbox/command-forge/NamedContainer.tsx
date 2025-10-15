@@ -4,7 +4,7 @@ import { Display } from "./interpreter";
 import { styleMap } from "lit/directives/style-map.js";
 import { classMap } from "lit/directives/class-map.js";
 
-const accentColor = "var(--sl-color-neutral-600)";
+const accentColor = "var(--wa-color-neutral-60)";
 
 const namedContainerStyles = css`
   ${styles.scope} {
@@ -30,8 +30,7 @@ const namedContainerStyles = css`
   }
 
   ${styles.scope}.focused {
-    outline: 0.15rem solid var(--sl-input-border-color-focus);
-    box-shadow: 0 0 0 0.25rem var(--sl-input-focus-ring-color);
+    box-shadow: 0 0 0.1rem 0.2rem var(--wa-color-focus);
   }
 
   ${styles.scope} + .spacer {
