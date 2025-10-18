@@ -5,8 +5,6 @@ export const programUtils = {
     return {
       id: crypto.randomUUID(),
       parent,
-      // display: "inline-block",
-      display: "block",
       type: "String",
       value,
     };
@@ -15,8 +13,6 @@ export const programUtils = {
     return {
       id: crypto.randomUUID(),
       parent,
-      // display: "inline-block",
-      display: "block",
       type: "Number",
       value,
     };
@@ -28,8 +24,6 @@ export const programUtils = {
     return {
       id: crypto.randomUUID(),
       parent,
-      // display: "inline-block",
-      display: "block",
       type: "Boolean",
       value,
     };
@@ -38,8 +32,6 @@ export const programUtils = {
     return {
       id: crypto.randomUUID(),
       parent,
-      // display: "inline-block",
-      display: "block",
       type: "Null",
       value: null,
     };
@@ -54,8 +46,6 @@ export const programUtils = {
     const identifiers: AST.Identifiers = {
       id: crypto.randomUUID(),
       parent,
-      // display: "inline-block",
-      display: "block",
       type: "Identifiers",
       contents: [],
     };
@@ -68,7 +58,6 @@ export const programUtils = {
       id: crypto.randomUUID(),
       type: "Property",
       parent,
-      display: "block",
     };
     const property = propertyBase as AST.Property;
     property.key = programUtils.generateIdentifier(property);
@@ -80,8 +69,6 @@ export const programUtils = {
     const properties: AST.Properties = {
       id: crypto.randomUUID(),
       parent,
-      // display: "inline-block",
-      display: "block",
       type: "Properties",
       contents: [],
     };
@@ -96,8 +83,6 @@ export const programUtils = {
     const values: AST.Values = {
       id: crypto.randomUUID(),
       parent,
-      // display: "inline-block",
-      display: "block",
       type: "Values",
       contents: [],
     };
@@ -109,7 +94,6 @@ export const programUtils = {
     const baseFn: Omit<AST.Function, "parameters" | "body" | "return"> = {
       id: crypto.randomUUID(),
       parent,
-      display: "block",
       type: "Function",
     };
     const fn = baseFn as AST.Function;
@@ -123,8 +107,6 @@ export const programUtils = {
       id: crypto.randomUUID(),
       type: "Call",
       parent,
-      // display: parent.type === "Statements" ? "block" : "inline-block",
-      display: "block",
     };
     const call = baseCall as AST.Call;
     call.callee = programUtils.generateIdentifiers(call);
@@ -137,7 +119,6 @@ export const programUtils = {
       id: crypto.randomUUID(),
       type: "Assignment",
       parent,
-      display: "block",
     };
     const assignment = baseAssignment as AST.Assignment;
     assignment.assignee = programUtils.generateIdentifiers(assignment);
@@ -150,7 +131,6 @@ export const programUtils = {
       id: crypto.randomUUID(),
       type: "Definition",
       parent,
-      display: "block",
     };
     const definition = baseDefinition as AST.Definition;
     definition.assignee = programUtils.generateIdentifier(definition);
@@ -165,7 +145,6 @@ export const programUtils = {
     const statements: AST.Statements = {
       id: crypto.randomUUID(),
       parent,
-      display: "block",
       type: "Statements",
       contents: [],
     };
@@ -177,7 +156,6 @@ export const programUtils = {
     const program: AST.Program = {
       id: crypto.randomUUID(),
       type: "Program",
-      display: "block",
       parent: null,
       body: [],
     };

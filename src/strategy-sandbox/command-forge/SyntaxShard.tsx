@@ -44,7 +44,6 @@ export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
     const focusedShard = commandForgeState().focusedShard;
     const namedElementProps = {
       id: props.syntaxShard.id,
-      display: props.syntaxShard.display,
       name: props.syntaxShard.type,
       focused: props.syntaxShard === focusedShard,
       onClick: focusOrEnterShard,

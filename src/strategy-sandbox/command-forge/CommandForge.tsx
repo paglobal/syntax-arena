@@ -55,7 +55,7 @@ export function CommandForge() {
           use:ref={ref(forgeInputRef)}
           $attr:style={styleMap({ marginBottom: "2rem" })}
         ></wa-input>
-        <NamedContainer id="CommandForge" name="CommandForge" display="block">
+        <NamedContainer id="CommandForge" name="CommandForge">
           <SyntaxShard syntaxShard={visibleShard}></SyntaxShard>
         </NamedContainer>
       </>

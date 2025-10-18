@@ -19,16 +19,6 @@ export const [commandForgeState, setCommandForgeState] = adaptState<{
   focusedShard: initialProgram.body[0],
 });
 
-adaptRenderEffect(() => {
-  // const viewportHeight = window.innerHeight;
-  // const elem = document.getElementById(orchestratorState().focusedShard.id);
-  // const elemHeight = elem?.getBoundingClientRect().height;
-  //
-  // const block = elemHeight && elemHeight > viewportHeight ? "start" : "end";
-  //
-  // elem?.parentElement?.scrollIntoView({ block, behavior: "smooth" });
-});
-
 export const focusedShardSibling = (nextOrPrevious: "next" | "previous") => {
   const focusedShard = commandForgeState().focusedShard;
 

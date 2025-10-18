@@ -24,7 +24,6 @@ function initializeKeybindings() {
   hotkeys("a", commandForgeActions.addShardInFrontOfFocusedShardAndFocus);
   hotkeys("i", commandForgeActions.addShardBehindFocusedShardAndFocus);
   hotkeys("d", commandForgeActions.deleteFocusedShard);
-  hotkeys("b", commandForgeActions.toggleFocusedShardDisplayStyle);
   hotkeys("t", commandForgeActions.toggleFocusedShardType);
   hotkeys("e", commandForgeActions.executeFocusedStatements);
   hotkeys("space", commandForgeActions.toggleGameLoopPlayingState);

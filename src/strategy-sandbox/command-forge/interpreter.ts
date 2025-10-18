@@ -1,7 +1,4 @@
 import { assignValueToIdentifier, resolveValue } from "./interpreterUtils.ts";
-import { assertNever } from "@/utils";
-
-export type Display = "inline-block" | "block";
 
 type CreateSyntaxShard<
   T extends string,
@@ -11,7 +8,6 @@ type CreateSyntaxShard<
   id: string;
   type: T;
   parent: P;
-  display: Display;
 } & O;
 
 export type Scope = Map<string | number | null, unknown>;
@@ -195,22 +191,19 @@ export function* interpretCall({
         throw new Error(
           `${call.callee.contents[0].value || "anonymous"} is not a function`,
         );
-      // this shouldn't even be possible with the UI
-      case "Function":
-        throw new Error(`"anonymous" is not a function`);
       default:
-        assertNever(call.callee);
+        throw new Error(`Invalid code construction`);
     }
   }
 
   yield call.arguments;
-  const resolvedArgs = [];
-  for (const arg of call.arguments.contents) {
-    resolvedArgs.push(yield* resolveValue({ value: arg, context }));
+  const resolvedArguments = [];
+  for (const argument of call.arguments.contents) {
+    resolvedArguments.push(yield* resolveValue({ value: argument, context }));
   }
 
   yield call;
-  const result = resolvedValue(...resolvedArgs);
+  const result = resolvedValue(...resolvedArguments);
   if (result && typeof (result as any)[Symbol.iterator] === "function") {
     return yield* result as any;
   } else {

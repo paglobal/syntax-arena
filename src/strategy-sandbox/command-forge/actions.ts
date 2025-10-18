@@ -272,19 +272,6 @@ export const actions = {
       setCommandForgeState(imperativeUpdate);
     }
   },
-  toggleFocusedShardDisplayStyle() {
-    const _orchestratorState = commandForgeState();
-    if (
-      _orchestratorState.focusedShard.parent !== null &&
-      _orchestratorState.focusedShard.parent.type !== "Program"
-    ) {
-      _orchestratorState.focusedShard.display =
-        _orchestratorState.focusedShard.display === "block"
-          ? "inline-block"
-          : "block";
-      setCommandForgeState(imperativeUpdate);
-    }
-  },
   toggleFocusedShardType() {
     const focusedShard = commandForgeState().focusedShard;
 
