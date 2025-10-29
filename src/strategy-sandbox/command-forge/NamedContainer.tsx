@@ -2,14 +2,24 @@ import { css } from "lit";
 import { PromethiumNode, styles } from "promethium-js";
 import { classMap } from "lit/directives/class-map.js";
 
-const namedContainerStyles = css`
+export const sharedShardChildStyles = css`
   ${styles.scope} {
     margin: 0.75rem 0;
+    font-size: 1rem;
+    text-transform: none;
   }
 
   ${styles.scope}.focused {
-    box-shadow: 0 0 0.1rem 0.2rem var(--wa-color-focus);
+    box-shadow: 0 0 0rem 0.2rem var(--wa-color-focus);
   }
+`;
+
+const namedContainerStyles = css`
+  ${styles.scope}::part(header), ${styles.scope}::part(body) {
+    padding: 0.25rem 1rem;
+  }
+
+  ${sharedShardChildStyles}
 `;
 
 export function NamedContainer(props: {

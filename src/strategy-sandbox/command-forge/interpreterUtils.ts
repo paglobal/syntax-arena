@@ -79,7 +79,7 @@ export function* assignValueToIdentifier({
       context,
     });
     // Check for null because null has a type of `object` (TODO: make utility function for this)
-    if (typeof targetObject !== "object" || targetObject === null) {
+    if (!(typeof targetObject === "object" && targetObject !== null)) {
       throw new Error(
         `Cannot set properties of non-object '${baseIdentifier.value}'`,
       );
@@ -87,16 +87,14 @@ export function* assignValueToIdentifier({
     // Traverse the property chain to find the actual object to modify and the property name.
     for (let i = 1; i < identifiers.length; i++) {
       currentPropName = identifiers[i].value;
-
       if (i < identifiers.length - 1) {
-        // Checking for null again
         if (!(typeof targetObject === "object" && targetObject !== null)) {
           throw new Error(
             `Cannot access property '${currentPropName}' of non-object`,
           );
         }
-        if (currentPropName === null) {
-          throw new Error("Cannot index object with null");
+        if (currentPropName === null || currentPropName === undefined) {
+          throw new Error("Cannot index object with null or undefined");
         }
         if (!(currentPropName in targetObject)) {
           throw new Error(
@@ -108,15 +106,12 @@ export function* assignValueToIdentifier({
         ];
       }
     }
-
-    // Set the actual property on the object to the given value
     if (!(typeof targetObject === "object" && targetObject !== null)) {
-      // This error should ideally be caught by the intermediate checks, but serves as a fallback.
       throw new Error(
         `Cannot assign to property '${currentPropName}' of non-object`,
       );
     }
-    if (!(currentPropName !== undefined && currentPropName !== null)) {
+    if (currentPropName === undefined || currentPropName === null) {
       throw new Error("Cannot index object with null or undefined");
     }
     yield assignment;
@@ -138,39 +133,41 @@ export function* resolveValue({
     case "Boolean":
     case "Null":
       return value.value;
-    case "Identifiers":
-      let resolved: unknown = undefined;
+    case "Identifiers": {
+      let resolvedIdentifierValue: unknown = undefined;
       const identifiers = value.contents;
-
       // we should ideally never encounter this because of the nature of the UI
       if (identifiers.length === 0) {
         throw new Error("Empty identifier list encountered.");
       }
-
-      resolved = resolveIdentifierValue({
+      resolvedIdentifierValue = resolveIdentifierValue({
         identifier: identifiers[0],
         context,
       });
-
       for (let i = 1; i < identifiers.length; i++) {
         const propName = identifiers[i].value;
         if (propName === null) {
           throw new Error("Null is an invalid identifier");
         }
         // check for null because it also passes off as an object when using typeof
-        if (typeof resolved === "object" && resolved !== null) {
-          resolved = (resolved as Record<string, unknown>)[propName];
+        if (
+          typeof resolvedIdentifierValue === "object" &&
+          resolvedIdentifierValue !== null
+        ) {
+          resolvedIdentifierValue = (
+            resolvedIdentifierValue as Record<string, unknown>
+          )[propName];
         } else {
-          throw new Error(
-            `Cannot read properties of undefined or null (reading '${propName}')`,
-          );
+          throw new Error(`Cannot access property '${propName}' of non-object`);
         }
       }
 
-      return resolved;
-    case "Call":
+      return resolvedIdentifierValue;
+    }
+    case "Call": {
       return yield* interpretCall({ call: value, context });
-    case "Properties":
+    }
+    case "Properties": {
       const obj: Record<string, unknown> = {};
       for (const prop of value.contents) {
         if (prop.key.value === null) {
@@ -183,14 +180,16 @@ export function* resolveValue({
       }
 
       return obj;
-    case "Values":
+    }
+    case "Values": {
       const arr: unknown[] = [];
       for (const element of value.contents) {
         arr.push(yield* resolveValue({ value: element, context }));
       }
 
       return arr;
-    case "Function":
+    }
+    case "Function": {
       function* fn(...args: any[]): InterpreterGenerator<unknown> {
         yield value;
         const functionShard = value as AST.Function;
@@ -221,6 +220,7 @@ export function* resolveValue({
       }
 
       return fn;
+    }
     default:
       // @ts-expect-error - This case should ideally not be reachable with a well-defined AST and complete handling.
       throw new Error(`Unknown value type encountered: ${value.type}`);

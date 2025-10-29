@@ -12,8 +12,5 @@ body,
 *,
 *::before,
 *::after {
-  --wa-font-sans: system-ui, san-serif;
-  --wa-font-serif: system-ui, serif;
-  --wa-font-mono: system-ui, monospace;
-  font-family: system-ui;
+  font-family: monospace;
 }

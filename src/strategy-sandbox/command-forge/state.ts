@@ -1,4 +1,4 @@
-import { adaptRenderEffect, adaptState } from "promethium-js";
+import { adaptState } from "promethium-js";
 import { programUtils } from "./programUtils";
 import { AST } from "./interpreter";
 import { assertNever } from "@/utils";

@@ -3,15 +3,10 @@ import { PromethiumNode, styles } from "promethium-js";
 import { styleMap } from "lit/directives/style-map.js";
 import { classMap } from "lit/directives/class-map.js";
 import WaBadge from "@awesome.me/webawesome/dist/components/badge/badge.js";
+import { sharedShardChildStyles } from "./NamedContainer";
 
 const namedBadgeStyles = css`
-  ${styles.scope} {
-    margin-bottom: 0.75rem;
-  }
-
-  ${styles.scope}.focused {
-    box-shadow: 0 0 0.1rem 0.2rem var(--wa-color-focus);
-  }
+  ${sharedShardChildStyles}
 `;
 
 export function NamedBadge(props: {
