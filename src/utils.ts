@@ -1,4 +1,6 @@
 import { imperativeUpdate, Setter } from "promethium-js";
+import { Assets } from "pixi.js";
+import { assetAliases, assetFolders } from "./constants";
 
 export function assertNever(x: never): never {
   throw new Error("Unexpected value: " + x);
@@ -33,4 +35,18 @@ export function mutateState<T>(
 ) {
   fn();
   setState(imperativeUpdate);
+}
+
+type AssetFolder = (typeof assetFolders)[keyof typeof assetFolders];
+
+function getSVGAssetObject(folder: AssetFolder, alias: string) {
+  return { alias, src: `/assets/${folder}/${alias}.svg` };
+}
+
+export async function loadAssetBundle(folder: AssetFolder) {
+  const assetArray = Object.values(assetAliases[folder]).map((alias) =>
+    getSVGAssetObject(folder, alias),
+  );
+  Assets.addBundle(folder, assetArray);
+  await Assets.loadBundle(folder);
 }

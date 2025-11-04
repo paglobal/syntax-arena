@@ -3,14 +3,15 @@
 *::after {
   box-sizing: border-box;
   scrollbar-color: var(--wa-color-neutral-50) var(--wa-color-neutral-0);
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
 body,
 :root,
-#app,
-*,
-*::before,
-*::after {
+#app {
   font-family: monospace;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
 }

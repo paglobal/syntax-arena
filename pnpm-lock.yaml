@@ -11,6 +11,12 @@ importers:
       '@awesome.me/webawesome':
         specifier: 3.0.0-beta.6
         version: 3.0.0-beta.6(@floating-ui/utils@0.2.10)(@types/react@19.1.8)
+      '@pixi/layout':
+        specifier: ^3.2.0
+        version: 3.2.0(@types/react@19.1.8)(pixi.js@8.10.2)(react@19.2.0)(yoga-layout@3.2.1)
+      '@pixi/ui':
+        specifier: ^2.2.7
+        version: 2.2.7(pixi.js@8.10.2)
       hotkeys-js:
         specifier: ^3.13.14
         version: 3.13.14
@@ -230,6 +236,23 @@ packages:
   '@pixi/colord@2.9.6':
     resolution: {integrity: sha512-nezytU2pw587fQstUu1AsJZDVEynjskwOL+kibwcdxsMBFqPsFFNA7xl0ii/gXuDi6M0xj3mfRJj8pBSc2jCfA==}
 
+  '@pixi/layout@3.2.0':
+    resolution: {integrity: sha512-7TtDLHfaF65sTnYjrvRNqNJSQHMH109b04RtNgoy//BjR+pKWFUCgDMnUhs13fdNM0AkGccQW3UqCdylHuGvbA==}
+    peerDependencies:
+      pixi.js: ^8
+      yoga-layout: ^3
+
+  '@pixi/react@8.0.3':
+    resolution: {integrity: sha512-k0feY0Vj4WIWpaLaRQY8NBKlDqVCPPyEUu5EibQVqdtgdMx1brRWeJC+ruq7Im08vtZWx7iZwNGhgHNubO/OMQ==}
+    peerDependencies:
+      pixi.js: ^8.2.6
+      react: '>=19.0.0'
+
+  '@pixi/ui@2.2.7':
+    resolution: {integrity: sha512-YMVx3WImhOc/8Navqj+d4SKVNAjyuHecvMGFIdh8NPIfzwgV3MoxIkwswHcuGpxQAljG1psMbMHVIAEKznN9oA==}
+    peerDependencies:
+      pixi.js: ^8.6.2
+
   '@promethium-js/adaptations@0.0.1':
     resolution: {integrity: sha512-b3RNZIntaa27u/ACa7G6oTF0Epvz5+zSQVE5FAUqEakVWPMnNftYOqvf02sm3iI9voXjGYXoLQevzffNw9XEkw==}
 
@@ -353,6 +376,11 @@ packages:
 
   '@types/node@24.9.2':
     resolution: {integrity: sha512-uWN8YqxXxqFMX2RqGOrumsKeti4LlmIMIyV0lgut4jx7KQBcBiW6vkDtIBvHnHIquwNfJhk8v2OtmO8zXWHfPA==}
+
+  '@types/react-reconciler@0.28.9':
+    resolution: {integrity: sha512-HHM3nxyUZ3zAylX8ZEyrDNd2XZOnQ0D5XfunJF5FLQnZbHHYq4UWvW1QfelQNXv1ICNkwYhfxjwfnqivYB6bFg==}
+    peerDependencies:
+      '@types/react': '*'
 
   '@types/react@19.1.8':
     resolution: {integrity: sha512-AwAfQ2Wa5bCx9WP8nZL2uMZWod7J7/JSplxbTmBQ5ms6QpqNYm672H0Vu9ZVKVngQ+ii4R/byguVEUZQyeg44g==}
@@ -494,6 +522,11 @@ packages:
   ismobilejs@1.1.1:
     resolution: {integrity: sha512-VaFW53yt8QO61k2WJui0dHf4SlL8lxBofUuUmwBo0ljPk0Drz2TiuDW4jo3wDcv41qy/SxrJ+VAzJ/qYqsmzRw==}
 
+  its-fine@2.0.0:
+    resolution: {integrity: sha512-KLViCmWx94zOvpLwSlsx6yOCeMhZYaxrJV87Po5k/FoZzcPSahvK5qJ7fYhS61sZi5ikmh2S3Hz55A2l3U69ng==}
+    peerDependencies:
+      react: ^19.0.0
+
   js-binary-schema-parser@2.0.3:
     resolution: {integrity: sha512-xezGJmOb4lk/M1ZZLTR/jaBHQ4gG/lqQnJqdIv4721DMggsa1bDVlHXNeHYogaIEHD9vCRv0fcL4hMA+Coarkg==}
 
@@ -569,6 +602,16 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
+  react-reconciler@0.31.0:
+    resolution: {integrity: sha512-7Ob7Z+URmesIsIVRjnLoDGwBEG/tVitidU0nMsqX/eeJaLY89RISO/10ERe0MqmzuKUUB1rmY+h1itMbUHg9BQ==}
+    engines: {node: '>=0.10.0'}
+    peerDependencies:
+      react: ^19.0.0
+
+  react@19.2.0:
+    resolution: {integrity: sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ==}
+    engines: {node: '>=0.10.0'}
+
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
     engines: {node: '>=0.10.0'}
@@ -584,6 +627,9 @@ packages:
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
+
+  scheduler@0.25.0:
+    resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -613,6 +659,12 @@ packages:
 
   ts-simple-type@2.0.0-next.0:
     resolution: {integrity: sha512-A+hLX83gS+yH6DtzNAhzZbPfU+D9D8lHlTSd7GeoMRBjOt3GRylDqLTYbdmjA4biWvq2xSfpqfIDj2l0OA/BVg==}
+
+  tweedle.js@2.1.0:
+    resolution: {integrity: sha512-0ReQgVjepoZkE6t0upWNgCRbplHkQJQYk1LStXugwSR728GLFmGDRuaQJlxeC/iBlxud6+P1RdODjaO25vHAqw==}
+
+  typed-signals@2.5.0:
+    resolution: {integrity: sha512-m9lHc3eBCJerXYdx+G0uWZihyUXdqTzzgOdqiDDsoUo75WjhFJH6vP5/6w/xhyu04zoxHUqgYhf9FEt85dk/Ng==}
 
   typescript@5.2.2:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
@@ -695,6 +747,9 @@ packages:
   yargs@17.7.2:
     resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
     engines: {node: '>=12'}
+
+  yoga-layout@3.2.1:
+    resolution: {integrity: sha512-0LPOt3AxKqMdFBZA3HBAt/t/8vIKq7VaQYbuA8WxCgung+p9TVyKRYdpvCb80HcdTN2NkbIKbhNwKUfm3tQywQ==}
 
 snapshots:
 
@@ -821,6 +876,32 @@ snapshots:
 
   '@pixi/colord@2.9.6': {}
 
+  '@pixi/layout@3.2.0(@types/react@19.1.8)(pixi.js@8.10.2)(react@19.2.0)(yoga-layout@3.2.1)':
+    dependencies:
+      pixi.js: 8.10.2
+      yoga-layout: 3.2.1
+    optionalDependencies:
+      '@pixi/react': 8.0.3(@types/react@19.1.8)(pixi.js@8.10.2)(react@19.2.0)
+    transitivePeerDependencies:
+      - '@types/react'
+      - react
+
+  '@pixi/react@8.0.3(@types/react@19.1.8)(pixi.js@8.10.2)(react@19.2.0)':
+    dependencies:
+      its-fine: 2.0.0(@types/react@19.1.8)(react@19.2.0)
+      pixi.js: 8.10.2
+      react: 19.2.0
+      react-reconciler: 0.31.0(react@19.2.0)
+    transitivePeerDependencies:
+      - '@types/react'
+    optional: true
+
+  '@pixi/ui@2.2.7(pixi.js@8.10.2)':
+    dependencies:
+      pixi.js: 8.10.2
+      tweedle.js: 2.1.0
+      typed-signals: 2.5.0
+
   '@promethium-js/adaptations@0.0.1': {}
 
   '@promethium-js/lit@0.1.1':
@@ -901,6 +982,11 @@ snapshots:
   '@types/node@24.9.2':
     dependencies:
       undici-types: 7.16.0
+
+  '@types/react-reconciler@0.28.9(@types/react@19.1.8)':
+    dependencies:
+      '@types/react': 19.1.8
+    optional: true
 
   '@types/react@19.1.8':
     dependencies:
@@ -1045,6 +1131,14 @@ snapshots:
 
   ismobilejs@1.1.1: {}
 
+  its-fine@2.0.0(@types/react@19.1.8)(react@19.2.0):
+    dependencies:
+      '@types/react-reconciler': 0.28.9(@types/react@19.1.8)
+      react: 19.2.0
+    transitivePeerDependencies:
+      - '@types/react'
+    optional: true
+
   js-binary-schema-parser@2.0.3: {}
 
   leven@3.1.0: {}
@@ -1128,6 +1222,15 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
+  react-reconciler@0.31.0(react@19.2.0):
+    dependencies:
+      react: 19.2.0
+      scheduler: 0.25.0
+    optional: true
+
+  react@19.2.0:
+    optional: true
+
   require-directory@2.1.1: {}
 
   reusify@1.1.0: {}
@@ -1162,6 +1265,9 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
+  scheduler@0.25.0:
+    optional: true
+
   source-map-js@1.2.1: {}
 
   string-width@4.2.3:
@@ -1190,6 +1296,10 @@ snapshots:
   ts-pattern@5.7.1: {}
 
   ts-simple-type@2.0.0-next.0: {}
+
+  tweedle.js@2.1.0: {}
+
+  typed-signals@2.5.0: {}
 
   typescript@5.2.2: {}
 
@@ -1254,3 +1364,5 @@ snapshots:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
+
+  yoga-layout@3.2.1: {}
