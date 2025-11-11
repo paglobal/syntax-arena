@@ -15,5 +15,5 @@ setBasePath("/");
   await loadAssetBundle(assetFolders.characters);
   await loadAssetBundle(assetFolders.objects);
   render(<App />, document.body);
-  initialize();
+  await initialize();
 })();

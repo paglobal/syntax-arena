@@ -2,27 +2,27 @@ import { Graphics, RenderLayer } from "pixi.js";
 import { adaptState, adaptSyncEffect } from "promethium-js";
 import {
   ARENA_CELL_SIZE,
-  ARENA_COLUMN_COUNT,
-  ARENA_ROW_COUNT,
+  INITIAL_ARENA_COLUMN_COUNT,
+  INITIAL_ARENA_ROW_COUNT,
   ARENA_WALL_THICKNESS,
 } from "@/constants";
 import { generateMaze } from "./mazeUtils";
 
 const [mazeState] = adaptState(() => ({
   maze: generateMaze({
-    noOfRows: ARENA_ROW_COUNT,
-    noOfColumns: ARENA_COLUMN_COUNT,
+    noOfRows: INITIAL_ARENA_ROW_COUNT,
+    noOfColumns: INITIAL_ARENA_COLUMN_COUNT,
   }),
 }));
 
-export const mazeLayer = new RenderLayer();
-export const mazeGraphics = new Graphics();
-mazeLayer.attach(mazeGraphics);
-
-function drawMazeGraphics() {
-  const _mazeState = mazeState();
+export function drawMazeGraphics(container: Container) {
+  const mazeLayer = new RenderLayer();
+  container.addChild(mazeLayer);
+  const mazeGraphics = new Graphics();
+  mazeLayer.attach(mazeGraphics);
 
   adaptSyncEffect(() => {
+    const _mazeState = mazeState();
     mazeGraphics.clear();
     for (let row = 0; row < _mazeState.maze.length; row++) {
       for (let column = 0; column < _mazeState.maze[row].length; column++) {
@@ -33,9 +33,6 @@ function drawMazeGraphics() {
         if (cell.walls.top) {
           mazeGraphics.moveTo(x, y);
           mazeGraphics.lineTo(x + ARENA_CELL_SIZE, y);
-          // cell.walls.top === "breakable"
-          //   ? mazeGraphics.stroke({ width: 2, color: 0x00ffff })
-          //   : mazeGraphics.stroke({ width: 2, color: 0xffffff });
         }
         if (cell.walls.right) {
           mazeGraphics.moveTo(x + ARENA_CELL_SIZE, y);
@@ -54,5 +51,3 @@ function drawMazeGraphics() {
     }
   });
 }
-
-drawMazeGraphics();

@@ -24,9 +24,9 @@ const [keysState] = adaptState<
   }>({ position: { x: 1, y: 7 } }),
 ]);
 
-export function drawKeysGraphics(stage: Container) {
+export function drawKeysGraphics(container: Container) {
   const keysLayer = new RenderLayer();
-  stage.addChild(keysLayer);
+  container.addChild(keysLayer);
 
   adaptSyncEffect(() => {
     const _keysState = keysState();
@@ -37,7 +37,7 @@ export function drawKeysGraphics(stage: Container) {
         pivot: MID_POINT,
       });
       keysLayer.attach(keySprite);
-      stage.addChild(keySprite);
+      container.addChild(keySprite);
 
       adaptSyncEffect(() => {
         const _keyState = keyStateTuple[0]();

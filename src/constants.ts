@@ -1,8 +1,6 @@
 export const ARENA_CELL_SIZE = 60;
-export const ARENA_ROW_COUNT = 15;
-export const ARENA_COLUMN_COUNT = 10;
-export const ARENA_WIDTH = ARENA_COLUMN_COUNT * ARENA_CELL_SIZE;
-export const ARENA_HEIGHT = ARENA_ROW_COUNT * ARENA_CELL_SIZE;
+export const INITIAL_ARENA_ROW_COUNT = 15;
+export const INITIAL_ARENA_COLUMN_COUNT = 10;
 export const ARENA_WALL_THICKNESS = 5;
 export const MID_POINT = 0.5;
 
@@ -29,3 +27,5 @@ export type EnemyKind = Exclude<
   keyof (typeof assetAliases)["characters"],
   "player"
 >;
+
+export const CANVAS_CONTAINER_ID = "canvas-container";

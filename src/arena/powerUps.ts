@@ -24,9 +24,9 @@ const [powerUpsState] = adaptState<
   }>({ position: { x: 0, y: 4 } }),
 ]);
 
-export function drawPowerUpsGraphics(stage: Container) {
+export function drawPowerUpsGraphics(container: Container) {
   const powerUpsLayer = new RenderLayer();
-  stage.addChild(powerUpsLayer);
+  container.addChild(powerUpsLayer);
 
   adaptSyncEffect(() => {
     const _powerUpsState = powerUpsState();
@@ -37,7 +37,7 @@ export function drawPowerUpsGraphics(stage: Container) {
         pivot: MID_POINT,
       });
       powerUpsLayer.attach(powerUpSprite);
-      stage.addChild(powerUpSprite);
+      container.addChild(powerUpSprite);
 
       adaptSyncEffect(() => {
         const _powerUpState = powerUpStateTuple[0]();

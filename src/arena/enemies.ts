@@ -35,9 +35,9 @@ const [enemiesState] = adaptState<
   }>({ kind: "blueEnemy", position: { x: 4, y: 4 } }),
 ]);
 
-export function drawEnemiesGraphics(stage: Container) {
+export function drawEnemiesGraphics(container: Container) {
   const enemiesLayer = new RenderLayer();
-  stage.addChild(enemiesLayer);
+  container.addChild(enemiesLayer);
 
   adaptSyncEffect(() => {
     const _enemiesState = enemiesState();
@@ -50,7 +50,7 @@ export function drawEnemiesGraphics(stage: Container) {
         pivot: MID_POINT,
       });
       enemiesLayer.attach(enemySprite);
-      stage.addChild(enemySprite);
+      container.addChild(enemySprite);
 
       adaptSyncEffect(() => {
         const _enemyState = enemyStateTuple[0]();

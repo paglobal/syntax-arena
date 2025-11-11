@@ -6,16 +6,16 @@ const [playerState] = adaptState({
   position: { x: 1, y: 9 },
 });
 
-export function drawPlayerGraphics(stage: Container) {
+export function drawPlayerGraphics(container: Container) {
   const playerLayer = new RenderLayer();
-  stage.addChild(playerLayer);
+  container.addChild(playerLayer);
   const playerSprite = new Sprite({
     texture: Assets.get(assetAliases.characters.player),
     anchor: MID_POINT,
     pivot: MID_POINT,
   });
   playerLayer.attach(playerSprite);
-  stage.addChild(playerSprite);
+  container.addChild(playerSprite);
 
   adaptSyncEffect(() => {
     const _playerState = playerState();
