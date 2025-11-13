@@ -1,39 +1,16 @@
 import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
 import { adaptState, adaptSyncEffect, State, untrack } from "promethium-js";
-import {
-  ARENA_CELL_SIZE,
-  assetAliases,
-  EnemyKind,
-  MID_POINT,
-} from "@/constants";
+import { ARENA_CELL_SIZE, EnemyKind, MID_POINT } from "@/utils";
+import { getInitialEnemiesState } from "./enemiesUtils";
 
-const [enemiesState] = adaptState<
-  State<{
-    kind: EnemyKind;
-    position: { x: number; y: number };
-  }>[]
->([
-  adaptState<{
-    kind: EnemyKind;
-    position: { x: number; y: number };
-  }>({ kind: "blueEnemy", position: { x: 2, y: 6 } }),
-  adaptState<{
-    kind: EnemyKind;
-    position: { x: number; y: number };
-  }>({ kind: "greenEnemy", position: { x: 7, y: 5 } }),
-  adaptState<{
-    kind: EnemyKind;
-    position: { x: number; y: number };
-  }>({ kind: "redEnemy", position: { x: 1, y: 1 } }),
-  adaptState<{
-    kind: EnemyKind;
-    position: { x: number; y: number };
-  }>({ kind: "orangeEnemy", position: { x: 1, y: 2 } }),
-  adaptState<{
-    kind: EnemyKind;
-    position: { x: number; y: number };
-  }>({ kind: "blueEnemy", position: { x: 4, y: 4 } }),
-]);
+export type EnemyState = {
+  kind: EnemyKind;
+  position: { x: number; y: number };
+};
+
+const [enemiesState] = adaptState<Array<State<EnemyState>>>(
+  getInitialEnemiesState(),
+);
 
 export function drawEnemiesGraphics(container: Container) {
   const enemiesLayer = new RenderLayer();
@@ -42,9 +19,7 @@ export function drawEnemiesGraphics(container: Container) {
     const _enemiesState = enemiesState();
     for (const enemyStateTuple of _enemiesState) {
       const enemySprite = new Sprite({
-        texture: Assets.get(
-          assetAliases.characters[untrack(enemyStateTuple[0]).kind],
-        ),
+        texture: Assets.get(untrack(enemyStateTuple[0]).kind),
         anchor: MID_POINT,
         pivot: MID_POINT,
       });

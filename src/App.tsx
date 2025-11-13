@@ -34,7 +34,7 @@ const tabPanelContentContainer = (content: any) => (
     $attr:style={styleMap({
       position: "relative",
       width: "100vw",
-      height: `calc(100vh - ${dimensions.tabFontSize} - 2 * ${dimensions.tabVerticalPadding})`,
+      height: `calc(100dvh - ${dimensions.tabFontSize} - 2 * ${dimensions.tabVerticalPadding})`,
       border: 0,
       padding: 0,
       overflow: "hidden",

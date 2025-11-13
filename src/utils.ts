@@ -1,6 +1,70 @@
 import { imperativeUpdate, Setter } from "promethium-js";
 import { Assets } from "pixi.js";
-import { assetAliases, assetFolders } from "./constants";
+
+export const ARENA_CELL_SIZE = 50;
+export const INITIAL_ARENA_ROW_COUNT = 10;
+export const INITIAL_ARENA_COLUMN_COUNT = 10;
+export const INITIAL_ENEMY_COUNT = 5;
+export const INITIAL_KEY_COUNT = 5;
+export const INITIAL_POWER_UP_COUNT = 5;
+export const ARENA_WALL_THICKNESS = 5;
+export const MID_POINT = 0.5;
+
+export const entityKinds = {
+  characters: "characters",
+  objects: "objects",
+} as const satisfies Record<string, string>;
+
+export type EntityKind = (typeof entityKinds)[keyof typeof entityKinds];
+
+export const enemyKinds = {
+  blueEnemy: "blueEnemy",
+  redEnemy: "redEnemy",
+  orangeEnemy: "orangeEnemy",
+  greenEnemy: "greenEnemy",
+} as const satisfies Record<string, string>;
+
+export type EnemyKind = (typeof enemyKinds)[keyof typeof enemyKinds];
+
+export const playerKinds = {
+  player: "player",
+} as const satisfies Record<string, string>;
+
+export type PlayerKind = (typeof playerKinds)[keyof typeof playerKinds];
+
+export const objectKinds = {
+  powerUp: "powerUp",
+  key: "key",
+} as const satisfies Record<string, string>;
+
+export type ObjectKind = (typeof objectKinds)[keyof typeof objectKinds];
+
+const assetFileTree = {
+  characters: {
+    ...playerKinds,
+    ...enemyKinds,
+  },
+  objects: {
+    ...objectKinds,
+  },
+} as const satisfies Record<
+  EntityKind,
+  Record<string, EnemyKind | PlayerKind | ObjectKind>
+>;
+
+function getSVGAssetObject(folder: EntityKind, alias: string) {
+  return { alias, src: `/assets/${folder}/${alias}.svg` };
+}
+
+export async function loadAssetBundle(folder: EntityKind) {
+  const assetArray = Object.values(assetFileTree[folder]).map((alias) =>
+    getSVGAssetObject(folder, alias),
+  );
+  Assets.addBundle(folder, assetArray);
+  await Assets.loadBundle(folder);
+}
+
+export const CANVAS_CONTAINER_ID = "canvas-container";
 
 export function assertNever(x: never): never {
   throw new Error("Unexpected value: " + x);
@@ -37,21 +101,15 @@ export function mutateState<T>(
   setState(imperativeUpdate);
 }
 
-type AssetFolder = (typeof assetFolders)[keyof typeof assetFolders];
-
-function getSVGAssetObject(folder: AssetFolder, alias: string) {
-  return { alias, src: `/assets/${folder}/${alias}.svg` };
+export function randomIntegerFromRange(start: number, end: number) {
+  if (end > start) {
+    return Math.floor(Math.random() * (end + 1 - start)) + start;
+  } else {
+    throw new Error("End must be greater than start!");
+  }
 }
 
-export async function loadAssetBundle(folder: AssetFolder) {
-  const assetArray = Object.values(assetAliases[folder]).map((alias) =>
-    getSVGAssetObject(folder, alias),
-  );
-  Assets.addBundle(folder, assetArray);
-  await Assets.loadBundle(folder);
-}
-
-// Implementation of xoshiroo**: translated
+// Implementation of xoshiroo**: translated by ChatGPT
 function rotl(x: number, k: number) {
   return ((x << k) | (x >>> (32 - k))) >>> 0;
 }

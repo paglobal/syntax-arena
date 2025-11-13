@@ -5,15 +5,15 @@ import { setBasePath } from "@awesome.me/webawesome/dist/webawesome.js";
 import "./customElements";
 import { render } from "lit";
 import { App } from "./App";
-import { assetFolders } from "./constants";
+import { entityKinds } from "./utils";
 import { initialize } from "@/orchestrator/orchestrator";
 import { loadAssetBundle } from "./utils";
 
 setBasePath("/");
 
 (async () => {
-  await loadAssetBundle(assetFolders.characters);
-  await loadAssetBundle(assetFolders.objects);
+  await loadAssetBundle(entityKinds.characters);
+  await loadAssetBundle(entityKinds.objects);
   render(<App />, document.body);
   await initialize();
 })();

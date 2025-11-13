@@ -1,6 +1,6 @@
 import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
 import { adaptState, adaptSyncEffect, State } from "promethium-js";
-import { ARENA_CELL_SIZE, assetAliases, MID_POINT } from "@/constants";
+import { ARENA_CELL_SIZE, MID_POINT, objectKinds } from "@/utils";
 
 const [powerUpsState] = adaptState<
   State<{
@@ -31,7 +31,7 @@ export function drawPowerUpsGraphics(container: Container) {
     const _powerUpsState = powerUpsState();
     for (const powerUpStateTuple of _powerUpsState) {
       const powerUpSprite = new Sprite({
-        texture: Assets.get(assetAliases.objects.powerUp),
+        texture: Assets.get(objectKinds.powerUp),
         anchor: MID_POINT,
         pivot: MID_POINT,
       });

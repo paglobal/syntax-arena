@@ -1,4 +1,4 @@
-import { CANVAS_CONTAINER_ID } from "@/constants";
+import { CANVAS_CONTAINER_ID } from "@/utils";
 import { styleMap } from "lit/directives/style-map.js";
 
 export function Arena() {
@@ -26,18 +26,26 @@ export function Arena() {
         <div
           $attr:style={styleMap({
             display: "flex",
-            "justify-content": "space-between",
+            "justify-content": "space-around",
+            "align-items": "center",
+            gap: "0.3rem",
           })}
         >
+          <wa-button size="small" appearance="filled" pill>
+            <wa-icon name="caret-left" label="Previous"></wa-icon>
+          </wa-button>
           <wa-callout variant="neutral">
             <wa-icon slot="icon" name="circle-info"></wa-icon>
             information here! No information here! No information here! No
           </wa-callout>
+          <wa-button size="small" appearance="filled" pill>
+            <wa-icon name="caret-right" label="Next"></wa-icon>
+          </wa-button>
         </div>
         <div
           $attr:style={styleMap({
             display: "flex",
-            "justify-content": "flex-end",
+            "justify-content": "flex-start",
           })}
         >
           <div
@@ -45,11 +53,12 @@ export function Arena() {
               display: "grid",
               "grid-template-columns": "repeat(3, auto)",
               "grid-template-rows": "repeat(3, auto)",
-              gap: "0.25rem",
+              gap: "0.3rem",
               width: "max-content",
             })}
           >
             <wa-button
+              size="small"
               appearance="filled"
               pill
               id="d-pad-up"
@@ -58,9 +67,10 @@ export function Arena() {
                 "grid-row": 1,
               })}
             >
-              <wa-icon name="house" label="Home"></wa-icon>
+              <wa-icon name="caret-up" label="Up"></wa-icon>
             </wa-button>
             <wa-button
+              size="small"
               appearance="filled"
               pill
               id="d-pad-left"
@@ -69,9 +79,10 @@ export function Arena() {
                 "grid-row": 2,
               })}
             >
-              <wa-icon name="house" label="Home"></wa-icon>
+              <wa-icon name="caret-left" label="Left"></wa-icon>
             </wa-button>
             <wa-button
+              size="small"
               appearance="filled"
               pill
               id="d-pad-right"
@@ -80,9 +91,10 @@ export function Arena() {
                 "grid-row": 2,
               })}
             >
-              <wa-icon name="house" label="Home"></wa-icon>
+              <wa-icon name="caret-right" label="Right"></wa-icon>
             </wa-button>
             <wa-button
+              size="small"
               appearance="filled"
               pill
               id="d-pad-down"
@@ -91,17 +103,18 @@ export function Arena() {
                 "grid-row": 3,
               })}
             >
-              <wa-icon name="house" label="Home"></wa-icon>
+              <wa-icon name="caret-down" label="Down"></wa-icon>
             </wa-button>
             <wa-button
+              size="small"
               pill
-              id="d-pad-down"
+              id="d-pad-center"
               $attr:style={styleMap({
                 "grid-column": 2,
                 "grid-row": 2,
               })}
             >
-              <wa-icon name="house" label="Home"></wa-icon>
+              <wa-icon name="circle" label="Center"></wa-icon>
             </wa-button>
           </div>
         </div>

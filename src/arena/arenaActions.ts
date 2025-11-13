@@ -5,7 +5,7 @@ import { getCSSVariable } from "@/utils";
 import { drawEnemiesGraphics } from "./enemies";
 import { drawKeysGraphics } from "./keys";
 import { drawPowerUpsGraphics } from "./powerUps";
-import { CANVAS_CONTAINER_ID } from "@/constants";
+import { CANVAS_CONTAINER_ID } from "@/utils";
 
 export async function initializeArena() {
   const resizeTo = document.querySelector(

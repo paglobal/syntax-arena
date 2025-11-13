@@ -1,6 +1,6 @@
 import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
 import { adaptState, adaptSyncEffect, State } from "promethium-js";
-import { ARENA_CELL_SIZE, assetAliases, MID_POINT } from "@/constants";
+import { ARENA_CELL_SIZE, MID_POINT, objectKinds } from "@/utils";
 
 const [keysState] = adaptState<
   State<{
@@ -31,7 +31,7 @@ export function drawKeysGraphics(container: Container) {
     const _keysState = keysState();
     for (const keyStateTuple of _keysState) {
       const keySprite = new Sprite({
-        texture: Assets.get(assetAliases.objects.key),
+        texture: Assets.get(objectKinds.key),
         anchor: MID_POINT,
         pivot: MID_POINT,
       });

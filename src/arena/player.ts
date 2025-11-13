@@ -1,6 +1,6 @@
 import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
 import { adaptState, adaptSyncEffect } from "promethium-js";
-import { ARENA_CELL_SIZE, assetAliases, MID_POINT } from "@/constants";
+import { ARENA_CELL_SIZE, MID_POINT, playerKinds } from "@/utils";
 
 const [playerState] = adaptState({
   position: { x: 1, y: 9 },
@@ -10,7 +10,7 @@ export function drawPlayerGraphics(container: Container) {
   const playerLayer = new RenderLayer();
   container.addChild(playerLayer);
   const playerSprite = new Sprite({
-    texture: Assets.get(assetAliases.characters.player),
+    texture: Assets.get(playerKinds.player),
     anchor: MID_POINT,
     pivot: MID_POINT,
   });
