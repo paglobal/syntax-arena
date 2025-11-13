@@ -11,9 +11,6 @@ importers:
       '@awesome.me/webawesome':
         specifier: 3.0.0-beta.6
         version: 3.0.0-beta.6(@floating-ui/utils@0.2.10)(@types/react@19.1.8)
-      '@pixi/ui':
-        specifier: ^2.2.7
-        version: 2.2.7(pixi.js@8.10.2)
       hotkeys-js:
         specifier: ^3.13.14
         version: 3.13.14
@@ -232,11 +229,6 @@ packages:
 
   '@pixi/colord@2.9.6':
     resolution: {integrity: sha512-nezytU2pw587fQstUu1AsJZDVEynjskwOL+kibwcdxsMBFqPsFFNA7xl0ii/gXuDi6M0xj3mfRJj8pBSc2jCfA==}
-
-  '@pixi/ui@2.2.7':
-    resolution: {integrity: sha512-YMVx3WImhOc/8Navqj+d4SKVNAjyuHecvMGFIdh8NPIfzwgV3MoxIkwswHcuGpxQAljG1psMbMHVIAEKznN9oA==}
-    peerDependencies:
-      pixi.js: ^8.6.2
 
   '@promethium-js/adaptations@0.0.1':
     resolution: {integrity: sha512-b3RNZIntaa27u/ACa7G6oTF0Epvz5+zSQVE5FAUqEakVWPMnNftYOqvf02sm3iI9voXjGYXoLQevzffNw9XEkw==}
@@ -622,12 +614,6 @@ packages:
   ts-simple-type@2.0.0-next.0:
     resolution: {integrity: sha512-A+hLX83gS+yH6DtzNAhzZbPfU+D9D8lHlTSd7GeoMRBjOt3GRylDqLTYbdmjA4biWvq2xSfpqfIDj2l0OA/BVg==}
 
-  tweedle.js@2.1.0:
-    resolution: {integrity: sha512-0ReQgVjepoZkE6t0upWNgCRbplHkQJQYk1LStXugwSR728GLFmGDRuaQJlxeC/iBlxud6+P1RdODjaO25vHAqw==}
-
-  typed-signals@2.5.0:
-    resolution: {integrity: sha512-m9lHc3eBCJerXYdx+G0uWZihyUXdqTzzgOdqiDDsoUo75WjhFJH6vP5/6w/xhyu04zoxHUqgYhf9FEt85dk/Ng==}
-
   typescript@5.2.2:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
     engines: {node: '>=14.17'}
@@ -834,12 +820,6 @@ snapshots:
       fastq: 1.19.1
 
   '@pixi/colord@2.9.6': {}
-
-  '@pixi/ui@2.2.7(pixi.js@8.10.2)':
-    dependencies:
-      pixi.js: 8.10.2
-      tweedle.js: 2.1.0
-      typed-signals: 2.5.0
 
   '@promethium-js/adaptations@0.0.1': {}
 
@@ -1210,10 +1190,6 @@ snapshots:
   ts-pattern@5.7.1: {}
 
   ts-simple-type@2.0.0-next.0: {}
-
-  tweedle.js@2.1.0: {}
-
-  typed-signals@2.5.0: {}
 
   typescript@5.2.2: {}
 

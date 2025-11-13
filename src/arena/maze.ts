@@ -1,4 +1,4 @@
-import { Graphics, RenderLayer } from "pixi.js";
+import { Container, Graphics, RenderLayer } from "pixi.js";
 import { adaptState, adaptSyncEffect } from "promethium-js";
 import {
   ARENA_CELL_SIZE,
@@ -19,8 +19,8 @@ export function drawMazeGraphics(container: Container) {
   const mazeLayer = new RenderLayer();
   container.addChild(mazeLayer);
   const mazeGraphics = new Graphics();
+  container.addChild(mazeGraphics);
   mazeLayer.attach(mazeGraphics);
-
   adaptSyncEffect(() => {
     const _mazeState = mazeState();
     mazeGraphics.clear();
@@ -29,7 +29,6 @@ export function drawMazeGraphics(container: Container) {
         const cell = _mazeState.maze[row][column];
         const x = column * ARENA_CELL_SIZE;
         const y = row * ARENA_CELL_SIZE;
-
         if (cell.walls.top) {
           mazeGraphics.moveTo(x, y);
           mazeGraphics.lineTo(x + ARENA_CELL_SIZE, y);

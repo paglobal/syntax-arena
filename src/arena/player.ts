@@ -14,9 +14,8 @@ export function drawPlayerGraphics(container: Container) {
     anchor: MID_POINT,
     pivot: MID_POINT,
   });
-  playerLayer.attach(playerSprite);
   container.addChild(playerSprite);
-
+  playerLayer.attach(playerSprite);
   adaptSyncEffect(() => {
     const _playerState = playerState();
     const ratio = playerSprite.height / playerSprite.width;

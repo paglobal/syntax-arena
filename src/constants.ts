@@ -1,5 +1,5 @@
-export const ARENA_CELL_SIZE = 60;
-export const INITIAL_ARENA_ROW_COUNT = 15;
+export const ARENA_CELL_SIZE = 50;
+export const INITIAL_ARENA_ROW_COUNT = 10;
 export const INITIAL_ARENA_COLUMN_COUNT = 10;
 export const ARENA_WALL_THICKNESS = 5;
 export const MID_POINT = 0.5;

@@ -38,7 +38,6 @@ const [enemiesState] = adaptState<
 export function drawEnemiesGraphics(container: Container) {
   const enemiesLayer = new RenderLayer();
   container.addChild(enemiesLayer);
-
   adaptSyncEffect(() => {
     const _enemiesState = enemiesState();
     for (const enemyStateTuple of _enemiesState) {
@@ -49,9 +48,8 @@ export function drawEnemiesGraphics(container: Container) {
         anchor: MID_POINT,
         pivot: MID_POINT,
       });
-      enemiesLayer.attach(enemySprite);
       container.addChild(enemySprite);
-
+      enemiesLayer.attach(enemySprite);
       adaptSyncEffect(() => {
         const _enemyState = enemyStateTuple[0]();
         const ratio = enemySprite.height / enemySprite.width;

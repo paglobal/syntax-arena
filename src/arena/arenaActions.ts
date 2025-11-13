@@ -1,5 +1,5 @@
 import { drawMazeGraphics } from "@/arena/maze";
-import { Application } from "pixi.js";
+import { Application, Container } from "pixi.js";
 import { drawPlayerGraphics } from "./player";
 import { getCSSVariable } from "@/utils";
 import { drawEnemiesGraphics } from "./enemies";
@@ -17,12 +17,20 @@ export async function initializeArena() {
     background: getCSSVariable("--wa-color-neutral-05"),
     resizeTo,
   });
-
   resizeTo.appendChild(app.canvas);
-
-  drawMazeGraphics(app.stage);
-  drawPowerUpsGraphics(app.stage);
-  drawKeysGraphics(app.stage);
-  drawEnemiesGraphics(app.stage);
-  drawPlayerGraphics(app.stage);
+  const centeredContainer = new Container();
+  app.stage.addChild(centeredContainer);
+  drawMazeGraphics(centeredContainer);
+  drawPowerUpsGraphics(centeredContainer);
+  drawKeysGraphics(centeredContainer);
+  drawEnemiesGraphics(centeredContainer);
+  drawPlayerGraphics(centeredContainer);
+  centeredContainer.onRender = () => {
+    centeredContainer.pivot.set(
+      centeredContainer.width / 2,
+      centeredContainer.height / 2,
+    );
+    centeredContainer.x = app.screen.width / 2;
+    centeredContainer.y = app.screen.height / 2;
+  };
 }

@@ -27,7 +27,6 @@ const [powerUpsState] = adaptState<
 export function drawPowerUpsGraphics(container: Container) {
   const powerUpsLayer = new RenderLayer();
   container.addChild(powerUpsLayer);
-
   adaptSyncEffect(() => {
     const _powerUpsState = powerUpsState();
     for (const powerUpStateTuple of _powerUpsState) {
@@ -36,9 +35,8 @@ export function drawPowerUpsGraphics(container: Container) {
         anchor: MID_POINT,
         pivot: MID_POINT,
       });
-      powerUpsLayer.attach(powerUpSprite);
       container.addChild(powerUpSprite);
-
+      powerUpsLayer.attach(powerUpSprite);
       adaptSyncEffect(() => {
         const _powerUpState = powerUpStateTuple[0]();
         const ratio = powerUpSprite.height / powerUpSprite.width;
@@ -55,5 +53,3 @@ export function drawPowerUpsGraphics(container: Container) {
     }
   });
 }
-
-// function updateKeysState() {}
