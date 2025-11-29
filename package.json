@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css}\"",
     "dev": "vite",
     "type-check": "tsc --noEmit --watch",
     "build": "tsc && vite build",
@@ -12,8 +11,6 @@
   },
   "devDependencies": {
     "@types/node": "^24.9.2",
-    "prettier": "^3.6.2",
-    "ts-lit-plugin": "^2.0.2",
     "typescript": "^5.4.5",
     "vite": "^5.3.0"
   },
@@ -22,7 +19,6 @@
     "hotkeys-js": "^3.13.14",
     "lit": "^3.1.4",
     "pixi.js": "^8.10.1",
-    "promethium-js": "^0.16.1",
-    "ts-pattern": "^5.7.1"
+    "promethium-js": "^0.16.1"
   }
 }

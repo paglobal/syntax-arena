@@ -1,0 +1,9 @@
+export const ARENA_CELL_SIZE = 50;
+export const INITIAL_ARENA_ROW_COUNT = 10;
+export const INITIAL_ARENA_COLUMN_COUNT = 10;
+export const INITIAL_ENEMY_COUNT = 5;
+export const INITIAL_KEY_COUNT = 5;
+export const INITIAL_POWER_UP_COUNT = 5;
+export const ARENA_WALL_THICKNESS = 5;
+export const MID_POINT = 0.5;
+export const CANVAS_CONTAINER_ID = "canvas-container";

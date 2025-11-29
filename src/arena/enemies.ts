@@ -1,7 +1,32 @@
 import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
 import { adaptState, adaptSyncEffect, State, untrack } from "promethium-js";
-import { ARENA_CELL_SIZE, EnemyKind, MID_POINT } from "@/utils";
-import { getInitialEnemiesState } from "./enemiesUtils";
+import {
+  ARENA_CELL_SIZE,
+  MID_POINT,
+  INITIAL_ARENA_COLUMN_COUNT,
+  INITIAL_ARENA_ROW_COUNT,
+  INITIAL_ENEMY_COUNT,
+} from "./constants";
+import { enemyKinds, EnemyKind, randomIntegerFromRange } from "@/utils";
+
+export function getInitialEnemiesState() {
+  const initialEnemiesState: Array<State<EnemyState>> = [];
+  const enemyKindsArray = Object.values(enemyKinds);
+  for (let i = 0; i < INITIAL_ENEMY_COUNT; i++) {
+    const enemyState = adaptState<EnemyState>({
+      kind: enemyKindsArray[
+        randomIntegerFromRange(0, enemyKindsArray.length - 1)
+      ],
+      position: {
+        x: randomIntegerFromRange(0, INITIAL_ARENA_COLUMN_COUNT - 1),
+        y: randomIntegerFromRange(0, INITIAL_ARENA_ROW_COUNT - 1),
+      },
+    });
+    initialEnemiesState.push(enemyState);
+  }
+
+  return initialEnemiesState;
+}
 
 export type EnemyState = {
   kind: EnemyKind;

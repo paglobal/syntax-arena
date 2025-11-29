@@ -3,7 +3,9 @@ import { Arena } from "./arena/Arena";
 import { styles } from "promethium-js";
 import { styleMap } from "lit/directives/style-map.js";
 import { WaTabShowEvent } from "@awesome.me/webawesome";
-import { initializeArena } from "./arena/arenaActions";
+import { initializeArena } from "./arena";
+import { CommandForge } from "./command-forge/CommandForge";
+import { createCommandForgeController } from "./command-forge";
 
 const dimensions = {
   tabFontSize: "1.25rem",
@@ -29,7 +31,10 @@ const tabGroupStyles = css`
   }
 `;
 
-const tabPanelContentContainer = (content: any) => (
+const tabPanelContentContainer = (
+  content: any,
+  styles?: Record<string, unknown>,
+) => (
   <div
     $attr:style={styleMap({
       position: "relative",
@@ -37,7 +42,7 @@ const tabPanelContentContainer = (content: any) => (
       height: `calc(100dvh - ${dimensions.tabFontSize} - 2 * ${dimensions.tabVerticalPadding})`,
       border: 0,
       padding: 0,
-      overflow: "hidden",
+      ...styles,
     })}
   >
     {content}
@@ -54,6 +59,8 @@ export function App() {
   };
 
   let initializedArena = false;
+
+  const commandForgeController = createCommandForgeController();
 
   return () => (
     <>
@@ -86,10 +93,14 @@ export function App() {
           {tabPanelContentContainer("This is the custom tab panel.")}
         </wa-tab-panel>
         <wa-tab-panel name={tabIds.arena}>
-          {tabPanelContentContainer(<Arena />)}
+          {tabPanelContentContainer(<Arena />, {
+            overflow: "hidden",
+          })}
         </wa-tab-panel>
         <wa-tab-panel name={tabIds.commandforge}>
-          {tabPanelContentContainer("This is the custom tab panel.")}
+          {tabPanelContentContainer(
+            <CommandForge commandForgeController={commandForgeController} />,
+          )}
         </wa-tab-panel>
         <wa-tab-panel name={tabIds.tacticalTelemetry}>
           {tabPanelContentContainer("This is the custom tab panel.")}

@@ -15,11 +15,6 @@
 
     /* Linting */
     "strict": true,
-    "plugins": [
-      {
-        "name": "ts-lit-plugin"
-      }
-    ],
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,

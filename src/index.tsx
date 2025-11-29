@@ -6,7 +6,7 @@ import "./customElements";
 import { render } from "lit";
 import { App } from "./App";
 import { entityKinds } from "./utils";
-import { initialize } from "@/orchestrator/orchestrator";
+import { initializeKeybindings } from "@/orchestrator";
 import { loadAssetBundle } from "./utils";
 
 setBasePath("/");
@@ -15,5 +15,5 @@ setBasePath("/");
   await loadAssetBundle(entityKinds.characters);
   await loadAssetBundle(entityKinds.objects);
   render(<App />, document.body);
-  await initialize();
+  initializeKeybindings();
 })();

@@ -1,11 +1,16 @@
-import { drawMazeGraphics } from "@/arena/maze";
+import { drawMazeGraphics } from "./maze";
 import { Application, Container } from "pixi.js";
 import { drawPlayerGraphics } from "./player";
-import { getCSSVariable } from "@/utils";
 import { drawEnemiesGraphics } from "./enemies";
 import { drawKeysGraphics } from "./keys";
 import { drawPowerUpsGraphics } from "./powerUps";
-import { CANVAS_CONTAINER_ID } from "@/utils";
+import { CANVAS_CONTAINER_ID } from "./constants";
+
+function getCSSVariable(variableName: string): string {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(variableName)
+    .trim();
+}
 
 export async function initializeArena() {
   const resizeTo = document.querySelector(

@@ -1,21 +1,23 @@
 import { AST } from "./interpreter";
 import { NamedContainer } from "./NamedContainer";
-import { actions } from "./actions";
-import { commandForgeState, setCommandForgeState } from "./state";
+import { CommandForgeController } from ".";
 import { assertNever } from "@/utils";
 import { NamedBadge } from "./NamedBadge";
 
 const emptyTextPlaceholder = <span>{"\u2205"}</span>;
 
-export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
+export function SyntaxShard(props: {
+  syntaxShard: AST.SyntaxShard;
+  commandForgeController: CommandForgeController;
+}) {
   function focusOrEnterShard() {
-    const _orchestratorState = commandForgeState();
+    const _orchestratorState = props.commandForgeController.commandForgeState();
     if (_orchestratorState.focusedShard === props.syntaxShard) {
       switch (props.syntaxShard.type) {
         case "String":
         case "Number":
         case "Boolean":
-          actions.enterFocusedShard();
+          props.commandForgeController.enterFocusedShard();
           break;
         case "Null":
         case "Function":
@@ -29,19 +31,18 @@ export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
         case "Statements":
         case "Program":
           break;
-        default:
+        default: {
           assertNever(props.syntaxShard);
+        }
       }
     } else {
-      setCommandForgeState({
-        ..._orchestratorState,
-        focusedShard: props.syntaxShard,
-      });
+      props.commandForgeController.focusShard(props.syntaxShard);
     }
   }
 
   return () => {
-    const focusedShard = commandForgeState().focusedShard;
+    const focusedShard =
+      props.commandForgeController.commandForgeState().focusedShard;
     const namedElementProps = {
       id: props.syntaxShard.id,
       name: props.syntaxShard.type,
@@ -51,52 +52,94 @@ export function SyntaxShard(props: { syntaxShard: AST.SyntaxShard }) {
 
     return props.syntaxShard.type === "Call" ? (
       <NamedContainer {...namedElementProps}>
-        <SyntaxShard syntaxShard={props.syntaxShard.callee}></SyntaxShard>
-        <SyntaxShard syntaxShard={props.syntaxShard.arguments}></SyntaxShard>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.callee}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.arguments}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "Assignment" ? (
       <NamedContainer {...namedElementProps}>
-        <SyntaxShard syntaxShard={props.syntaxShard.assignee}></SyntaxShard>
-        <SyntaxShard syntaxShard={props.syntaxShard.expression}></SyntaxShard>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.assignee}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.expression}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "Definition" ? (
       <NamedContainer {...namedElementProps}>
-        <SyntaxShard syntaxShard={props.syntaxShard.assignee}></SyntaxShard>
-        <SyntaxShard syntaxShard={props.syntaxShard.expression}></SyntaxShard>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.assignee}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.expression}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "Statements" ? (
       <NamedContainer {...namedElementProps}>
         {props.syntaxShard.contents.map((statement) => (
-          <SyntaxShard syntaxShard={statement}></SyntaxShard>
+          <SyntaxShard
+            syntaxShard={statement}
+            commandForgeController={props.commandForgeController}
+          ></SyntaxShard>
         ))}
       </NamedContainer>
     ) : props.syntaxShard.type === "Function" ? (
       <NamedContainer {...namedElementProps}>
-        <SyntaxShard syntaxShard={props.syntaxShard.parameters}></SyntaxShard>
-        <SyntaxShard syntaxShard={props.syntaxShard.body}></SyntaxShard>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.parameters}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.body}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "Properties" ? (
       <NamedContainer {...namedElementProps}>
         {props.syntaxShard.contents.map((property) => (
-          <SyntaxShard syntaxShard={property}></SyntaxShard>
+          <SyntaxShard
+            syntaxShard={property}
+            commandForgeController={props.commandForgeController}
+          ></SyntaxShard>
         ))}
       </NamedContainer>
     ) : props.syntaxShard.type === "Values" ? (
       <NamedContainer {...namedElementProps}>
         {props.syntaxShard.contents.map((value) => (
-          <SyntaxShard syntaxShard={value}></SyntaxShard>
+          <SyntaxShard
+            syntaxShard={value}
+            commandForgeController={props.commandForgeController}
+          ></SyntaxShard>
         ))}
       </NamedContainer>
     ) : props.syntaxShard.type === "Identifiers" ? (
       <NamedContainer {...namedElementProps}>
         {props.syntaxShard.contents.map((identifier) => (
-          <SyntaxShard syntaxShard={identifier}></SyntaxShard>
+          <SyntaxShard
+            syntaxShard={identifier}
+            commandForgeController={props.commandForgeController}
+          ></SyntaxShard>
         ))}
       </NamedContainer>
     ) : props.syntaxShard.type === "Property" ? (
       <NamedContainer {...namedElementProps}>
-        <SyntaxShard syntaxShard={props.syntaxShard.key}></SyntaxShard>
-        <SyntaxShard syntaxShard={props.syntaxShard.expression}></SyntaxShard>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.key}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.expression}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "String" ? (
       <NamedBadge {...namedElementProps} variant="warning">

@@ -1,4 +1,4 @@
-import { CANVAS_CONTAINER_ID } from "@/utils";
+import { CANVAS_CONTAINER_ID } from "./constants";
 import { styleMap } from "lit/directives/style-map.js";
 
 export function Arena() {

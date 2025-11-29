@@ -10,13 +10,19 @@ export const sharedShardChildStyles = css`
   }
 
   ${styles.scope}.focused {
-    box-shadow: 0 0 0rem 0.2rem var(--wa-color-focus);
+    box-shadow: 0 0 0.4rem 0.2rem var(--wa-color-focus);
   }
 `;
 
 const namedContainerStyles = css`
   ${styles.scope}::part(header), ${styles.scope}::part(body) {
     padding: 0.25rem 1rem;
+  }
+
+  ${styles.scope} {
+    border-radius: var(--wa-border-radius-m);
+    border-width: var(--wa-border-width-m);
+    background-color: var(--wa-color-surface-default);
   }
 
   ${sharedShardChildStyles}
