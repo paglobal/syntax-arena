@@ -29,22 +29,22 @@ export namespace AST {
   export type StringParent = BaseValueParent | IdentifierParent;
 
   export interface String
-    extends CreateSyntaxShard<"String", StringParent, { value: string }> {}
+    extends CreateSyntaxShard<"String", StringParent, { value: string }> { }
 
   export type NumberParent = BaseValueParent | IdentifierParent;
 
   export interface Number
-    extends CreateSyntaxShard<"Number", NumberParent, { value: number }> {}
+    extends CreateSyntaxShard<"Number", NumberParent, { value: number }> { }
 
   export type BooleanParent = BaseValueParent;
 
   export interface Boolean
-    extends CreateSyntaxShard<"Boolean", BooleanParent, { value: boolean }> {}
+    extends CreateSyntaxShard<"Boolean", BooleanParent, { value: boolean }> { }
 
   export type NullParent = BaseValueParent | IdentifierParent;
 
   export interface Null
-    extends CreateSyntaxShard<"Null", NullParent, { value: null }> {}
+    extends CreateSyntaxShard<"Null", NullParent, { value: null }> { }
 
   export type IdentifiersParent = BaseValueParent | Call;
 
@@ -53,7 +53,7 @@ export namespace AST {
       "Identifiers",
       IdentifiersParent,
       { contents: Identifier[] }
-    > {}
+    > { }
 
   export type IdentifierParent = Identifiers | Definition | Property;
 
@@ -66,7 +66,7 @@ export namespace AST {
       "Property",
       PropertyParent,
       { key: Identifier; expression: Value }
-    > {}
+    > { }
 
   export type PropertiesParent = BaseValueParent;
 
@@ -75,12 +75,12 @@ export namespace AST {
       "Properties",
       PropertiesParent,
       { contents: Property[] }
-    > {}
+    > { }
 
   export type ValuesParent = BaseValueParent | Call;
 
   export interface Values
-    extends CreateSyntaxShard<"Values", ValuesParent, { contents: Value[] }> {}
+    extends CreateSyntaxShard<"Values", ValuesParent, { contents: Value[] }> { }
 
   export type BaseStatementParent = Statements;
 
@@ -92,9 +92,9 @@ export namespace AST {
       CallParent,
       {
         callee: Identifiers | Function;
-        arguments: Values;
+        arguments: Identifiers | Values;
       }
-    > {}
+    > { }
 
   export type AssignmentParent = BaseStatementParent;
 
@@ -106,7 +106,7 @@ export namespace AST {
         assignee: Identifiers;
         expression: Value;
       }
-    > {}
+    > { }
 
   export type DefinitionParent = BaseStatementParent;
 
@@ -118,7 +118,7 @@ export namespace AST {
         assignee: Identifier;
         expression: Value;
       }
-    > {}
+    > { }
 
   export type Statement = Definition | Assignment | Call;
 
@@ -140,12 +140,14 @@ export namespace AST {
         parameters: Identifiers;
         body: Statements;
       }
-    > {}
+    > { }
 
-  export type Primitive = String | Number | Boolean | Null;
+  export type PrimitiveShard = String | Number | Boolean | Null;
+
+  export type CompositeShard = Exclude<AST.SyntaxShard, PrimitiveShard>
 
   export type Value =
-    | Primitive
+    | PrimitiveShard
     | Identifiers
     | Call
     | Properties
@@ -160,16 +162,16 @@ export namespace AST {
     | Statements
     | Program;
 
-  export type ShardGroup = Identifiers | Properties | Statements | Statements;
+  export type ShardGroup = Identifiers | Properties | Values | Statements | Statements;
 
   export type Program = CreateSyntaxShard<
     "Program",
     null,
-    { contents: Statements[] }
+    { body: Statements }
   >;
 }
 
-export function findScopeForIdentifier({
+function findScopeForIdentifier({
   identifier,
   context,
 }: {
@@ -187,7 +189,7 @@ export function findScopeForIdentifier({
   return undefined;
 }
 
-export function resolveIdentifierValue({
+function resolveIdentifierValue({
   identifier,
   context,
 }: {
@@ -202,7 +204,7 @@ export function resolveIdentifierValue({
   throw new Error(`${identifier.value} is not defined`);
 }
 
-export function createExecutionContext(parentContext: ExecutionContext) {
+function createExecutionContext(parentContext: ExecutionContext) {
   const newContext: ExecutionContext = {
     scope: new Map(),
     parent: parentContext,
@@ -211,7 +213,7 @@ export function createExecutionContext(parentContext: ExecutionContext) {
   return newContext;
 }
 
-export function* assignValueToIdentifier({
+function* assignValueToIdentifier({
   assignment,
   resolvedValue,
   context,
@@ -282,7 +284,7 @@ export function* assignValueToIdentifier({
   }
 }
 
-export function* resolveValue({
+function* resolveValue({
   value,
   context,
 }: {
@@ -392,7 +394,7 @@ export function* resolveValue({
   }
 }
 
-export function* interpretCall({
+function* interpretCall({
   call,
   context,
 }: {

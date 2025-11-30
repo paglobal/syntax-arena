@@ -16,7 +16,7 @@ export function CommandForge(props: {
     let visibleShard = focusedShard;
 
     if (focusedShard.parent === null) {
-      visibleShard = focusedShard.contents[0];
+      visibleShard = focusedShard.body;
     } else if (focusedShard.parent?.type !== "Program") {
       visibleShard = focusedShard.parent;
     }

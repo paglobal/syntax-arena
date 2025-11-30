@@ -187,38 +187,259 @@ export function generateStatements(
 }
 
 export function generateProgram(): AST.Program {
-  const program: AST.Program = {
+  const baseProgram: Omit<AST.Program, "body"> = {
     id: crypto.randomUUID(),
     type: "Program",
     parent: null,
-    contents: [],
   };
-  program.contents.push(generateStatements(program));
+  const program = baseProgram as AST.Program;
+  program.body = generateStatements(program);
 
   return program;
 }
 
-export function executeFocusedStatements(
-  commandForgeController: CommandForgeController,
-) {
-  const _orchestratorState = commandForgeController.commandForgeState();
-  const currentStatements =
-    _orchestratorState.program.contents[
-      _orchestratorState.currentStatementsIndex
-    ];
-  const scope: Scope = new Map();
-  scope.set("log", (a: string) => console.log(a));
-  scope.set("gt", function* () {
-    yield 4;
-    yield 6;
-    console.log("waddup!");
+const tupleFromUnionType =
+  <T>() =>
+    <U extends T[]>(
+      ...array: U & ([T] extends [U[number]] ? unknown : "Missing union members")
+    ) =>
+      array;
 
-    return "hey!";
-  });
-  for (const _ of interpret({
-    statements: currentStatements,
-    context: { scope },
-  })) {
+const getTypedShardFieldPair = <T extends AST.SyntaxShard>(
+  shard: T,
+  field: string | number | symbol,
+) => {
+  const typedShard = shard;
+  const typedField = field as Exclude<
+    keyof typeof typedShard,
+    "type" | "id" | "parent"
+  >;
+
+  return [typedShard, typedField] as const;
+};
+
+type RelevantFields<T extends AST.CompositeShard> = Exclude<
+  keyof T,
+  "id" | "parent" | "type"
+>;
+
+type ContentsType<
+  T extends AST.ShardGroup,
+  U extends "contents",
+> = T[U][number]["type"];
+
+type OtherRelevantFieldsType<
+  T extends AST.CompositeShard,
+  U extends RelevantFields<T>,
+> = T[U] extends AST.SyntaxShard ? T[U]["type"] : never;
+
+export function getAllowedShardTypes<T extends AST.CompositeShard>(
+  shard: T,
+  field: Exclude<keyof T, "id" | "parent" | "type">,
+): AST.SyntaxShard["type"][] {
+  switch (shard.type) {
+    case "Program": {
+      const [typedShard, typedField] = getTypedShardFieldPair(
+        shard as AST.Program,
+        field,
+      );
+      switch (typedField) {
+        case "body": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()("Statements");
+        }
+        default: {
+          assertNever(typedField);
+        }
+      }
+    }
+    case "Assignment": {
+      const [typedShard, typedField] = getTypedShardFieldPair(
+        shard as AST.Assignment,
+        field,
+      );
+      switch (typedField) {
+        case "assignee": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()("Identifiers");
+        }
+        case "expression": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()(
+            "String",
+            "Number",
+            "Boolean",
+            "Call",
+            "Function",
+            "Null",
+            "Identifiers",
+            "Properties",
+            "String",
+            "Values",
+          );
+        }
+        default: {
+          assertNever(typedField);
+        }
+      }
+    }
+    case "Call": {
+      const [typedShard, typedField] = getTypedShardFieldPair(
+        shard as AST.Call,
+        field,
+      );
+      switch (typedField) {
+        case "arguments": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()("Values", "Identifiers");
+        }
+        case "callee": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()("Identifiers", "Function");
+        }
+        default: {
+          assertNever(typedField);
+        }
+      }
+    }
+    case "Definition": {
+      const [typedShard, typedField] = getTypedShardFieldPair(
+        shard as AST.Definition,
+        field,
+      );
+      switch (typedField) {
+        case "assignee": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()("String", "Number", "Null");
+        }
+        case "expression": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()(
+            "Call",
+            "String",
+            "Number",
+            "Boolean",
+            "Null",
+            "Values",
+            "Identifiers",
+            "Properties",
+            "Function",
+          );
+        }
+        default: {
+          assertNever(typedField);
+        }
+      }
+    }
+    case "Function": {
+      const [typedShard, typedField] = getTypedShardFieldPair(shard as AST.Function, field);
+      switch (typedField) {
+        case "parameters": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()("Identifiers");
+        }
+        case "body": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()("Statements");
+        }
+      }
+    }
+    case "Statements": {
+      const [typedShard, typedField] = getTypedShardFieldPair(shard as AST.Statements, field);
+      switch (typedField) {
+        case "contents": {
+          return tupleFromUnionType<
+            ContentsType<typeof typedShard, typeof typedField>
+          >()("Definition", "Assignment", "Call");
+        }
+      }
+    }
+    case "Values": {
+      const [typedShard, typedField] = getTypedShardFieldPair(shard as AST.Values, field);
+      switch (typedField) {
+        case "contents": {
+          return tupleFromUnionType<
+            ContentsType<typeof typedShard, typeof typedField>
+          >()("Values", "Null", "Identifiers", "Properties", "Boolean", "String", "Number", "Call", "Function");
+        }
+      }
+    }
+    case "Identifiers": {
+      const [typedShard, typedField] = getTypedShardFieldPair(shard as AST.Identifiers, field);
+      switch (typedField) {
+        case "contents": {
+          return tupleFromUnionType<
+            ContentsType<typeof typedShard, typeof typedField>
+          >()("String", "Number", "Null");
+        }
+      }
+    }
+    case "Properties": {
+      const [typedShard, typedField] = getTypedShardFieldPair(shard as AST.Properties, field);
+      switch (typedField) {
+        case "contents": {
+          return tupleFromUnionType<
+            ContentsType<typeof typedShard, typeof typedField>
+          >()("Property");
+        }
+      }
+    }
+    case "Property": {
+      const [typedShard, typedField] = getTypedShardFieldPair(shard as AST.Property, field);
+      switch (typedField) {
+        case "expression": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()("Call", "Values", "Identifiers", "Properties", "Null", "Number", "Boolean", "String", "Function");
+        }
+        case "key": {
+          return tupleFromUnionType<
+            OtherRelevantFieldsType<typeof typedShard, typeof typedField>
+          >()("String", "Number", "Null");
+        }
+      }
+    }
+    default: {
+      assertNever(shard);
+    }
+  }
+}
+
+export function getShardRole(shard: AST.SyntaxShard): string | null {
+  if (shard.parent === null) {
+    return null;
+  }
+  const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+  switch (shard.parent.type) {
+    case "Program":
+      return null;
+    case "Definition":
+    case "Function":
+    case "Property":
+    case "Assignment":
+    case "Call":
+      for (const [key, value] of Object.entries(shard.parent)) {
+        if (value === shard && key !== "id" && key !== "type" && key !== "parent") {
+          return capitalize(key);
+        }
+      }
+      return null;
+    case "Statements":
+    case "Identifiers":
+    case "Properties":
+    case "Values":
+      return capitalize(shard.parent.type.slice(0, -1));
+    default:
+      assertNever(shard.parent);
   }
 }
 
@@ -236,7 +457,7 @@ export function createCommandForgeController(initialProgram?: AST.Program) {
   }>({
     currentStatementsIndex: 0,
     program: initialProgram,
-    focusedShard: initialProgram.contents[0],
+    focusedShard: initialProgram.body,
   });
 
   const focusedShardSibling = (nextOrPrevious: "next" | "previous") => {
@@ -263,28 +484,28 @@ export function createCommandForgeController(initialProgram?: AST.Program) {
       case "Properties":
       case "Values":
       case "Statements":
-      case "Program": {
-        const focusedShardIndex = focusedShard.parent.contents.findIndex(
-          (syntaxShard) => syntaxShard === focusedShard,
-        );
-        if (focusedShardIndex === -1) {
-          // @error
-          // This case shouldn't happen!
-          return focusedShard;
+        {
+          const focusedShardIndex = focusedShard.parent.contents.findIndex(
+            (syntaxShard) => syntaxShard === focusedShard,
+          );
+          if (focusedShardIndex === -1) {
+            // @error
+            // This case shouldn't happen!
+            return focusedShard;
+          }
+          if (nextOrPrevious === "next") {
+            return focusedShard.parent.contents[
+              Math.min(
+                focusedShardIndex + 1,
+                focusedShard.parent.contents.length - 1,
+              )
+            ];
+          } else {
+            return focusedShard.parent.contents[
+              Math.max(focusedShardIndex - 1, 0)
+            ];
+          }
         }
-        if (nextOrPrevious === "next") {
-          return focusedShard.parent.contents[
-            Math.min(
-              focusedShardIndex + 1,
-              focusedShard.parent.contents.length - 1,
-            )
-          ];
-        } else {
-          return focusedShard.parent.contents[
-            Math.max(focusedShardIndex - 1, 0)
-          ];
-        }
-      }
       case "Call": {
         if (nextOrPrevious === "next") {
           return focusedShard.parent.arguments;
@@ -299,6 +520,9 @@ export function createCommandForgeController(initialProgram?: AST.Program) {
         } else {
           return focusedShard.parent.assignee;
         }
+      }
+      case "Program": {
+        return focusedShard.parent.body
       }
       default: {
         assertNever(focusedShard.parent);
@@ -325,15 +549,18 @@ export function createCommandForgeController(initialProgram?: AST.Program) {
       case "Properties":
       case "Values":
       case "Statements":
-      case "Program": {
-        return focusedShard.contents[0];
-      }
+        {
+          return focusedShard.contents[0];
+        }
       case "Call": {
         return focusedShard.callee;
       }
       case "Assignment":
       case "Definition": {
         return focusedShard.assignee;
+      }
+      case "Program": {
+        return focusedShard.body
       }
       default: {
         assertNever(focusedShard);
@@ -358,7 +585,7 @@ export function createCommandForgeController(initialProgram?: AST.Program) {
     scrollFocusedShardIntoView();
   }
 
-  function changeShardValue<T extends AST.Primitive>(
+  function changeShardValue<T extends AST.PrimitiveShard>(
     syntaxShard: T,
     value: T["value"],
   ) {
@@ -641,6 +868,19 @@ export function createCommandForgeController(initialProgram?: AST.Program) {
     elem?.scrollIntoView({ block, behavior: "smooth" });
   }
 
+  function* executeProgram(
+    scope?: Scope
+  ) {
+    const _commandForgeState = commandForgeState();
+    const statements =
+      _commandForgeState.program.body
+    scope = scope ?? new Map();
+    yield* interpret({
+      statements: statements,
+      context: { scope },
+    });
+  }
+
   return {
     commandForgeState,
     focusedShardSibling,
@@ -660,5 +900,6 @@ export function createCommandForgeController(initialProgram?: AST.Program) {
     insertShardBeforeFocusedShardAndFocus,
     insertShardAfterFocusedShardAndFocus,
     scrollFocusedShardIntoView,
+    executeProgram
   };
 }

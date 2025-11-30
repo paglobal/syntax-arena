@@ -1,6 +1,6 @@
 import { AST } from "./interpreter";
 import { NamedContainer } from "./NamedContainer";
-import { CommandForgeController } from ".";
+import { CommandForgeController, getShardRole } from ".";
 import { assertNever } from "@/utils";
 import { NamedBadge } from "./NamedBadge";
 
@@ -43,9 +43,10 @@ export function SyntaxShard(props: {
   return () => {
     const focusedShard =
       props.commandForgeController.commandForgeState().focusedShard;
+    const shardRole = getShardRole(props.syntaxShard);
     const namedElementProps = {
       id: props.syntaxShard.id,
-      name: props.syntaxShard.type,
+      name: `${shardRole === null ? "" : shardRole + " - "}${props.syntaxShard.type}`,
       focused: props.syntaxShard === focusedShard,
       onClick: focusOrEnterShard,
     };
@@ -142,26 +143,34 @@ export function SyntaxShard(props: {
         ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "String" ? (
-      <NamedBadge {...namedElementProps} variant="warning">
-        {props.syntaxShard.value === ""
-          ? emptyTextPlaceholder
-          : props.syntaxShard.value}
-      </NamedBadge>
+      <NamedContainer {...namedElementProps}>
+        <NamedBadge {...namedElementProps} variant="warning">
+          {props.syntaxShard.value === ""
+            ? emptyTextPlaceholder
+            : props.syntaxShard.value}
+        </NamedBadge>
+      </NamedContainer>
     ) : props.syntaxShard.type === "Number" ? (
-      <NamedBadge {...namedElementProps} variant="brand">
-        {props.syntaxShard.value}
-      </NamedBadge>
+      <NamedContainer {...namedElementProps}>
+        <NamedBadge {...namedElementProps} variant="brand">
+          {props.syntaxShard.value}
+        </NamedBadge>
+      </NamedContainer>
     ) : props.syntaxShard.type === "Boolean" ? (
-      <NamedBadge
-        {...namedElementProps}
-        variant={props.syntaxShard.value === true ? "success" : "danger"}
-      >
-        {props.syntaxShard.value}
-      </NamedBadge>
+      <NamedContainer {...namedElementProps}>
+        <NamedBadge
+          {...namedElementProps}
+          variant={props.syntaxShard.value === true ? "success" : "danger"}
+        >
+          {props.syntaxShard.value}
+        </NamedBadge>
+      </NamedContainer>
     ) : props.syntaxShard.type === "Null" ? (
-      <NamedBadge {...namedElementProps} variant="neutral">
-        null
-      </NamedBadge>
+      <NamedContainer {...namedElementProps}>
+        <NamedBadge {...namedElementProps} variant="neutral">
+          null
+        </NamedBadge>
+      </NamedContainer>
     ) : null;
   };
 }

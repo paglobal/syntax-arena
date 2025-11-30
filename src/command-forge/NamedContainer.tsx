@@ -8,10 +8,6 @@ export const sharedShardChildStyles = css`
     font-size: 1rem;
     text-transform: none;
   }
-
-  ${styles.scope}.focused {
-    box-shadow: 0 0 0.4rem 0.2rem var(--wa-color-focus);
-  }
 `;
 
 const namedContainerStyles = css`
@@ -23,6 +19,10 @@ const namedContainerStyles = css`
     border-radius: var(--wa-border-radius-m);
     border-width: var(--wa-border-width-m);
     background-color: var(--wa-color-surface-default);
+  }
+
+  ${styles.scope}.focused {
+    box-shadow: 0 0 0.4rem 0.2rem var(--wa-color-focus);
   }
 
   ${sharedShardChildStyles}
