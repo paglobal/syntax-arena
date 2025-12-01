@@ -2,10 +2,9 @@ import { css, unsafeCSS } from "lit";
 import { Arena } from "./arena/Arena";
 import { styles } from "promethium-js";
 import { styleMap } from "lit/directives/style-map.js";
-import { WaTabShowEvent } from "@awesome.me/webawesome";
 import { initializeArena } from "./arena";
 import { CommandForge } from "./command-forge/CommandForge";
-import { createCommandForgeController } from "./command-forge";
+import { createForgeController } from "./command-forge";
 
 const dimensions = {
   tabFontSize: "1.25rem",
@@ -60,12 +59,12 @@ export function App() {
 
   let initializedArena = false;
 
-  const commandForgeController = createCommandForgeController();
+  const forgeController = createForgeController();
 
   return () => (
     <>
       <wa-tab-group
-        on:wa-tab-show={(e: WaTabShowEvent) => {
+        on:wa-tab-show={(e) => {
           if (e.detail.name === tabIds.arena && !initializedArena) {
             initializeArena();
             initializedArena = true;
@@ -99,7 +98,7 @@ export function App() {
         </wa-tab-panel>
         <wa-tab-panel name={tabIds.commandforge}>
           {tabPanelContentContainer(
-            <CommandForge commandForgeController={commandForgeController} />,
+            <CommandForge commandForgeController={forgeController} />,
           )}
         </wa-tab-panel>
         <wa-tab-panel name={tabIds.tacticalTelemetry}>

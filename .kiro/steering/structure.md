@@ -24,7 +24,7 @@ Each major feature is organized in its own directory with clear separation:
 
 #### `arena/` - Game Environment
 
-- `Arena.tsx` - Component for game UI overlay
+- `Arena.tsx` - Component for game UI and overlay
 - `index.ts` - Arena initialization, state management and actions
 - `constants.ts` - Arena constants and configuration
 - `player.ts`, `enemies.ts`, `powerUps.ts`, `keys.ts` - Game entity logic
@@ -40,7 +40,7 @@ Each major feature is organized in its own directory with clear separation:
 
 #### Other Modules (Placeholder Structure)
 
-- `combat-archive/` - Leaderboard 
+- `combat-archive/` - Leaderboard
 - `tactical-telemetry/` - Analytics
 - `control-schema/` - Controls documentation
 - `orchestrator/` - Global coordination

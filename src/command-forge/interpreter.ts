@@ -1,3 +1,5 @@
+import { assertNever } from "@/utils";
+
 type CreateSyntaxShard<
   T extends string,
   P extends AST.SyntaxShard | null,
@@ -171,6 +173,20 @@ export namespace AST {
   >;
 }
 
+const SHOULD_NOT_HAPPEN_NOTE = "(this shouldn't happen, please report!)";
+
+const errorMessages = {
+  undefinedVar: (variableName: AST.Identifier["value"]) => `Variable ${variableName} is not defined`,
+  alreadyDeclaredVar: (variableName: AST.Identifier["value"]) => `Variable '${variableName}' has already been declared`,
+  nonObjectPropertyAssignment: ({ objectPath, propertyName }: { objectPath: string, propertyName?: AST.Identifier["value"] }) => `Cannot set ${propertyName === undefined ? "properties" : propertyName} of non-object '${objectPath}'`,
+  nonObjectPropertyAccess: ({ propertyName, objectPath }: { propertyName: AST.Identifier["value"], objectPath: string }) => `Cannot access property "${propertyName}' of non-object '${objectPath}'`,
+  nullOrUndefinedObjectIndex: (objectPath?: string) => `Cannot index object ${objectPath === undefined ? "" : objectPath} with null or undefined`,
+  nonExistentObjectProperty: ({ propertyName, objectPath }: { propertyName: AST.Identifier["value"], objectPath: string }) => `Property ${propertyName} doesn't exist on object ${objectPath}`,
+  emptyIdenfierList: () => `Empty identifier list encountered ${SHOULD_NOT_HAPPEN_NOTE}`,
+  nonFunction: (functionName: AST.Identifier["value"]) => `${functionName} is not a function`,
+  unexpectedCodeConstruction: () => `Unexpected code construction ${SHOULD_NOT_HAPPEN_NOTE}`,
+}
+
 function findScopeForIdentifier({
   identifier,
   context,
@@ -201,7 +217,7 @@ function resolveIdentifierValue({
     return scope.get(identifier.value);
   }
 
-  throw new Error(`${identifier.value} is not defined`);
+  throw new Error(errorMessages.undefinedVar(identifier.value));
 }
 
 function createExecutionContext(parentContext: ExecutionContext) {
@@ -211,6 +227,10 @@ function createExecutionContext(parentContext: ExecutionContext) {
   };
 
   return newContext;
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 function* assignValueToIdentifier({
@@ -224,64 +244,72 @@ function* assignValueToIdentifier({
 }): InterpreterGenerator {
   const identifiers = assignment.assignee.contents;
   if (identifiers.length === 1) {
-    const identifierName = identifiers[0].value;
+    const identifier = identifiers[0]
     const scope = findScopeForIdentifier({
-      identifier: identifiers[0],
+      identifier: identifier,
       context,
     });
     if (scope) {
       yield assignment;
-      scope.set(identifierName, resolvedValue);
+      scope.set(identifier.value, resolvedValue);
     } else {
-      throw new Error(`${identifierName} is not defined`);
+      throw new Error(errorMessages.undefinedVar(identifier.value));
     }
   } else {
     let targetObject: unknown = undefined;
-    let currentPropName: string | number | null | undefined;
+    let currentPropertyName: AST.Identifier["value"] | undefined;
     const baseIdentifier = identifiers[0];
     targetObject = resolveIdentifierValue({
       identifier: baseIdentifier,
       context,
     });
-    // Check for null because null has a type of `object` (TODO: make utility function for this)
-    if (!(typeof targetObject === "object" && targetObject !== null)) {
+    if (!isObject(targetObject)) {
       throw new Error(
-        `Cannot set properties of non-object '${baseIdentifier.value}'`,
+        errorMessages.nonObjectPropertyAssignment({ objectPath: String(baseIdentifier.value) })
       );
     }
-    // Traverse the property chain to find the actual object to modify and the property name.
     for (let i = 1; i < identifiers.length; i++) {
-      currentPropName = identifiers[i].value;
+      currentPropertyName = identifiers[i].value;
+      const objectPath = identifiers.slice(0, i).map(id => id.value).join(".");
       if (i < identifiers.length - 1) {
-        if (!(typeof targetObject === "object" && targetObject !== null)) {
+        if (!isObject(targetObject)) {
           throw new Error(
-            `Cannot access property '${currentPropName}' of non-object`,
+            errorMessages.nonObjectPropertyAccess({ propertyName: currentPropertyName, objectPath })
           );
         }
-        if (currentPropName === null || currentPropName === undefined) {
-          throw new Error("Cannot index object with null or undefined");
+        if (currentPropertyName === null) {
+          throw new Error(errorMessages.nullOrUndefinedObjectIndex(objectPath));
         }
-        if (!(currentPropName in targetObject)) {
+        if (!(currentPropertyName in targetObject)) {
           throw new Error(
-            `Property ${currentPropName} doesn't exist on object`,
+            errorMessages.nonExistentObjectProperty({ propertyName: currentPropertyName, objectPath })
           );
         }
         targetObject = (targetObject as Record<string, unknown>)[
-          currentPropName
+          currentPropertyName
         ];
       }
     }
-    if (!(typeof targetObject === "object" && targetObject !== null)) {
+    const objectPath = identifiers.map(id => id.value).join(".");
+    if (!(isObject(targetObject))) {
       throw new Error(
-        `Cannot assign to property '${currentPropName}' of non-object`,
+        errorMessages.nonObjectPropertyAssignment({ objectPath, propertyName: currentPropertyName })
       );
     }
-    if (currentPropName === undefined || currentPropName === null) {
-      throw new Error("Cannot index object with null or undefined");
+    if (currentPropertyName === undefined || currentPropertyName === null) {
+      throw new Error(errorMessages.nullOrUndefinedObjectIndex(objectPath));
     }
     yield assignment;
-    (targetObject as Record<string, unknown>)[currentPropName] = resolvedValue;
+    (targetObject as Record<string, unknown>)[currentPropertyName] = resolvedValue;
   }
+}
+
+class ReturnValue {
+  constructor(public value: unknown) { }
+}
+
+export function ret(value: unknown) {
+  throw new ReturnValue(value);
 }
 
 function* resolveValue({
@@ -302,30 +330,33 @@ function* resolveValue({
     case "Identifiers": {
       let resolvedIdentifierValue: unknown = undefined;
       const identifiers = value.contents;
-      // we should ideally never encounter this because of the nature of the UI
+      // This should ideally be impossible because of the nature of the forge controller 
       if (identifiers.length === 0) {
-        throw new Error("Empty identifier list encountered.");
+        throw new Error(errorMessages.emptyIdenfierList());
       }
       resolvedIdentifierValue = resolveIdentifierValue({
         identifier: identifiers[0],
         context,
       });
       for (let i = 1; i < identifiers.length; i++) {
-        const propName = identifiers[i].value;
-        if (propName === null) {
-          throw new Error("Null is an invalid identifier");
-        }
-        // check for null because it also passes off as an object when using typeof
+        const currentPropertyName = identifiers[i].value;
+        const objectPath = identifiers.slice(0, i).map(id => id.value).join(".");
         if (
-          typeof resolvedIdentifierValue === "object" &&
-          resolvedIdentifierValue !== null
+          !isObject(resolvedIdentifierValue)
         ) {
-          resolvedIdentifierValue = (
-            resolvedIdentifierValue as Record<string, unknown>
-          )[propName];
-        } else {
-          throw new Error(`Cannot access property '${propName}' of non-object`);
+          throw new Error(errorMessages.nonObjectPropertyAccess({ propertyName: currentPropertyName, objectPath }));
         }
+        if (currentPropertyName === null) {
+          throw new Error(errorMessages.nullOrUndefinedObjectIndex(objectPath));
+        }
+        if (!(currentPropertyName in resolvedIdentifierValue)) {
+          throw new Error(
+            errorMessages.nonExistentObjectProperty({ propertyName: currentPropertyName, objectPath })
+          );
+        }
+        resolvedIdentifierValue = (
+          resolvedIdentifierValue as Record<string, unknown>
+        )[currentPropertyName];
       }
 
       return resolvedIdentifierValue;
@@ -335,12 +366,12 @@ function* resolveValue({
     }
     case "Properties": {
       const obj: Record<string, unknown> = {};
-      for (const prop of value.contents) {
-        if (prop.key.value === null) {
-          throw new Error("Null is an invalid identifier");
+      for (const property of value.contents) {
+        if (property.key.value === null) {
+          throw new Error(errorMessages.nullOrUndefinedObjectIndex());
         }
-        obj[prop.key.value] = yield* resolveValue({
-          value: prop.expression,
+        obj[property.key.value] = yield* resolveValue({
+          value: property.expression,
           context,
         });
       }
@@ -348,48 +379,42 @@ function* resolveValue({
       return obj;
     }
     case "Values": {
-      const arr: unknown[] = [];
+      const array: unknown[] = [];
       for (const element of value.contents) {
-        arr.push(yield* resolveValue({ value: element, context }));
+        array.push(yield* resolveValue({ value: element, context }));
       }
 
-      return arr;
+      return array;
     }
     case "Function": {
       function* fn(...args: any[]): InterpreterGenerator<unknown> {
         yield value;
         const functionShard = value as AST.Function;
         const newContext = createExecutionContext(context);
-
         yield functionShard.parameters;
-        functionShard.parameters.contents.forEach((param, index) => {
-          if (param.value === null) {
-            throw new Error("Null is an invalid identifier");
-          }
-          newContext.scope.set(param.value, args[index]);
+        functionShard.parameters.contents.forEach((parameter, index) => {
+          newContext.scope.set(parameter.value, args[index]);
         });
-
         yield functionShard.body;
-        yield* interpret({
-          statements: functionShard.body,
-          context: newContext,
-        });
+        try {
+          yield* interpret({
+            statements: functionShard.body,
+            context: newContext,
+          });
 
-        // TODO: reimplement logic here
-        // yield functionShard.return;
-        // return yield* resolveValue({
-        //   value: functionShard.return,
-        //   context: newContext,
-        // });
-        //
-        return 5;
+          return undefined;
+        } catch (error) {
+          if (error instanceof ReturnValue) {
+            return error.value;
+          }
+          throw error;
+        }
       }
 
       return fn;
     }
     default: {
-      // @ts-expect-error - This case should ideally not be reachable with a well-defined AST and complete handling.
-      throw new Error(`Unknown value type encountered: ${value.type}`);
+      assertNever(value, errorMessages.unexpectedCodeConstruction())
     }
   }
 }
@@ -406,30 +431,34 @@ function* interpretCall({
     value: call.callee,
     context,
   });
-
   if (typeof resolvedValue !== "function") {
     switch (call.callee.type) {
       case "Identifiers": {
+        const functionName = call.callee.contents.join(".")
         throw new Error(
-          `${call.callee.contents[0].value || "anonymous"} is not a function`,
+          errorMessages.nonFunction(functionName)
+        );
+      }
+      case "Function": {
+        throw new Error(
+          errorMessages.unexpectedCodeConstruction()
         );
       }
       default: {
-        throw new Error(`Invalid code construction`);
+        assertNever(call.callee, errorMessages.unexpectedCodeConstruction()
+        )
       }
     }
   }
-
   yield call.arguments;
   const resolvedArguments = [];
   for (const argument of call.arguments.contents) {
     resolvedArguments.push(yield* resolveValue({ value: argument, context }));
   }
-
   yield call;
   const result = resolvedValue(...resolvedArguments);
   if (result && typeof (result as any)[Symbol.iterator] === "function") {
-    return yield* result as any;
+    return yield* result;
   } else {
     return result;
   }
@@ -447,10 +476,9 @@ function* interpretAssignment({
     value: assignment.expression,
     context,
   });
-
   yield assignment.assignee;
   yield* assignValueToIdentifier({
-    assignment: assignment,
+    assignment,
     resolvedValue,
     context,
   });
@@ -468,14 +496,12 @@ function* interpretDefinition({
     value: definition.expression,
     context,
   });
-
   yield definition.assignee;
   if (context.scope.has(definition.assignee.value)) {
     throw new Error(
-      `Identifier '${definition.assignee.value}' has already been declared`,
+      errorMessages.alreadyDeclaredVar(definition.assignee.value)
     );
   }
-
   yield definition;
   context.scope.set(definition.assignee.value, resolvedValue);
 }
@@ -505,11 +531,7 @@ export function* interpret({
         break;
       }
       default: {
-        // This case should ideally not be reached if the AST is well-formed and all statement types are handled.
-        throw new Error(
-          // @ts-expect-error - Ignoring TypeScript error for unreachable code path, as this indicates an unexpected AST node.
-          `Unknown statement type encountered: ${statement.type}`,
-        );
+        assertNever(statement, errorMessages.unexpectedCodeConstruction())
       }
     }
   }

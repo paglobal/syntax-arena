@@ -428,7 +428,11 @@ export function getShardRole(shard: AST.SyntaxShard): string | null {
     case "Assignment":
     case "Call":
       for (const [key, value] of Object.entries(shard.parent)) {
-        if (value === shard && key !== "id" && key !== "type" && key !== "parent") {
+        const excludedKeys = tupleFromUnionType<keyof AST.SyntaxShard>()("id", "parent", "type");
+        if (excludedKeys.includes(key as keyof AST.SyntaxShard)) {
+          return null;
+        }
+        if (value === shard) {
           return capitalize(key);
         }
       }
@@ -444,12 +448,11 @@ export function getShardRole(shard: AST.SyntaxShard): string | null {
 }
 
 export type CommandForgeController = ReturnType<
-  typeof createCommandForgeController
+  typeof createForgeController
 >;
 
-export function createCommandForgeController(initialProgram?: AST.Program) {
+export function createForgeController(initialProgram?: AST.Program) {
   initialProgram = initialProgram ?? generateProgram();
-
   const [commandForgeState, setCommandForgeState] = adaptState<{
     currentStatementsIndex: number;
     program: AST.Program;
@@ -868,17 +871,23 @@ export function createCommandForgeController(initialProgram?: AST.Program) {
     elem?.scrollIntoView({ block, behavior: "smooth" });
   }
 
+  type ExecuteProgramGenerator = Generator<{ type: 'shard', data: AST.SyntaxShard } | { type: 'error', data: string }, void, void>;
+
   function* executeProgram(
     scope?: Scope
-  ) {
+  ): ExecuteProgramGenerator {
     const _commandForgeState = commandForgeState();
     const statements =
       _commandForgeState.program.body
     scope = scope ?? new Map();
-    yield* interpret({
-      statements: statements,
-      context: { scope },
-    });
+    const context = { scope };
+    try {
+      for (const shard of interpret({ statements, context })) {
+        yield { type: 'shard', data: shard };
+      }
+    } catch (error) {
+      yield { type: 'error', data: error instanceof Error ? error.message : String(error) };
+    }
   }
 
   return {
