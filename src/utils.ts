@@ -55,14 +55,17 @@ export async function loadAssetBundle(folder: EntityKind) {
   await Assets.loadBundle(folder);
 }
 
-export function assertNever(x: never): never {
-  throw new Error("Unexpected value: " + x);
+export function assertNever(x: never, message?: string): never {
+  throw new Error(message ?? "Unexpected value:" + x);
 }
 
-export function mutateState<T>(
-  fn: (...args: any[]) => any,
-  setState: Setter<T>,
-) {
+export function mutateState<T>({
+  fn,
+  setState,
+}: {
+  fn: (...args: any[]) => any;
+  setState: Setter<T>;
+}) {
   fn();
   setState(imperativeUpdate);
 }

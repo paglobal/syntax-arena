@@ -30,32 +30,43 @@ export namespace AST {
 
   export type StringParent = BaseValueParent | IdentifierParent;
 
-  export interface String
-    extends CreateSyntaxShard<"String", StringParent, { value: string }> { }
+  export interface String extends CreateSyntaxShard<
+    "String",
+    StringParent,
+    { value: string }
+  > {}
 
   export type NumberParent = BaseValueParent | IdentifierParent;
 
-  export interface Number
-    extends CreateSyntaxShard<"Number", NumberParent, { value: number }> { }
+  export interface Number extends CreateSyntaxShard<
+    "Number",
+    NumberParent,
+    { value: number }
+  > {}
 
   export type BooleanParent = BaseValueParent;
 
-  export interface Boolean
-    extends CreateSyntaxShard<"Boolean", BooleanParent, { value: boolean }> { }
+  export interface Boolean extends CreateSyntaxShard<
+    "Boolean",
+    BooleanParent,
+    { value: boolean }
+  > {}
 
   export type NullParent = BaseValueParent | IdentifierParent;
 
-  export interface Null
-    extends CreateSyntaxShard<"Null", NullParent, { value: null }> { }
+  export interface Null extends CreateSyntaxShard<
+    "Null",
+    NullParent,
+    { value: null }
+  > {}
 
   export type IdentifiersParent = BaseValueParent | Call;
 
-  export interface Identifiers
-    extends CreateSyntaxShard<
-      "Identifiers",
-      IdentifiersParent,
-      { contents: Identifier[] }
-    > { }
+  export interface Identifiers extends CreateSyntaxShard<
+    "Identifiers",
+    IdentifiersParent,
+    { contents: Identifier[] }
+  > {}
 
   export type IdentifierParent = Identifiers | Definition | Property;
 
@@ -63,64 +74,62 @@ export namespace AST {
 
   export type PropertyParent = Properties;
 
-  export interface Property
-    extends CreateSyntaxShard<
-      "Property",
-      PropertyParent,
-      { key: Identifier; expression: Value }
-    > { }
+  export interface Property extends CreateSyntaxShard<
+    "Property",
+    PropertyParent,
+    { key: Identifier; expression: Value }
+  > {}
 
   export type PropertiesParent = BaseValueParent;
 
-  export interface Properties
-    extends CreateSyntaxShard<
-      "Properties",
-      PropertiesParent,
-      { contents: Property[] }
-    > { }
+  export interface Properties extends CreateSyntaxShard<
+    "Properties",
+    PropertiesParent,
+    { contents: Property[] }
+  > {}
 
   export type ValuesParent = BaseValueParent | Call;
 
-  export interface Values
-    extends CreateSyntaxShard<"Values", ValuesParent, { contents: Value[] }> { }
+  export interface Values extends CreateSyntaxShard<
+    "Values",
+    ValuesParent,
+    { contents: Value[] }
+  > {}
 
   export type BaseStatementParent = Statements;
 
   export type CallParent = BaseValueParent | BaseStatementParent;
 
-  export interface Call
-    extends CreateSyntaxShard<
-      "Call",
-      CallParent,
-      {
-        callee: Identifiers | Function;
-        arguments: Identifiers | Values;
-      }
-    > { }
+  export interface Call extends CreateSyntaxShard<
+    "Call",
+    CallParent,
+    {
+      callee: Identifiers | Function;
+      arguments: Identifiers | Values;
+    }
+  > {}
 
   export type AssignmentParent = BaseStatementParent;
 
-  export interface Assignment
-    extends CreateSyntaxShard<
-      "Assignment",
-      AssignmentParent,
-      {
-        assignee: Identifiers;
-        expression: Value;
-      }
-    > { }
+  export interface Assignment extends CreateSyntaxShard<
+    "Assignment",
+    AssignmentParent,
+    {
+      assignee: Identifiers;
+      expression: Value;
+    }
+  > {}
 
   export type DefinitionParent = BaseStatementParent;
 
-  export interface Definition
-    extends CreateSyntaxShard<
-      "Definition",
-      DefinitionParent,
-      {
-        assignee: Identifier;
-        expression: Value;
-      }
-    > { }
+  export interface Definition extends CreateSyntaxShard<
+    "Definition",
+    DefinitionParent,
+    {
+      assignee: Identifier;
+      expression: Value;
+    }
+  > {}
 
   export type Statement = Definition | Assignment | Call;
 
@@ -134,19 +143,18 @@ export namespace AST {
 
   export type FunctionParent = BaseValueParent | Call;
 
-  export interface Function
-    extends CreateSyntaxShard<
-      "Function",
-      FunctionParent,
-      {
-        parameters: Identifiers;
-        body: Statements;
-      }
-    > { }
+  export interface Function extends CreateSyntaxShard<
+    "Function",
+    FunctionParent,
+    {
+      parameters: Identifiers;
+      body: Statements;
+    }
+  > {}
 
   export type PrimitiveShard = String | Number | Boolean | Null;
 
-  export type CompositeShard = Exclude<AST.SyntaxShard, PrimitiveShard>
+  export type CompositeShard = Exclude<AST.SyntaxShard, PrimitiveShard>;
 
   export type Value =
     | PrimitiveShard
@@ -164,7 +172,12 @@ export namespace AST {
     | Statements
     | Program;
 
-  export type ShardGroup = Identifiers | Properties | Values | Statements | Statements;
+  export type ShardGroup =
+    | Identifiers
+    | Properties
+    | Values
+    | Statements
+    | Statements;
 
   export type Program = CreateSyntaxShard<
     "Program",
@@ -176,16 +189,42 @@ export namespace AST {
 const SHOULD_NOT_HAPPEN_NOTE = "(this shouldn't happen, please report!)";
 
 const errorMessages = {
-  undefinedVar: (variableName: AST.Identifier["value"]) => `Variable ${variableName} is not defined`,
-  alreadyDeclaredVar: (variableName: AST.Identifier["value"]) => `Variable '${variableName}' has already been declared`,
-  nonObjectPropertyAssignment: ({ objectPath, propertyName }: { objectPath: string, propertyName?: AST.Identifier["value"] }) => `Cannot set ${propertyName === undefined ? "properties" : propertyName} of non-object '${objectPath}'`,
-  nonObjectPropertyAccess: ({ propertyName, objectPath }: { propertyName: AST.Identifier["value"], objectPath: string }) => `Cannot access property "${propertyName}' of non-object '${objectPath}'`,
-  nullOrUndefinedObjectIndex: (objectPath?: string) => `Cannot index object ${objectPath === undefined ? "" : objectPath} with null or undefined`,
-  nonExistentObjectProperty: ({ propertyName, objectPath }: { propertyName: AST.Identifier["value"], objectPath: string }) => `Property ${propertyName} doesn't exist on object ${objectPath}`,
-  emptyIdenfierList: () => `Empty identifier list encountered ${SHOULD_NOT_HAPPEN_NOTE}`,
-  nonFunction: (functionName: AST.Identifier["value"]) => `${functionName} is not a function`,
-  unexpectedCodeConstruction: () => `Unexpected code construction ${SHOULD_NOT_HAPPEN_NOTE}`,
-}
+  undefinedVar: (variableName: AST.Identifier["value"]) =>
+    `Variable ${variableName} is not defined`,
+  alreadyDeclaredVar: (variableName: AST.Identifier["value"]) =>
+    `Variable '${variableName}' has already been declared`,
+  nonObjectPropertyAssignment: ({
+    objectPath,
+    propertyName,
+  }: {
+    objectPath: string;
+    propertyName?: AST.Identifier["value"];
+  }) =>
+    `Cannot set ${propertyName === undefined ? "properties" : propertyName} of non-object '${objectPath}'`,
+  nonObjectPropertyAccess: ({
+    propertyName,
+    objectPath,
+  }: {
+    propertyName: AST.Identifier["value"];
+    objectPath: string;
+  }) =>
+    `Cannot access property "${propertyName}' of non-object '${objectPath}'`,
+  nullOrUndefinedObjectIndex: (objectPath?: string) =>
+    `Cannot index object ${objectPath === undefined ? "" : objectPath} with null or undefined`,
+  nonExistentObjectProperty: ({
+    propertyName,
+    objectPath,
+  }: {
+    propertyName: AST.Identifier["value"];
+    objectPath: string;
+  }) => `Property ${propertyName} doesn't exist on object ${objectPath}`,
+  emptyIdenfierList: () =>
+    `Empty identifier list encountered ${SHOULD_NOT_HAPPEN_NOTE}`,
+  nonFunction: (functionName: AST.Identifier["value"]) =>
+    `${functionName} is not a function`,
+  unexpectedCodeConstruction: () =>
+    `Unexpected code construction ${SHOULD_NOT_HAPPEN_NOTE}`,
+};
 
 function findScopeForIdentifier({
   identifier,
@@ -244,7 +283,7 @@ function* assignValueToIdentifier({
 }): InterpreterGenerator {
   const identifiers = assignment.assignee.contents;
   if (identifiers.length === 1) {
-    const identifier = identifiers[0]
+    const identifier = identifiers[0];
     const scope = findScopeForIdentifier({
       identifier: identifier,
       context,
@@ -265,16 +304,24 @@ function* assignValueToIdentifier({
     });
     if (!isObject(targetObject)) {
       throw new Error(
-        errorMessages.nonObjectPropertyAssignment({ objectPath: String(baseIdentifier.value) })
+        errorMessages.nonObjectPropertyAssignment({
+          objectPath: String(baseIdentifier.value),
+        }),
       );
     }
     for (let i = 1; i < identifiers.length; i++) {
       currentPropertyName = identifiers[i].value;
-      const objectPath = identifiers.slice(0, i).map(id => id.value).join(".");
+      const objectPath = identifiers
+        .slice(0, i)
+        .map((id) => id.value)
+        .join(".");
       if (i < identifiers.length - 1) {
         if (!isObject(targetObject)) {
           throw new Error(
-            errorMessages.nonObjectPropertyAccess({ propertyName: currentPropertyName, objectPath })
+            errorMessages.nonObjectPropertyAccess({
+              propertyName: currentPropertyName,
+              objectPath,
+            }),
           );
         }
         if (currentPropertyName === null) {
@@ -282,7 +329,10 @@ function* assignValueToIdentifier({
         }
         if (!(currentPropertyName in targetObject)) {
           throw new Error(
-            errorMessages.nonExistentObjectProperty({ propertyName: currentPropertyName, objectPath })
+            errorMessages.nonExistentObjectProperty({
+              propertyName: currentPropertyName,
+              objectPath,
+            }),
           );
         }
         targetObject = (targetObject as Record<string, unknown>)[
@@ -290,22 +340,26 @@ function* assignValueToIdentifier({
         ];
       }
     }
-    const objectPath = identifiers.map(id => id.value).join(".");
-    if (!(isObject(targetObject))) {
+    const objectPath = identifiers.map((id) => id.value).join(".");
+    if (!isObject(targetObject)) {
       throw new Error(
-        errorMessages.nonObjectPropertyAssignment({ objectPath, propertyName: currentPropertyName })
+        errorMessages.nonObjectPropertyAssignment({
+          objectPath,
+          propertyName: currentPropertyName,
+        }),
       );
     }
     if (currentPropertyName === undefined || currentPropertyName === null) {
       throw new Error(errorMessages.nullOrUndefinedObjectIndex(objectPath));
     }
     yield assignment;
-    (targetObject as Record<string, unknown>)[currentPropertyName] = resolvedValue;
+    (targetObject as Record<string, unknown>)[currentPropertyName] =
+      resolvedValue;
   }
 }
 
 class ReturnValue {
-  constructor(public value: unknown) { }
+  constructor(public value: unknown) {}
 }
 
 export function ret(value: unknown) {
@@ -330,7 +384,7 @@ function* resolveValue({
     case "Identifiers": {
       let resolvedIdentifierValue: unknown = undefined;
       const identifiers = value.contents;
-      // This should ideally be impossible because of the nature of the forge controller 
+      // This should ideally be impossible because of the nature of the forge controller
       if (identifiers.length === 0) {
         throw new Error(errorMessages.emptyIdenfierList());
       }
@@ -340,18 +394,27 @@ function* resolveValue({
       });
       for (let i = 1; i < identifiers.length; i++) {
         const currentPropertyName = identifiers[i].value;
-        const objectPath = identifiers.slice(0, i).map(id => id.value).join(".");
-        if (
-          !isObject(resolvedIdentifierValue)
-        ) {
-          throw new Error(errorMessages.nonObjectPropertyAccess({ propertyName: currentPropertyName, objectPath }));
+        const objectPath = identifiers
+          .slice(0, i)
+          .map((id) => id.value)
+          .join(".");
+        if (!isObject(resolvedIdentifierValue)) {
+          throw new Error(
+            errorMessages.nonObjectPropertyAccess({
+              propertyName: currentPropertyName,
+              objectPath,
+            }),
+          );
         }
         if (currentPropertyName === null) {
           throw new Error(errorMessages.nullOrUndefinedObjectIndex(objectPath));
         }
         if (!(currentPropertyName in resolvedIdentifierValue)) {
           throw new Error(
-            errorMessages.nonExistentObjectProperty({ propertyName: currentPropertyName, objectPath })
+            errorMessages.nonExistentObjectProperty({
+              propertyName: currentPropertyName,
+              objectPath,
+            }),
           );
         }
         resolvedIdentifierValue = (
@@ -414,7 +477,7 @@ function* resolveValue({
       return fn;
     }
     default: {
-      assertNever(value, errorMessages.unexpectedCodeConstruction())
+      assertNever(value, errorMessages.unexpectedCodeConstruction());
     }
   }
 }
@@ -434,19 +497,14 @@ function* interpretCall({
   if (typeof resolvedValue !== "function") {
     switch (call.callee.type) {
       case "Identifiers": {
-        const functionName = call.callee.contents.join(".")
-        throw new Error(
-          errorMessages.nonFunction(functionName)
-        );
+        const functionName = call.callee.contents.join(".");
+        throw new Error(errorMessages.nonFunction(functionName));
       }
       case "Function": {
-        throw new Error(
-          errorMessages.unexpectedCodeConstruction()
-        );
+        throw new Error(errorMessages.unexpectedCodeConstruction());
       }
       default: {
-        assertNever(call.callee, errorMessages.unexpectedCodeConstruction()
-        )
+        assertNever(call.callee, errorMessages.unexpectedCodeConstruction());
       }
     }
   }
@@ -499,7 +557,7 @@ function* interpretDefinition({
   yield definition.assignee;
   if (context.scope.has(definition.assignee.value)) {
     throw new Error(
-      errorMessages.alreadyDeclaredVar(definition.assignee.value)
+      errorMessages.alreadyDeclaredVar(definition.assignee.value),
     );
   }
   yield definition;
@@ -531,7 +589,7 @@ export function* interpret({
         break;
       }
       default: {
-        assertNever(statement, errorMessages.unexpectedCodeConstruction())
+        assertNever(statement, errorMessages.unexpectedCodeConstruction());
       }
     }
   }

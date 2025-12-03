@@ -23,7 +23,6 @@ export function NamedBadge(props: {
   return () => (
     <>
       <wa-badge
-        tabIndex={0}
         appearance="outlined"
         variant={props.variant}
         use:style={styles.inject(namedBadgeStyles)}

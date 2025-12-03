@@ -1,8 +1,9 @@
 import { AST } from "./interpreter";
 import { NamedContainer } from "./NamedContainer";
-import { CommandForgeController, getShardRole } from ".";
+import { CommandForgeController } from "./forgeController";
 import { assertNever } from "@/utils";
 import { NamedBadge } from "./NamedBadge";
+import { getShardRoleDetails } from "./shardOperators";
 
 const emptyTextPlaceholder = <span>{"\u2205"}</span>;
 
@@ -17,7 +18,9 @@ export function SyntaxShard(props: {
         case "String":
         case "Number":
         case "Boolean":
-          props.commandForgeController.enterFocusedShard();
+          props.commandForgeController.enterShard(
+            props.commandForgeController.commandForgeState().focusedShard,
+          );
           break;
         case "Null":
         case "Function":
@@ -43,15 +46,22 @@ export function SyntaxShard(props: {
   return () => {
     const focusedShard =
       props.commandForgeController.commandForgeState().focusedShard;
-    const shardRole = getShardRole(props.syntaxShard);
+    const shardRoleName = getShardRoleDetails(props.syntaxShard).roleName;
     const namedElementProps = {
       id: props.syntaxShard.id,
-      name: `${shardRole === null ? "" : shardRole + " - "}${props.syntaxShard.type}`,
+      name: `${shardRoleName === null ? "" : shardRoleName + " - "}${props.syntaxShard.type}`,
       focused: props.syntaxShard === focusedShard,
       onClick: focusOrEnterShard,
     };
 
-    return props.syntaxShard.type === "Call" ? (
+    return props.syntaxShard.type === "Program" ? (
+      <NamedContainer {...namedElementProps}>
+        <SyntaxShard
+          syntaxShard={props.syntaxShard.body}
+          commandForgeController={props.commandForgeController}
+        ></SyntaxShard>
+      </NamedContainer>
+    ) : props.syntaxShard.type === "Call" ? (
       <NamedContainer {...namedElementProps}>
         <SyntaxShard
           syntaxShard={props.syntaxShard.callee}

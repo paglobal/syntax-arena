@@ -4,7 +4,7 @@ import { styles } from "promethium-js";
 import { styleMap } from "lit/directives/style-map.js";
 import { initializeArena } from "./arena";
 import { CommandForge } from "./command-forge/CommandForge";
-import { createForgeController } from "./command-forge";
+import { createForgeController } from "./command-forge/forgeController";
 
 const dimensions = {
   tabFontSize: "1.25rem",
