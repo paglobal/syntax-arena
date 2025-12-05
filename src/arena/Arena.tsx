@@ -31,7 +31,7 @@ export function Arena() {
             gap: "0.3rem",
           })}
         >
-          <wa-button size="small" appearance="filled" pill>
+          <wa-button size="small" appearance="filled" variant="brand" pill>
             <wa-icon name="caret-left" label="Previous"></wa-icon>
           </wa-button>
           <wa-callout variant="neutral">

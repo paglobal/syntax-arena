@@ -1,46 +1,25 @@
 import { AST } from "./interpreter";
 import { NamedContainer } from "./NamedContainer";
 import { CommandForgeController } from "./forgeController";
-import { assertNever } from "@/utils";
 import { NamedBadge } from "./NamedBadge";
 import { getShardRoleDetails } from "./shardOperators";
+import { DialogController } from "./Dialog";
 
 const emptyTextPlaceholder = <span>{"\u2205"}</span>;
 
 export function SyntaxShard(props: {
   syntaxShard: AST.SyntaxShard;
   commandForgeController: CommandForgeController;
+  dialogController: DialogController;
 }) {
-  function focusOrEnterShard() {
-    const _orchestratorState = props.commandForgeController.commandForgeState();
-    if (_orchestratorState.focusedShard === props.syntaxShard) {
-      switch (props.syntaxShard.type) {
-        case "String":
-        case "Number":
-        case "Boolean":
-          props.commandForgeController.enterShard(
-            props.commandForgeController.commandForgeState().focusedShard,
-          );
-          break;
-        case "Null":
-        case "Function":
-        case "Property":
-        case "Identifiers":
-        case "Properties":
-        case "Values":
-        case "Call":
-        case "Assignment":
-        case "Definition":
-        case "Statements":
-        case "Program":
-          break;
-        default: {
-          assertNever(props.syntaxShard);
-        }
-      }
-    } else {
-      props.commandForgeController.focusShard(props.syntaxShard);
-    }
+  function focusShard() {
+    props.commandForgeController.focusShard(props.syntaxShard);
+  }
+
+  function showActions() {
+    props.dialogController.openActionsDialog(
+      props.commandForgeController.getActionsForShard(props.syntaxShard),
+    );
   }
 
   return () => {
@@ -51,7 +30,8 @@ export function SyntaxShard(props: {
       id: props.syntaxShard.id,
       name: `${shardRoleName === null ? "" : shardRoleName + " - "}${props.syntaxShard.type}`,
       focused: props.syntaxShard === focusedShard,
-      onClick: focusOrEnterShard,
+      onClick: focusShard,
+      showActions,
     };
 
     return props.syntaxShard.type === "Program" ? (
@@ -59,6 +39,7 @@ export function SyntaxShard(props: {
         <SyntaxShard
           syntaxShard={props.syntaxShard.body}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "Call" ? (
@@ -66,10 +47,12 @@ export function SyntaxShard(props: {
         <SyntaxShard
           syntaxShard={props.syntaxShard.callee}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
         <SyntaxShard
           syntaxShard={props.syntaxShard.arguments}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "Assignment" ? (
@@ -77,10 +60,12 @@ export function SyntaxShard(props: {
         <SyntaxShard
           syntaxShard={props.syntaxShard.assignee}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
         <SyntaxShard
           syntaxShard={props.syntaxShard.expression}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "Definition" ? (
@@ -88,10 +73,12 @@ export function SyntaxShard(props: {
         <SyntaxShard
           syntaxShard={props.syntaxShard.assignee}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
         <SyntaxShard
           syntaxShard={props.syntaxShard.expression}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "Statements" ? (
@@ -100,6 +87,7 @@ export function SyntaxShard(props: {
           <SyntaxShard
             syntaxShard={statement}
             commandForgeController={props.commandForgeController}
+            dialogController={props.dialogController}
           ></SyntaxShard>
         ))}
       </NamedContainer>
@@ -108,10 +96,12 @@ export function SyntaxShard(props: {
         <SyntaxShard
           syntaxShard={props.syntaxShard.parameters}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
         <SyntaxShard
           syntaxShard={props.syntaxShard.body}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "Properties" ? (
@@ -120,6 +110,7 @@ export function SyntaxShard(props: {
           <SyntaxShard
             syntaxShard={property}
             commandForgeController={props.commandForgeController}
+            dialogController={props.dialogController}
           ></SyntaxShard>
         ))}
       </NamedContainer>
@@ -129,6 +120,7 @@ export function SyntaxShard(props: {
           <SyntaxShard
             syntaxShard={value}
             commandForgeController={props.commandForgeController}
+            dialogController={props.dialogController}
           ></SyntaxShard>
         ))}
       </NamedContainer>
@@ -138,6 +130,7 @@ export function SyntaxShard(props: {
           <SyntaxShard
             syntaxShard={identifier}
             commandForgeController={props.commandForgeController}
+            dialogController={props.dialogController}
           ></SyntaxShard>
         ))}
       </NamedContainer>
@@ -146,10 +139,12 @@ export function SyntaxShard(props: {
         <SyntaxShard
           syntaxShard={props.syntaxShard.key}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
         <SyntaxShard
           syntaxShard={props.syntaxShard.expression}
           commandForgeController={props.commandForgeController}
+          dialogController={props.dialogController}
         ></SyntaxShard>
       </NamedContainer>
     ) : props.syntaxShard.type === "String" ? (

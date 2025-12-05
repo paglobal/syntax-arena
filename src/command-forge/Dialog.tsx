@@ -1,147 +1,164 @@
+import { createRef, ref } from "lit/directives/ref.js";
+import { adaptEffect, adaptState, styles } from "promethium-js";
+import { Interactions } from "./forgeController";
+import WaDialog from "@awesome.me/webawesome/dist/components/dialog/dialog.js";
 import WaInput from "@awesome.me/webawesome/dist/components/input/input.js";
 import WaTextarea from "@awesome.me/webawesome/dist/components/textarea/textarea.js";
-import { createRef, ref } from "lit/directives/ref.js";
-import { adaptState } from "promethium-js";
+import { css } from "lit";
 
-export type Action = {
-  id: string;
-  name: string;
-  execute: () => void;
-};
-
-type Actions = Action[];
-
-type ClosedDialogState = { type: "closed"; title: "Closed" };
-
-type ActionsDialogState = {
+type ActionsState = {
   type: "actions";
-  title: "Actions";
-  actions: Action[];
+  actions: Interactions.Action[];
 };
 
-type OptionsDialogState = {
-  type: "options";
-  title: string;
-  options: { name: string; value: unknown }[];
-  onSelect: (value: unknown) => void;
-};
+type OptionsState = Interactions.Options;
 
-type InputDialogStateInitialValue = string | number;
+type InputState = Interactions.Input;
 
-type InputDialogState = {
-  type: "input";
-  title: string;
-  inputType: "text" | "number";
-  initialValue: InputDialogStateInitialValue;
-  onSubmit: (value: InputDialogStateInitialValue) => void;
-};
+type ClosedState = { type: "closed" };
 
-type DialogState =
-  | ClosedDialogState
-  | ActionsDialogState
-  | OptionsDialogState
-  | InputDialogState;
+type DialogState = ActionsState | OptionsState | InputState | ClosedState;
 
-const [dialogState, setDialogState] = adaptState<DialogState>({
-  type: "closed",
-  title: "Closed",
-});
+export type DialogController = ReturnType<typeof createDialogController>;
 
-export function openActionsDialog(actions: Actions) {
-  setDialogState({ type: "actions", title: "Actions", actions });
+export function createDialogController() {
+  const [dialogState, setDialogState] = adaptState<DialogState>({
+    type: "closed",
+  });
+  const dialogRef = createRef<WaDialog>();
+
+  function openActionsDialog(actions: Interactions.Action[]) {
+    setDialogState({ type: "actions", actions });
+  }
+
+  function openOptionsDialog(options: Interactions.Options) {
+    setDialogState(options);
+  }
+
+  function openInputDialog(input: Interactions.Input) {
+    setDialogState(input);
+  }
+
+  function closeDialog() {
+    setDialogState({ type: "closed" });
+  }
+
+  return {
+    dialogState,
+    dialogRef,
+    openActionsDialog,
+    openOptionsDialog,
+    openInputDialog,
+    closeDialog,
+  };
 }
 
-export function openOptionsDialog(config: Omit<OptionsDialogState, "type">) {
-  setDialogState({ type: "options", ...config });
-}
+const dialogStyles = css`
+  ${styles.scope}::part(body) {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+`;
 
-export function openInputDialog(config: Omit<InputDialogState, "type">) {
-  setDialogState({ type: "input", ...config });
-}
+export function Dialog(props: { dialogController: DialogController }) {
+  const inputRef = createRef<WaInput | WaTextarea>();
 
-export function closeDialog() {
-  setDialogState({ type: "closed", title: "Closed" });
-}
+  function handleResult(result: Interactions.Result) {
+    if (!result) {
+      return;
+    }
+    if (result.type === "options") {
+      props.dialogController.openOptionsDialog(result);
+    } else if (result.type === "input") {
+      props.dialogController.openInputDialog(result);
+    }
+  }
 
-export function Dialog() {
-  return () => {
-    const state = dialogState();
+  adaptEffect(() => {
+    const state = props.dialogController.dialogState();
     const open = state.type !== "closed";
-    const inputRef = createRef<WaInput | WaTextarea>();
+    if (props.dialogController.dialogRef.value) {
+      if (open) {
+        props.dialogController.dialogRef.value.open = true;
+        if (state.type === "input") {
+          inputRef.value?.focus();
+          inputRef.value?.select();
+        }
+      } else {
+        props.dialogController.dialogRef.value.open = false;
+      }
+    }
+  });
+
+  return () => {
+    const state = props.dialogController.dialogState();
 
     return (
       <wa-dialog
-        label={state.title}
-        prop:open={open}
-        on:wa-hide={closeDialog}
-        on:wa-show={() => {
-          if (state.type === "input") {
-            inputRef.value?.select();
-          }
-        }}
+        label={
+          state.type === "actions"
+            ? "Actions"
+            : state.type === "options"
+              ? "Options"
+              : state.type === "input"
+                ? "Input"
+                : ""
+        }
+        use:styles={styles.inject(dialogStyles)}
+        on:wa-hide={props.dialogController.closeDialog}
+        use:ref={ref(props.dialogController.dialogRef)}
       >
-        {state.type === "actions" && (
-          <div>
+        {state.type === "actions" ? (
+          <>
             {state.actions.map((action) => (
               <wa-button
-                appearance="plain"
                 on:click={() => {
-                  closeDialog();
-                  action.execute();
+                  props.dialogController.closeDialog();
+                  handleResult(action.execute());
                 }}
               >
-                {action.name}
+                {action.id}
               </wa-button>
             ))}
-          </div>
-        )}
-        {state.type === "options" && (
-          <div>
-            {state.options.map((option) => (
+          </>
+        ) : null}
+        {state.type === "options" ? (
+          <>
+            {state.elements.map((element) => (
               <wa-button
-                appearance="plain"
                 on:click={() => {
-                  closeDialog();
-                  state.onSelect(option.value);
+                  props.dialogController.closeDialog();
+                  handleResult(state.select(element));
                 }}
               >
-                {option.name}
+                {element}
               </wa-button>
             ))}
-          </div>
-        )}
-        {state.type === "input" && (
-          <div>
-            {state.inputType === "number" ? (
-              <wa-input
-                type={state.inputType}
-                autofocus
-                use:ref={ref(inputRef)}
-                value={String(state.initialValue)}
-                prop:required
-              />
-            ) : (
-              <wa-textarea
-                autofocus
-                use:ref={ref(inputRef)}
-                value={String(state.initialValue)}
-                prop:required
-              ></wa-textarea>
-            )}
+          </>
+        ) : null}
+        {state.type === "input" ? (
+          <>
+            <wa-input
+              type={typeof state.currentValue === "number" ? "number" : "text"}
+              use:ref={ref(inputRef)}
+              value={String(state.currentValue)}
+              prop:required
+            />
             <wa-button
               on:click={() => {
-                closeDialog();
                 const value =
-                  state.inputType === "number"
+                  typeof state.currentValue === "number"
                     ? Number(inputRef.value?.value)
                     : (inputRef.value?.value ?? "");
-                state.onSubmit(value);
+                props.dialogController.closeDialog();
+                handleResult(state.change(value));
               }}
             >
               Submit
             </wa-button>
-          </div>
-        )}
+          </>
+        ) : null}
       </wa-dialog>
     );
   };

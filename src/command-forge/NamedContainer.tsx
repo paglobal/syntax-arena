@@ -39,6 +39,7 @@ export function NamedContainer(props: {
   id: string;
   name: string;
   children: PromethiumNode;
+  showActions: () => void;
   focused?: boolean;
   onClick?: (e: MouseEvent) => void;
 }) {
@@ -46,6 +47,13 @@ export function NamedContainer(props: {
     handleEvent(e: MouseEvent) {
       e.stopPropagation();
       props.onClick?.(e);
+    },
+  };
+
+  const showActionsListenerObject = {
+    handleEvent(e: MouseEvent) {
+      e.stopPropagation();
+      props.showActions();
     },
   };
 
@@ -67,7 +75,11 @@ export function NamedContainer(props: {
           <wa-button appearance="plain">
             <wa-icon name="repeat" variant="solid" label="Repeat"></wa-icon>
           </wa-button>
-          <wa-button size="small" appearance="plain">
+          <wa-button
+            size="small"
+            appearance="plain"
+            on:click={showActionsListenerObject}
+          >
             <wa-icon name="ellipsis" variant="solid" label="Options"></wa-icon>
           </wa-button>
         </div>

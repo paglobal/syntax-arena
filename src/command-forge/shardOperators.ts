@@ -1,6 +1,5 @@
 import { assertNever } from "@/utils";
 import { AST } from "./interpreter";
-import { CommandForgeController } from "./forgeController";
 
 const tupleFromUnionType =
   <T>() =>
@@ -51,7 +50,7 @@ export function getShardRoleDetails<T extends AST.SyntaxShard>(
     case "Function":
     case "Property":
     case "Assignment":
-    case "Call":
+    case "Call": {
       for (const [key, value] of Object.entries(shard.parent)) {
         const excludedKeys = tupleFromUnionType<keyof AST.SyntaxShard>()(
           "id",
@@ -59,7 +58,7 @@ export function getShardRoleDetails<T extends AST.SyntaxShard>(
           "type",
         );
         if (excludedKeys.includes(key as keyof AST.SyntaxShard)) {
-          return { role: null, roleName: null };
+          continue;
         }
         if (value === shard) {
           return { role: key as RelevantFields<T>, roleName: capitalize(key) };
@@ -67,14 +66,16 @@ export function getShardRoleDetails<T extends AST.SyntaxShard>(
       }
 
       return { role: null, roleName: null };
+    }
     case "Statements":
     case "Identifiers":
     case "Properties":
-    case "Values":
+    case "Values": {
       return {
         role: "contents" as RelevantFields<T>,
         roleName: capitalize(shard.parent.type.slice(0, -1)),
       };
+    }
     default:
       assertNever(shard.parent);
   }
@@ -299,38 +300,6 @@ export function getAllowedShardTypes<T extends AST.CompositeShard>(
   }
 }
 
-export type InteractionResult = Action[] | Option[] | Input | void;
-
-export type Action = {
-  type: "action";
-  name: string;
-  execute: () => InteractionResult;
-};
-
-export type Option = {
-  type: "option";
-  name: string;
-  select: () => InteractionResult;
-};
-
-type InputDialogStateInitialValue = string | number;
-
-export type Input = {
-  type: "input";
-  inputType: "text" | "number";
-  currentValue: InputDialogStateInitialValue;
-  change: (newValue: InputDialogStateInitialValue) => InteractionResult;
-};
-
-export function getActionsForShard(
-  shard: AST.SyntaxShard,
-  controller: CommandForgeController,
-): Action[] {
-  const actions: Action[] = [];
-
-  return actions;
-}
-
 export function isPrimitive(
   shard: AST.SyntaxShard,
 ): shard is AST.PrimitiveShard {
@@ -347,6 +316,10 @@ export type ShardGroupChild = AST.SyntaxShard & { parent: AST.ShardGroup };
 export function isInShardGroup(
   shard: AST.SyntaxShard,
 ): shard is ShardGroupChild {
+  if (isProgram(shard)) {
+    return false;
+  }
+
   return tupleFromUnionType<AST.ShardGroup["type"]>()(
     "Statements",
     "Properties",

@@ -1,19 +1,60 @@
 import { AST, interpret, Scope } from "./interpreter";
 import { assertNever, mutateState } from "@/utils";
 import { adaptState } from "promethium-js";
-import { generateProgram } from "./shardGenerators";
+import * as sg from "./shardGenerators";
 import {
   getAllowedShardTypes,
   getShardRoleDetails,
+  isInShardGroup,
   isPrimitive,
   isProgram,
   ShardGroupChild,
 } from "./shardOperators";
 
+type CreateAction<I extends string> = {
+  id: I;
+  execute: () => Interactions.Result;
+};
+
+type OptionsElements = unknown[];
+
+type CreateOptions<I extends string, E extends OptionsElements> = {
+  type: "options";
+  id: I;
+  elements: E;
+  select: (element: E[number]) => Interactions.Result;
+};
+
+export namespace Interactions {
+  export type Result = Options | Input | void;
+
+  export type Action =
+    | CreateAction<"delete">
+    | CreateAction<"replace">
+    | CreateAction<"enter">
+    | CreateAction<"exit">
+    | CreateAction<"changeValue">
+    | CreateAction<"insertBefore">
+    | CreateAction<"insertAfter">;
+
+  export type Options =
+    | CreateOptions<"insertBeforeWith", AST.SyntaxShard["type"][]>
+    | CreateOptions<"insertAfterWith", AST.SyntaxShard["type"][]>
+    | CreateOptions<"replaceWith", AST.SyntaxShard["type"][]>;
+
+  type InputCurrentValue = string | number;
+
+  export type Input = {
+    type: "input";
+    currentValue: InputCurrentValue;
+    change: (newValue: InputCurrentValue) => Result;
+  };
+}
+
 export type CommandForgeController = ReturnType<typeof createForgeController>;
 
 export function createForgeController(initialProgram?: AST.Program) {
-  initialProgram = initialProgram ?? generateProgram();
+  initialProgram = initialProgram ?? sg.generateProgram();
   const [commandForgeState, setCommandForgeState] = adaptState<{
     currentStatementsIndex: number;
     program: AST.Program;
@@ -53,11 +94,6 @@ export function createForgeController(initialProgram?: AST.Program) {
         const focusedShardIndex = shard.parent.contents.findIndex(
           (syntaxShard) => syntaxShard === shard,
         );
-        if (focusedShardIndex === -1) {
-          // @error
-          // This case shouldn't happen!
-          return shard;
-        }
         if (nextOrPrevious === "next") {
           return shard.parent.contents[
             Math.min(focusedShardIndex + 1, shard.parent.contents.length - 1)
@@ -133,14 +169,6 @@ export function createForgeController(initialProgram?: AST.Program) {
     });
   }
 
-  function focusNextSiblingShard(shard: AST.SyntaxShard) {
-    focusShard(getShardSibling(shard, "next"));
-  }
-
-  function focusPreviousSiblingShard(shard: AST.SyntaxShard) {
-    focusShard(getShardSibling(shard, "previous"));
-  }
-
   function changeShardValue<T extends AST.PrimitiveShard>(
     shard: T,
     value: T["value"],
@@ -154,24 +182,23 @@ export function createForgeController(initialProgram?: AST.Program) {
   }
 
   function deleteShard(shard: ShardGroupChild) {
-    mutateState({
-      fn: () => {
-        shard.parent.contents = shard.parent.contents.filter(
-          (syntaxShard) => syntaxShard !== shard,
-        ) as AST.ShardGroup["contents"];
-      },
-      setState: setCommandForgeState,
-    });
+    if (shard.parent.contents.length > 1) {
+      mutateState({
+        fn: () => {
+          shard.parent.contents = shard.parent.contents.filter(
+            (syntaxShard) => syntaxShard !== shard,
+          ) as AST.ShardGroup["contents"];
+        },
+        setState: setCommandForgeState,
+      });
+    }
   }
 
   function insertShardBefore(
     referenceShard: ShardGroupChild,
     shardToInsert: ShardGroupChild,
   ) {
-    if (
-      referenceShard.parent === shardToInsert.parent &&
-      referenceShard.type === shardToInsert.type
-    ) {
+    if (referenceShard.parent === shardToInsert.parent) {
       const referenceShardIndex = referenceShard.parent.contents.findIndex(
         (syntaxShard) => syntaxShard === referenceShard,
       );
@@ -192,10 +219,7 @@ export function createForgeController(initialProgram?: AST.Program) {
     referenceShard: ShardGroupChild,
     shardToInsert: ShardGroupChild,
   ) {
-    if (
-      referenceShard.parent === shardToInsert.parent &&
-      referenceShard.type === shardToInsert.type
-    ) {
+    if (referenceShard.parent === shardToInsert.parent) {
       const referenceShardIndex = referenceShard.parent.contents.findIndex(
         (syntaxShard) => syntaxShard === referenceShard,
       );
@@ -242,22 +266,119 @@ export function createForgeController(initialProgram?: AST.Program) {
     }
   }
 
-  function enterShard(shard: AST.SyntaxShard) {
-    if (isProgram(shard)) {
-      focusShard(shard);
-    } else if (!isPrimitive(shard)) {
-      focusShard(getShardImmediateChild(shard));
-    } else if (shard.type === "String") {
-    } else if (shard.type === "Number") {
-    } else if (shard.type === "Boolean") {
-      changeShardValue(shard, !shard.value);
-    }
-  }
+  function getActionsForShard(shard: AST.SyntaxShard): Interactions.Action[] {
+    const actions: Interactions.Action[] = [];
+    if (isInShardGroup(shard)) {
+      actions.push({
+        id: "delete",
+        execute() {
+          deleteShard(shard);
+        },
+      });
+      actions.push({
+        id: "insertBefore",
+        execute() {
+          const allowedShardTypes = getAllowedShardTypes(
+            shard.parent,
+            "contents",
+          );
 
-  function exitShard(shard: AST.SyntaxShard) {
-    if (!isProgram(shard)) {
-      focusShard(shard.parent);
+          return {
+            type: "options",
+            id: "insertBeforeWith",
+            elements: allowedShardTypes,
+            select: (shardType) => {
+              const newShard = sg[`generate${shardType}`](
+                shard.parent as never,
+              );
+              insertShardBefore(shard, newShard as ShardGroupChild);
+            },
+          };
+        },
+      });
+      actions.push({
+        id: "insertAfter",
+        execute() {
+          const allowedShardTypes = getAllowedShardTypes(
+            shard.parent,
+            "contents",
+          );
+
+          return {
+            type: "options",
+            id: "insertAfterWith",
+            elements: allowedShardTypes,
+            select: (shardType) => {
+              const newShard = sg[`generate${shardType}`](
+                shard.parent as never,
+              );
+              insertShardAfter(shard, newShard as ShardGroupChild);
+            },
+          };
+        },
+      });
     }
+    if (isPrimitive(shard)) {
+      if (shard.type !== "Null") {
+        actions.push({
+          id: "changeValue",
+          execute() {
+            if (shard.type === "Boolean") {
+              changeShardValue(shard, !shard.value);
+            } else {
+              return {
+                type: "input",
+                currentValue: shard.value,
+                change: (newValue) => {
+                  changeShardValue(shard, newValue);
+                },
+              };
+            }
+          },
+        });
+      }
+    }
+    actions.push({
+      id: "enter",
+      execute() {
+        focusShard(getShardImmediateChild(shard));
+      },
+    });
+    actions.push({
+      id: "exit",
+      execute() {
+        focusShard(shard.parent ?? shard);
+      },
+    });
+    if (!isProgram(shard)) {
+      const role = getShardRoleDetails(shard).role;
+      if (role !== null) {
+        const allowedShardTypes = getAllowedShardTypes(
+          shard.parent,
+          role,
+        ).filter((shardType) => shardType !== shard.type);
+        if (allowedShardTypes.length > 1) {
+          actions.push({
+            id: "replace",
+            execute() {
+              return {
+                type: "options",
+                id: "replaceWith",
+                elements: allowedShardTypes,
+                select: (shardType) => {
+                  const newShard = sg[`generate${shardType}`](
+                    shard.parent as never,
+                  );
+                  replaceShard(shard, newShard);
+                },
+              };
+            },
+          });
+        }
+      }
+    }
+
+    return actions;
   }
 
   type ExecuteProgramGenerator = Generator<
@@ -287,16 +408,13 @@ export function createForgeController(initialProgram?: AST.Program) {
     commandForgeState,
     getShardSibling,
     getShardImmediateChild,
-    focusNextSiblingShard,
-    focusPreviousSiblingShard,
     changeShardValue,
     deleteShard,
     focusShard,
     insertShardBefore,
     insertShardAfter,
     replaceShard,
-    enterShard,
-    exitShard,
+    getActionsForShard,
     executeProgram,
   };
 }

@@ -1,8 +1,11 @@
 import { styleMap } from "lit/directives/style-map.js";
 import { SyntaxShard } from "./SyntaxShard";
 import { CommandForgeController } from "./forgeController";
+import { createDialogController, Dialog } from "./Dialog";
 
-function scrollFocusedShardIntoView(forgeController: CommandForgeController) {
+export function scrollFocusedShardIntoView(
+  forgeController: CommandForgeController,
+) {
   const viewportHeight = window.innerHeight;
   const elem = document.getElementById(
     forgeController.commandForgeState().focusedShard.id,
@@ -15,6 +18,8 @@ function scrollFocusedShardIntoView(forgeController: CommandForgeController) {
 export function CommandForge(props: {
   commandForgeController: CommandForgeController;
 }) {
+  const dialogController = createDialogController();
+
   return () => {
     const focusedShard =
       props.commandForgeController.commandForgeState().focusedShard;
@@ -31,7 +36,9 @@ export function CommandForge(props: {
         <SyntaxShard
           syntaxShard={focusedShard.parent ?? focusedShard}
           commandForgeController={props.commandForgeController}
+          dialogController={dialogController}
         ></SyntaxShard>
+        <Dialog dialogController={dialogController} />
       </div>
     );
   };

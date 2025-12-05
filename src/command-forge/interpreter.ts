@@ -12,13 +12,9 @@ type CreateSyntaxShard<
 
 export type Scope = Map<string | number | null, unknown>;
 
-export type ExecutionContext = { parent?: ExecutionContext; scope: Scope };
+type ExecutionContext = { parent?: ExecutionContext; scope: Scope };
 
-export type InterpreterGenerator<T = void> = Generator<
-  AST.SyntaxShard,
-  T,
-  unknown
->;
+type InterpreterGenerator<T = void> = Generator<AST.SyntaxShard, T, unknown>;
 
 export namespace AST {
   export type BaseValueParent =
