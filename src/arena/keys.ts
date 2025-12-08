@@ -4,25 +4,15 @@ import { ARENA_CELL_SIZE, MID_POINT } from "./constants";
 import { objectKinds } from "@/utils";
 
 const [keysState] = adaptState<
-  State<{
+  Array<{
     position: { x: number; y: number };
-  }>[]
+  }>
 >([
-  adaptState<{
-    position: { x: number; y: number };
-  }>({ position: { x: 5, y: 6 } }),
-  adaptState<{
-    position: { x: number; y: number };
-  }>({ position: { x: 2, y: 5 } }),
-  adaptState<{
-    position: { x: number; y: number };
-  }>({ position: { x: 1, y: 3 } }),
-  adaptState<{
-    position: { x: number; y: number };
-  }>({ position: { x: 5, y: 0 } }),
-  adaptState<{
-    position: { x: number; y: number };
-  }>({ position: { x: 1, y: 7 } }),
+  { position: { x: 5, y: 6 } },
+  { position: { x: 2, y: 5 } },
+  { position: { x: 1, y: 3 } },
+  { position: { x: 5, y: 0 } },
+  { position: { x: 1, y: 7 } },
 ]);
 
 export function drawKeysGraphics(container: Container) {
@@ -30,7 +20,7 @@ export function drawKeysGraphics(container: Container) {
   container.addChild(keysLayer);
   adaptSyncEffect(() => {
     const _keysState = keysState();
-    for (const keyStateTuple of _keysState) {
+    for (const keyState of _keysState) {
       const keySprite = new Sprite({
         texture: Assets.get(objectKinds.key),
         anchor: MID_POINT,
@@ -38,20 +28,16 @@ export function drawKeysGraphics(container: Container) {
       });
       container.addChild(keySprite);
       keysLayer.attach(keySprite);
-
-      adaptSyncEffect(() => {
-        const _keyState = keyStateTuple[0]();
-        const ratio = keySprite.height / keySprite.width;
-        const scaleFactor = 0.6;
-        keySprite.position.set(
-          ARENA_CELL_SIZE * (_keyState.position.x + MID_POINT),
-          ARENA_CELL_SIZE * (_keyState.position.y + MID_POINT),
-        );
-        keySprite.setSize(
-          ARENA_CELL_SIZE * scaleFactor,
-          ARENA_CELL_SIZE * scaleFactor * ratio,
-        );
-      });
+      const ratio = keySprite.height / keySprite.width;
+      const scaleFactor = 0.6;
+      keySprite.position.set(
+        ARENA_CELL_SIZE * (keyState.position.x + MID_POINT),
+        ARENA_CELL_SIZE * (keyState.position.y + MID_POINT),
+      );
+      keySprite.setSize(
+        ARENA_CELL_SIZE * scaleFactor,
+        ARENA_CELL_SIZE * scaleFactor * ratio,
+      );
     }
   });
 }

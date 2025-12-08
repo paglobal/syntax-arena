@@ -329,5 +329,5 @@ export function isInShardGroup(
 }
 
 export function isProgram(shard: AST.SyntaxShard): shard is AST.Program {
-  return shard.type === "Program" || shard.parent === null;
+  return shard.type === "Program";
 }

@@ -11,6 +11,9 @@ importers:
       '@awesome.me/webawesome':
         specifier: 3.0.0-beta.6
         version: 3.0.0-beta.6(@floating-ui/utils@0.2.10)(@types/react@19.1.8)
+      animejs:
+        specifier: ^4.2.2
+        version: 4.2.2
       hotkeys-js:
         specifier: ^3.13.14
         version: 3.13.14
@@ -342,6 +345,9 @@ packages:
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
 
+  animejs@4.2.2:
+    resolution: {integrity: sha512-Ys3RuvLdAeI14fsdKCQy7ytu4057QX6Bb7m4jwmfd6iKmUmLquTwk1ut0e4NtRQgCeq/s2Lv5+oMBjz6c7ZuIg==}
+
   composed-offset-position@0.0.6:
     resolution: {integrity: sha512-Q7dLompI6lUwd7LWyIcP66r4WcS9u7AL2h8HaeipiRfCRPLMWqRx8fYsjb4OHi6UQFifO7XtNC2IlEJ1ozIFxw==}
     peerDependencies:
@@ -665,6 +671,8 @@ snapshots:
   '@webgpu/types@0.1.63': {}
 
   '@xmldom/xmldom@0.8.10': {}
+
+  animejs@4.2.2: {}
 
   composed-offset-position@0.0.6(@floating-ui/utils@0.2.10):
     dependencies:

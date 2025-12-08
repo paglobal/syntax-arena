@@ -4,25 +4,15 @@ import { ARENA_CELL_SIZE, MID_POINT } from "./constants";
 import { objectKinds } from "@/utils";
 
 const [powerUpsState] = adaptState<
-  State<{
+  Array<{
     position: { x: number; y: number };
-  }>[]
+  }>
 >([
-  adaptState<{
-    position: { x: number; y: number };
-  }>({ position: { x: 2, y: 7 } }),
-  adaptState<{
-    position: { x: number; y: number };
-  }>({ position: { x: 3, y: 2 } }),
-  adaptState<{
-    position: { x: number; y: number };
-  }>({ position: { x: 2, y: 8 } }),
-  adaptState<{
-    position: { x: number; y: number };
-  }>({ position: { x: 7, y: 2 } }),
-  adaptState<{
-    position: { x: number; y: number };
-  }>({ position: { x: 0, y: 4 } }),
+  { position: { x: 2, y: 7 } },
+  { position: { x: 3, y: 2 } },
+  { position: { x: 2, y: 8 } },
+  { position: { x: 7, y: 2 } },
+  { position: { x: 0, y: 4 } },
 ]);
 
 export function drawPowerUpsGraphics(container: Container) {
@@ -30,7 +20,7 @@ export function drawPowerUpsGraphics(container: Container) {
   container.addChild(powerUpsLayer);
   adaptSyncEffect(() => {
     const _powerUpsState = powerUpsState();
-    for (const powerUpStateTuple of _powerUpsState) {
+    for (const powerUpState of _powerUpsState) {
       const powerUpSprite = new Sprite({
         texture: Assets.get(objectKinds.powerUp),
         anchor: MID_POINT,
@@ -38,19 +28,16 @@ export function drawPowerUpsGraphics(container: Container) {
       });
       container.addChild(powerUpSprite);
       powerUpsLayer.attach(powerUpSprite);
-      adaptSyncEffect(() => {
-        const _powerUpState = powerUpStateTuple[0]();
-        const ratio = powerUpSprite.height / powerUpSprite.width;
-        const scaleFactor = 0.8;
-        powerUpSprite.position.set(
-          ARENA_CELL_SIZE * (_powerUpState.position.x + MID_POINT),
-          ARENA_CELL_SIZE * (_powerUpState.position.y + MID_POINT),
-        );
-        powerUpSprite.setSize(
-          ARENA_CELL_SIZE * scaleFactor,
-          ARENA_CELL_SIZE * scaleFactor * ratio,
-        );
-      });
+      const ratio = powerUpSprite.height / powerUpSprite.width;
+      const scaleFactor = 0.8;
+      powerUpSprite.position.set(
+        ARENA_CELL_SIZE * (powerUpState.position.x + MID_POINT),
+        ARENA_CELL_SIZE * (powerUpState.position.y + MID_POINT),
+      );
+      powerUpSprite.setSize(
+        ARENA_CELL_SIZE * scaleFactor,
+        ARENA_CELL_SIZE * scaleFactor * ratio,
+      );
     }
   });
 }

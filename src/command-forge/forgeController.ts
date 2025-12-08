@@ -56,11 +56,9 @@ export type CommandForgeController = ReturnType<typeof createForgeController>;
 export function createForgeController(initialProgram?: AST.Program) {
   initialProgram = initialProgram ?? sg.generateProgram();
   const [commandForgeState, setCommandForgeState] = adaptState<{
-    currentStatementsIndex: number;
     program: AST.Program;
     focusedShard: AST.SyntaxShard;
   }>({
-    currentStatementsIndex: 0,
     program: initialProgram,
     focusedShard: initialProgram,
   });
