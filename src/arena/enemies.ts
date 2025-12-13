@@ -10,7 +10,7 @@ export type EnemyState = {
 
 const [enemiesState] = adaptState<Array<EnemyState>>([
   { kind: "blueEnemy", position: { x: 5, y: 6 } },
-  { kind: "blueEnemy", position: { x: 2, y: 7 } },
+  { kind: "blueEnemy", position: { x: 2, y: 4 } },
 ]);
 
 export function drawEnemiesGraphics(container: Container) {

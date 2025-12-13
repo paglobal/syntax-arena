@@ -355,7 +355,11 @@ function* assignValueToIdentifier({
 }
 
 class ReturnValue {
-  constructor(public value: unknown) {}
+  public value: unknown;
+
+  constructor(value: unknown) {
+    this.value = value;
+  }
 }
 
 export function ret(value: unknown) {

@@ -1,5 +1,5 @@
 import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
-import { adaptState, adaptSyncEffect, State } from "promethium-js";
+import { adaptState, adaptSyncEffect } from "promethium-js";
 import { ARENA_CELL_SIZE, MID_POINT } from "./constants";
 import { objectKinds } from "@/utils";
 

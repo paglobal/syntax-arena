@@ -4,7 +4,8 @@
 
 - **TypeScript**: Primary language with strict type checking enabled
 - **Vite**: Build tool and development server
-- **Promethium.js**: UI framework JSX-like syntax for functional components with intuitive signal-based state management
+- **Promethium.js**: UI framework JSX-like syntax for functional components with
+intuitive signal-based state management
 - **Lit**: Web components framework for UI rendering
 - **Web Awesome**: Component library providing buttons, icons, tabs, inputs, etc.
 - **PIXI.js**: 2D graphics rendering for the Arena game environment

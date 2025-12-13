@@ -1,12 +1,64 @@
 import { Assets, Container, RenderLayer, Sprite } from "pixi.js";
-import { adaptState, adaptSyncEffect, untrack } from "promethium-js";
+import { adaptState, adaptSyncEffect } from "promethium-js";
 import { ARENA_CELL_SIZE, MID_POINT } from "./constants";
 import { playerKinds } from "@/utils";
-import { animate } from "animejs";
+import { timingFunctions, tween, TweenEventCallback } from "./animation";
+import { Position } from "./types";
 
-const [playerState, setPlayerState] = adaptState({
+const [playerState, setPlayerState] = adaptState<{ position: Position }>({
   position: { x: 9, y: 5 },
 });
+
+const playerTweenObject = tween({
+  duration: 1000,
+});
+
+const FLOATING_DISPLACEMENT = 0.025;
+
+const float = ({ progress }: Parameters<TweenEventCallback<"update">>[0]) => {
+  playerActions.setPlayerPositionY(
+    timingFunctions.easeInOutCubic({ from: 5, to: 9, value: progress }),
+  );
+};
+
+const moveToLocation = () => {};
+
+playerTweenObject.on("update", float);
+playerTweenObject.on("complete", () => {});
+
+export const playerActions = {
+  getPlayerState() {
+    return playerState();
+  },
+  setPlayerPosition(newPosition: Position) {
+    const playerState = playerActions.getPlayerState();
+    setPlayerState({
+      ...playerState,
+      position: { ...newPosition },
+    });
+  },
+  setPlayerPositionX(newPositionX: number) {
+    const playerState = playerActions.getPlayerState();
+    setPlayerState({
+      ...playerState,
+      position: {
+        ...playerState.position,
+        x: newPositionX,
+      },
+    });
+  },
+  setPlayerPositionY(newPositionY: number) {
+    console.log(newPositionY);
+    const playerState = playerActions.getPlayerState();
+    setPlayerState({
+      ...playerState,
+      position: {
+        ...playerState.position,
+        y: newPositionY,
+      },
+    });
+  },
+};
 
 export function drawPlayerGraphics(container: Container) {
   const playerLayer = new RenderLayer();
@@ -18,25 +70,6 @@ export function drawPlayerGraphics(container: Container) {
   });
   container.addChild(playerSprite);
   playerLayer.attach(playerSprite);
-  const initialPlayerPositionY = untrack(playerState).position.y;
-  animate(
-    { y: initialPlayerPositionY },
-    {
-      y: ["-=0.10", "+=0.10", "+=0.10"],
-      duration: 1500,
-      playbackEase: "out(1)",
-      loop: true,
-      alternate: true,
-      onUpdate(self) {
-        const y = (self.targets[0] as { y: number }).y;
-        const _playerState = playerState();
-        setPlayerState({
-          ..._playerState,
-          position: { ..._playerState.position, y },
-        });
-      },
-    },
-  );
   adaptSyncEffect(() => {
     const _playerState = playerState();
     const ratio = playerSprite.height / playerSprite.width;
@@ -46,4 +79,5 @@ export function drawPlayerGraphics(container: Container) {
     );
     playerSprite.setSize(ARENA_CELL_SIZE, ARENA_CELL_SIZE * ratio);
   });
+  playerTweenObject.play();
 }

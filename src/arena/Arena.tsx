@@ -1,6 +1,27 @@
 import { CANVAS_CONTAINER_ID } from "./constants";
 import { styleMap } from "lit/directives/style-map.js";
 
+function iconButton(props: {
+  iconName: string;
+  iconLabel: string;
+  id?: string;
+  styles?: Record<string, string | number>;
+}) {
+  return (
+    <>
+      <wa-button
+        size="small"
+        appearance="filled"
+        pill
+        id={props.id}
+        $attr:style={styleMap(props.styles ?? {})}
+      >
+        <wa-icon name={props.iconName} label={props.iconLabel}></wa-icon>
+      </wa-button>
+    </>
+  );
+}
+
 export function Arena() {
   return () => (
     <div
@@ -31,16 +52,12 @@ export function Arena() {
             gap: "0.3rem",
           })}
         >
-          <wa-button size="small" appearance="filled" variant="brand" pill>
-            <wa-icon name="caret-left" label="Previous"></wa-icon>
-          </wa-button>
+          {iconButton({ iconLabel: "Previous", iconName: "caret-left" })}
           <wa-callout variant="neutral">
             <wa-icon slot="icon" name="circle-info"></wa-icon>
             information here! No information here! No information here! No
           </wa-callout>
-          <wa-button size="small" appearance="filled" pill>
-            <wa-icon name="caret-right" label="Next"></wa-icon>
-          </wa-button>
+          {iconButton({ iconLabel: "Next", iconName: "caret-right" })}
         </div>
         <div
           $attr:style={styleMap({
@@ -57,65 +74,51 @@ export function Arena() {
               width: "max-content",
             })}
           >
-            <wa-button
-              size="small"
-              appearance="filled"
-              pill
-              id="d-pad-up"
-              $attr:style={styleMap({
+            {iconButton({
+              iconName: "caret-up",
+              iconLabel: "Up",
+              id: "d-pad-up",
+              styles: {
                 "grid-column": 2,
                 "grid-row": 1,
-              })}
-            >
-              <wa-icon name="caret-up" label="Up"></wa-icon>
-            </wa-button>
-            <wa-button
-              size="small"
-              appearance="filled"
-              pill
-              id="d-pad-left"
-              $attr:style={styleMap({
+              },
+            })}
+            {iconButton({
+              iconName: "caret-left",
+              iconLabel: "Left",
+              id: "d-pad-left",
+              styles: {
                 "grid-column": 1,
                 "grid-row": 2,
-              })}
-            >
-              <wa-icon name="caret-left" label="Left"></wa-icon>
-            </wa-button>
-            <wa-button
-              size="small"
-              appearance="filled"
-              pill
-              id="d-pad-right"
-              $attr:style={styleMap({
+              },
+            })}
+            {iconButton({
+              iconName: "caret-right",
+              iconLabel: "Right",
+              id: "d-pad-right",
+              styles: {
                 "grid-column": 3,
                 "grid-row": 2,
-              })}
-            >
-              <wa-icon name="caret-right" label="Right"></wa-icon>
-            </wa-button>
-            <wa-button
-              size="small"
-              appearance="filled"
-              pill
-              id="d-pad-down"
-              $attr:style={styleMap({
+              },
+            })}
+            {iconButton({
+              iconName: "caret-down",
+              iconLabel: "Down",
+              id: "d-pad-down",
+              styles: {
                 "grid-column": 2,
                 "grid-row": 3,
-              })}
-            >
-              <wa-icon name="caret-down" label="Down"></wa-icon>
-            </wa-button>
-            <wa-button
-              size="small"
-              pill
-              id="d-pad-center"
-              $attr:style={styleMap({
+              },
+            })}
+            {iconButton({
+              iconName: "circle",
+              iconLabel: "Center",
+              id: "d-pad-center",
+              styles: {
                 "grid-column": 2,
                 "grid-row": 2,
-              })}
-            >
-              <wa-icon name="circle" label="Center"></wa-icon>
-            </wa-button>
+              },
+            })}
           </div>
         </div>
       </div>
