@@ -4,8 +4,10 @@ import { styleMap } from "lit/directives/style-map.js";
 function iconButton(props: {
   iconName: string;
   iconLabel: string;
+  onClick: (e: PointerEvent) => void;
   id?: string;
-  styles?: Record<string, string | number>;
+  buttonStyles?: Record<string, string | number>;
+  iconStyles?: Record<string, string | number>;
 }) {
   return (
     <>
@@ -14,9 +16,14 @@ function iconButton(props: {
         appearance="filled"
         pill
         id={props.id}
-        $attr:style={styleMap(props.styles ?? {})}
+        $attr:style={styleMap(props.buttonStyles ?? {})}
+        on:click={props.onClick}
       >
-        <wa-icon name={props.iconName} label={props.iconLabel}></wa-icon>
+        <wa-icon
+          name={props.iconName}
+          label={props.iconLabel}
+          $attr:style={styleMap(props.iconStyles ?? {})}
+        ></wa-icon>
       </wa-button>
     </>
   );
@@ -52,12 +59,20 @@ export function Arena() {
             gap: "0.3rem",
           })}
         >
-          {iconButton({ iconLabel: "Previous", iconName: "caret-left" })}
+          {iconButton({
+            iconLabel: "Previous",
+            iconName: "caret-left",
+            onClick() {},
+          })}
           <wa-callout variant="neutral">
             <wa-icon slot="icon" name="circle-info"></wa-icon>
             information here! No information here! No information here! No
           </wa-callout>
-          {iconButton({ iconLabel: "Next", iconName: "caret-right" })}
+          {iconButton({
+            iconLabel: "Next",
+            iconName: "caret-right",
+            onClick() {},
+          })}
         </div>
         <div
           $attr:style={styleMap({
@@ -78,46 +93,103 @@ export function Arena() {
               iconName: "caret-up",
               iconLabel: "Up",
               id: "d-pad-up",
-              styles: {
+              buttonStyles: {
                 "grid-column": 2,
                 "grid-row": 1,
               },
+              onClick() {},
             })}
             {iconButton({
               iconName: "caret-left",
               iconLabel: "Left",
               id: "d-pad-left",
-              styles: {
+              buttonStyles: {
                 "grid-column": 1,
                 "grid-row": 2,
               },
+              onClick() {},
             })}
             {iconButton({
               iconName: "caret-right",
               iconLabel: "Right",
               id: "d-pad-right",
-              styles: {
+              buttonStyles: {
                 "grid-column": 3,
                 "grid-row": 2,
               },
+              onClick() {},
             })}
             {iconButton({
               iconName: "caret-down",
               iconLabel: "Down",
               id: "d-pad-down",
-              styles: {
+              buttonStyles: {
                 "grid-column": 2,
                 "grid-row": 3,
               },
+              onClick() {},
             })}
             {iconButton({
               iconName: "circle",
               iconLabel: "Center",
               id: "d-pad-center",
-              styles: {
+              buttonStyles: {
                 "grid-column": 2,
                 "grid-row": 2,
               },
+              onClick() {},
+            })}
+            {iconButton({
+              iconName: "caret-up",
+              iconLabel: "Up-Left",
+              id: "d-pad-up-left",
+              buttonStyles: {
+                "grid-column": 1,
+                "grid-row": 1,
+              },
+              iconStyles: {
+                transform: "rotate(-45deg)",
+              },
+              onClick() {},
+            })}
+            {iconButton({
+              iconName: "caret-up",
+              iconLabel: "Up-Right",
+              id: "d-pad-up-right",
+              buttonStyles: {
+                "grid-column": 3,
+                "grid-row": 1,
+              },
+              iconStyles: {
+                transform: "rotate(45deg)",
+              },
+              onClick() {},
+            })}
+            {iconButton({
+              iconName: "caret-down",
+              iconLabel: "Down-Left",
+              id: "d-pad-down-left",
+              buttonStyles: {
+                "grid-column": 1,
+                "grid-row": 3,
+              },
+              iconStyles: {
+                transform: "rotate(45deg)",
+              },
+              onClick() {},
+            })}
+            {iconButton({
+              iconName: "caret-down",
+              iconLabel: "Down-Right",
+              id: "d-pad-down-right",
+              buttonStyles: {
+                "grid-column": 3,
+                "grid-row": 3,
+              },
+              iconStyles: {
+                transform: "rotate(-45deg)",
+              },
+              onClick() {},
             })}
           </div>
         </div>

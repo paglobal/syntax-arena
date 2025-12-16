@@ -6,4 +6,5 @@ export const INITIAL_KEY_COUNT = 5;
 export const INITIAL_POWER_UP_COUNT = 5;
 export const ARENA_WALL_THICKNESS = 5;
 export const MID_POINT = 0.5;
+export const FLOATING_DISPLACEMENT = 0.07;
 export const CANVAS_CONTAINER_ID = "canvas-container";

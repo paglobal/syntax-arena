@@ -15,7 +15,7 @@ export type TweenEventCallback<T extends TweenEventName> = (
   ...args: TweenEventMap[T]
 ) => void;
 
-type TweenDirection = "forward" | "reverse";
+export type TweenDirection = "forward" | "reverse";
 
 export function clamp({
   value,
@@ -53,16 +53,16 @@ export function tween(parameters: { duration: number }) {
       eventName: T,
       callback: TweenEventCallback<T>,
     ) {
-      const unsubscribe = tweenInstance.on(eventName, (...args) => {
+      const unsubscribe = this.on(eventName, (...args) => {
         callback(...args);
         unsubscribe();
       });
 
-      return unsubscribe();
+      return unsubscribe;
     },
     off<T extends TweenEventName>(
       eventName: T,
-      callback: TweenEventCallback<T>,
+      callback?: TweenEventCallback<T>,
     ) {
       if (!eventListeners[eventName]) {
         return;
@@ -78,37 +78,52 @@ export function tween(parameters: { duration: number }) {
       }
     },
     play() {
-      state = "playing";
+      phase = "playing";
       emitEvent("play");
       requestAnimationFrame(tick);
     },
     pause() {
-      state = "paused";
+      phase = "paused";
       emitEvent("pause");
     },
     stop() {
-      state = "inactive";
-      startTime = null;
+      phase = "inactive";
+      currentProgress = 0;
+      lastTimestamp = null;
       emitEvent("stop");
     },
     restart() {
-      tweenInstance.stop();
-      tweenInstance.play();
+      this.stop();
+      this.play();
+    },
+    changeDirection(newDirection: TweenDirection) {
+      direction = newDirection;
+      emitEvent("reverse", { direction });
     },
     reverse() {
-      referenceTime = currentTime;
-      direction = direction === "forward" ? "reverse" : "forward";
-      emitEvent("reverse", { direction });
+      this.changeDirection(direction === "forward" ? "reverse" : "forward");
+    },
+    destroy() {
+      this.stop();
+      Object.keys(eventListeners).forEach((eventName) => {
+        delete eventListeners[eventName as TweenEventName];
+      });
+    },
+    reset() {
+      Object.keys(eventListeners).forEach((eventName) => {
+        this.off(eventName as TweenEventName);
+      });
+      this.changeDirection("forward");
+      this.stop();
     },
   };
   const eventListeners: Partial<
     Record<TweenEventName, ((...args: any[]) => void)[]>
   > = {};
-  let startTime: number | null = null;
-  let referenceTime: number | null = null;
-  let state: "playing" | "paused" | "inactive" = "inactive";
+  let currentProgress = 0;
+  let phase: "playing" | "paused" | "inactive" = "inactive";
   let direction: TweenDirection = "forward";
-  let currentTime: number;
+  let lastTimestamp: number | null = null;
 
   function emitEvent<T extends TweenEventName>(
     eventName: T,
@@ -119,37 +134,34 @@ export function tween(parameters: { duration: number }) {
   }
 
   function tick(timestamp: number) {
-    if (state === "inactive" || state === "paused") {
+    if (phase === "inactive" || phase === "paused") {
       return;
     }
     emitEvent("beforeTick");
-    currentTime = timestamp;
-    if (startTime === null || referenceTime === null) {
-      startTime = currentTime;
-      referenceTime = startTime;
+    const deltaTime = lastTimestamp ? timestamp - lastTimestamp : 0;
+    const progressDelta = deltaTime / parameters.duration;
+    if (direction === "forward") {
+      currentProgress += progressDelta;
+    } else {
+      currentProgress -= progressDelta;
     }
-    const delta =
+    currentProgress = clamp({ value: currentProgress, min: 0, max: 1 });
+    const elapsedTime =
       direction === "forward"
-        ? currentTime - referenceTime
-        : referenceTime - currentTime;
-    const gapFromStartTimeToReferenceTime = referenceTime - startTime;
-    const elapsedTime = gapFromStartTimeToReferenceTime + delta;
-    let progress = clamp({
-      value: elapsedTime / parameters.duration,
-      min: 0,
-      max: 1,
-    });
-    emitEvent("update", { progress, elapsedTime });
+        ? currentProgress * parameters.duration
+        : (1 - currentProgress) * parameters.duration;
+    emitEvent("update", { progress: currentProgress, elapsedTime });
     if (
-      (direction === "forward" && progress >= 1) ||
-      (direction === "reverse" && progress <= 0)
+      (direction === "forward" && currentProgress >= 1) ||
+      (direction === "reverse" && currentProgress <= 0)
     ) {
       tweenInstance.pause();
-      emitEvent("complete", { progress, elapsedTime });
+      emitEvent("complete", { progress: currentProgress, elapsedTime });
     } else {
       requestAnimationFrame(tick);
     }
-    emitEvent("afterTick", { progress, elapsedTime });
+    lastTimestamp = timestamp;
+    emitEvent("afterTick", { progress: currentProgress, elapsedTime });
   }
 
   return tweenInstance;
@@ -223,26 +235,6 @@ export interface TimingFunction {
     d?: number;
   }): number;
 }
-
-const easeOutBounce: TimingFunction = ({
-  from = 0,
-  to = 1,
-  value,
-  n = 7.5625,
-  d = 2.75,
-}) => {
-  if (value < 1 / d) {
-    value = n * value * value;
-  } else if (value < 2 / d) {
-    value = n * (value -= 1.505 / d) * value + 0.75;
-  } else if (value < 2.5 / d) {
-    value = n * (value -= 2.25 / d) * value + 0.9375;
-  } else {
-    value = n * (value -= 2.625 / d) * value + 0.984375;
-  }
-
-  return map({ from, to, value });
-};
 
 export const timingFunctions = {
   sine({ from = 0, to = 1, value }) {
@@ -439,13 +431,25 @@ export const timingFunctions = {
     return map({ from, to, value });
   },
   easeInBounce({ from = 0, to = 1, value, n = 7.5625, d = 2.75 }) {
-    return 1 - easeOutBounce({ from, to, value: 1 - value, n, d });
+    return 1 - this.easeOutBounce({ from, to, value: 1 - value, n, d });
   },
-  easeOutBounce,
+  easeOutBounce({ from = 0, to = 1, value, n = 7.5625, d = 2.75 }) {
+    if (value < 1 / d) {
+      value = n * value * value;
+    } else if (value < 2 / d) {
+      value = n * (value -= 1.505 / d) * value + 0.75;
+    } else if (value < 2.5 / d) {
+      value = n * (value -= 2.25 / d) * value + 0.9375;
+    } else {
+      value = n * (value -= 2.625 / d) * value + 0.984375;
+    }
+
+    return map({ from, to, value });
+  },
   easeInOutBounce({ from = 0, to = 1, value, n = 7.5625, d = 2.75 }) {
     return value < 0.5
       ? (1 -
-          easeOutBounce({
+          this.easeOutBounce({
             from,
             to,
             value: 1 - 2 * value,
@@ -454,7 +458,7 @@ export const timingFunctions = {
           })) /
           2
       : (1 +
-          easeOutBounce({
+          this.easeOutBounce({
             from,
             to,
             value: 2 * value - 1,
@@ -475,4 +479,4 @@ export const timingFunctions = {
       value: Math.cos(value),
     });
   },
-} as const satisfies Record<string, TimingFunction>;
+} satisfies Record<string, TimingFunction>;

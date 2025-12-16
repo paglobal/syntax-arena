@@ -4,59 +4,79 @@ import { ARENA_CELL_SIZE, MID_POINT } from "./constants";
 import { playerKinds } from "@/utils";
 import { timingFunctions, tween, TweenEventCallback } from "./animation";
 import { Position } from "./types";
+import { FLOATING_DISPLACEMENT } from "./constants";
 
-const [playerState, setPlayerState] = adaptState<{ position: Position }>({
+const [getPlayerState, setPlayerState] = adaptState<{ position: Position }>({
   position: { x: 9, y: 5 },
 });
+
+function setPlayerPosition(newPosition: Partial<Position>) {
+  const playerState = getPlayerState();
+  setPlayerState({
+    ...playerState,
+    position: { ...playerState.position, ...newPosition },
+  });
+}
 
 const playerTweenObject = tween({
   duration: 1000,
 });
 
-const FLOATING_DISPLACEMENT = 0.025;
+function moveToYPosition(
+  newY: number,
+  onComplete?: TweenEventCallback<"complete">,
+) {
+  playerTweenObject.reset();
+  const playerPosition = playerActions.getPlayerPosition();
+  playerTweenObject.on("update", ({ progress }) => {
+    setPlayerPosition({
+      y: timingFunctions.easeInOutSine({
+        from: playerPosition.y,
+        to: newY,
+        value: progress,
+      }),
+    });
+  });
+  playerTweenObject.on("complete", onComplete ?? float);
+  playerTweenObject.play();
+}
 
-const float = ({ progress }: Parameters<TweenEventCallback<"update">>[0]) => {
-  playerActions.setPlayerPositionY(
-    timingFunctions.easeInOutCubic({ from: 5, to: 9, value: progress }),
-  );
-};
-
-const moveToLocation = () => {};
-
-playerTweenObject.on("update", float);
-playerTweenObject.on("complete", () => {});
+function float() {
+  playerTweenObject.reset();
+  const playerPosition = playerActions.getPlayerPosition();
+  playerTweenObject.on("update", ({ progress }) => {
+    setPlayerPosition({
+      y: timingFunctions.easeInOutSine({
+        from: Math.round(playerPosition.y) - FLOATING_DISPLACEMENT,
+        to: Math.round(playerPosition.y) + FLOATING_DISPLACEMENT,
+        value: progress,
+      }),
+    });
+  });
+  playerTweenObject.on("complete", () => {
+    playerTweenObject.reverse();
+    playerTweenObject.play();
+  });
+  playerTweenObject.play();
+}
 
 export const playerActions = {
-  getPlayerState() {
-    return playerState();
+  getPlayerPosition() {
+    return getPlayerState().position;
   },
-  setPlayerPosition(newPosition: Position) {
-    const playerState = playerActions.getPlayerState();
-    setPlayerState({
-      ...playerState,
-      position: { ...newPosition },
-    });
-  },
-  setPlayerPositionX(newPositionX: number) {
-    const playerState = playerActions.getPlayerState();
-    setPlayerState({
-      ...playerState,
-      position: {
-        ...playerState.position,
-        x: newPositionX,
+  moveDown() {
+    const playerPosition = playerActions.getPlayerPosition();
+    moveToYPosition(
+      Math.round(playerPosition.y) + 1 + FLOATING_DISPLACEMENT,
+      () => {
+        const playerPosition = playerActions.getPlayerPosition();
+        moveToYPosition(playerPosition.y - 2 * FLOATING_DISPLACEMENT);
       },
-    });
+    );
   },
-  setPlayerPositionY(newPositionY: number) {
-    console.log(newPositionY);
-    const playerState = playerActions.getPlayerState();
-    setPlayerState({
-      ...playerState,
-      position: {
-        ...playerState.position,
-        y: newPositionY,
-      },
-    });
+  moveUp() {
+    const playerPosition = playerActions.getPlayerPosition();
+    moveToYPosition(Math.round(playerPosition.y) - 1 - FLOATING_DISPLACEMENT);
   },
 };
 
@@ -71,7 +91,7 @@ export function drawPlayerGraphics(container: Container) {
   container.addChild(playerSprite);
   playerLayer.attach(playerSprite);
   adaptSyncEffect(() => {
-    const _playerState = playerState();
+    const _playerState = getPlayerState();
     const ratio = playerSprite.height / playerSprite.width;
     playerSprite.position.set(
       ARENA_CELL_SIZE * (_playerState.position.x + MID_POINT),
@@ -79,5 +99,6 @@ export function drawPlayerGraphics(container: Container) {
     );
     playerSprite.setSize(ARENA_CELL_SIZE, ARENA_CELL_SIZE * ratio);
   });
-  playerTweenObject.play();
+  const playerPosition = playerActions.getPlayerPosition();
+  moveToYPosition(playerPosition.y - FLOATING_DISPLACEMENT);
 }
