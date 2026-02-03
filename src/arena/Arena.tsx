@@ -1,33 +1,6 @@
+import { iconButton } from "@/iconButton";
 import { CANVAS_CONTAINER_ID } from "./constants";
 import { styleMap } from "lit/directives/style-map.js";
-
-function iconButton(props: {
-  iconName: string;
-  iconLabel: string;
-  onClick: (e: PointerEvent) => void;
-  id?: string;
-  buttonStyles?: Record<string, string | number>;
-  iconStyles?: Record<string, string | number>;
-}) {
-  return (
-    <>
-      <wa-button
-        size="small"
-        appearance="filled"
-        pill
-        id={props.id}
-        $attr:style={styleMap(props.buttonStyles ?? {})}
-        on:click={props.onClick}
-      >
-        <wa-icon
-          name={props.iconName}
-          label={props.iconLabel}
-          $attr:style={styleMap(props.iconStyles ?? {})}
-        ></wa-icon>
-      </wa-button>
-    </>
-  );
-}
 
 export function Arena() {
   return () => (
@@ -146,10 +119,9 @@ export function Arena() {
               buttonStyles: {
                 "grid-column": 1,
                 "grid-row": 1,
-              },
-              iconStyles: {
                 transform: "rotate(-45deg)",
               },
+              appearance: "filled",
               onClick() {},
             })}
             {iconButton({
@@ -159,10 +131,9 @@ export function Arena() {
               buttonStyles: {
                 "grid-column": 3,
                 "grid-row": 1,
-              },
-              iconStyles: {
                 transform: "rotate(45deg)",
               },
+              appearance: "filled",
               onClick() {},
             })}
             {iconButton({
@@ -172,10 +143,9 @@ export function Arena() {
               buttonStyles: {
                 "grid-column": 1,
                 "grid-row": 3,
-              },
-              iconStyles: {
                 transform: "rotate(45deg)",
               },
+              appearance: "filled",
               onClick() {},
             })}
             {iconButton({
@@ -185,10 +155,9 @@ export function Arena() {
               buttonStyles: {
                 "grid-column": 3,
                 "grid-row": 3,
-              },
-              iconStyles: {
                 transform: "rotate(-45deg)",
               },
+              appearance: "filled",
               onClick() {},
             })}
           </div>
